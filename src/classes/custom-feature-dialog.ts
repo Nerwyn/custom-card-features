@@ -146,8 +146,14 @@ export class CustomFeatureDialog extends LitElement {
 				outline: none;
 				color: var(--primary-text-color);
 				background: var(
-					--ha-card-background,
-					var(--card-background-color, #fff)
+					--md-sys-color-surface-container-high,
+					var(
+						--md-dialog-container-color,
+						var(
+							--ha-card-background,
+							var(--card-background-color, #fff)
+						)
+					)
 				);
 				border-radius: var(--ha-card-border-radius, 12px);
 			}

@@ -27,7 +27,7 @@
 	},
 	"homepage": "https://github.com/Nerwyn/custom-card-features#readme",
 	"dependencies": {
-		"ha-nunjucks": "latest",
+		"ha-nunjucks": "github:Nerwyn/ha-nunjucks#dev",
 		"js-yaml": "latest",
 		"lit": "latest"
 	},
@@ -38,6 +38,7 @@
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
 		"eslint-plugin-prettier": "latest",
+		"home-assistant-js-websocket": "latest",
 		"lint-staged": "latest",
 		"lit-css-loader": "latest",
 		"minify-html-literals-loader": "latest",
@@ -46,7 +47,6 @@
 		"ts-loader": "latest",
 		"typescript": "latest",
 		"webpack": "latest",
-		"webpack-cli": "latest",
-		"home-assistant-js-websocket": "latest"
+		"webpack-cli": "latest"
 	}
 }

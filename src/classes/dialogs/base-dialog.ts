@@ -82,14 +82,20 @@ export class BaseDialog extends LitElement {
 			}
 
 			.button span {
-				font-family: inherit;
+				font-family: var(
+					--mdc-typography-button-font-family,
+					var(--mdc-typography-font-family, Roboto, sans-serif)
+				);
 				font-size: var(--mdc-typography-button-font-size, 0.875rem);
-				font-weight: 600;
+				font-weight: var(--mdc-typography-button-font-weight, 500);
 				letter-spacing: var(
 					--mdc-typography-button-letter-spacing,
 					0.0892857143em
 				);
-				text-transform: uppercase;
+				text-transform: var(
+					--mdc-typography-button-text-transform,
+					uppercase
+				);
 				color: var(--mdc-theme-primary, #6200ee);
 				user-select: none;
 				-webkit-user-select: none;
