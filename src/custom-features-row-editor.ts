@@ -1445,6 +1445,22 @@ export class CustomFeaturesRowEditor extends LitElement {
 				},
 			})}
 			<div class="form">
+				${this.buildSelector(
+					'Check numeric value',
+					'check_numeric',
+					{
+						boolean: {},
+					},
+					true,
+				)}
+				${this.buildSelector(
+					`${allow ? 'Allow' : 'Block'} checked values`,
+					'allow_list',
+					{
+						boolean: {},
+					},
+					true,
+				)}
 				${thumb == 'default'
 					? html`${this.buildSelector(
 							'Swipe Only',
@@ -1463,22 +1479,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 							false,
 						)}`
 					: ``}
-				${this.buildSelector(
-					'Check numeric value',
-					'check_numeric',
-					{
-						boolean: {},
-					},
-					true,
-				)}
-				${this.buildSelector(
-					`${allow ? 'Allow' : 'Block'} checked values`,
-					'allow_list',
-					{
-						boolean: {},
-					},
-					true,
-				)}
 				${this.buildSelector(
 					'Autofill',
 					'autofill_entity_id',
