@@ -19,8 +19,8 @@ export class BaseDialog extends LitElement {
 				-webkit-tap-highlight-color: transparent;
 				-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 				--background: var(
-					--mdc-ripple-color,
-					var(--mdc-theme-primary, #6200ee)
+					--mdc-theme-primary,
+					var(--mdc-ripple-color, var(--mdc-theme-primary, #6200ee))
 				);
 			}
 			.buttons {
@@ -39,7 +39,7 @@ export class BaseDialog extends LitElement {
 				min-width: 64px;
 				align-content: center;
 				cursor: pointer;
-				border-radius: var(--mdc-shape-small, 4px);
+				border-radius: var(--button-height, 40px);
 				overflow: hidden;
 				display: flex;
 				align-items: center;

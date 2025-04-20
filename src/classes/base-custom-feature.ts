@@ -14,6 +14,7 @@ import { HassEntity } from 'home-assistant-js-websocket';
 import { load } from 'js-yaml';
 import { UPDATE_AFTER_ACTION_DELAY } from '../models/constants';
 import { ActionType, IAction, IActions, IEntry } from '../models/interfaces';
+import { MdRipple } from '../models/interfaces/MdRipple';
 import { deepGet, deepSet, getDeepKeys } from '../utils';
 
 @customElement('base-custom-feature')
@@ -21,7 +22,9 @@ export class BaseCustomFeature extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: IEntry;
 	@property() stateObj!: HassEntity;
+
 	@property() shouldRenderRipple = true;
+	rippleEndTimer?: ReturnType<typeof setTimeout>;
 
 	@state() value?: string | number | boolean = 0;
 	entityId?: string;
@@ -796,14 +799,24 @@ export class BaseCustomFeature extends LitElement {
 		}
 	}
 
+	onTouchStart(e: TouchEvent) {
+		// Stuck ripple fix
+		clearTimeout(this.rippleEndTimer);
+		const ripple = this.shadowRoot?.querySelector('md-ripple') as MdRipple;
+		ripple?.endPressAnimation?.();
+		ripple?.startPressAnimation?.(e);
+	}
+
 	onTouchEnd(e: TouchEvent) {
 		e.preventDefault();
 
 		// Stuck ripple fix
-		const ripple = this.shadowRoot?.querySelector(
-			'md-ripple',
-		) as unknown as { endPressAnimation?: () => void };
-		ripple?.endPressAnimation?.();
+		clearTimeout(this.rippleEndTimer);
+		const ripple = this.shadowRoot?.querySelector('md-ripple') as MdRipple;
+		this.rippleEndTimer = setTimeout(
+			() => ripple?.endPressAnimation?.(),
+			100,
+		);
 	}
 
 	confirmationFailed() {
@@ -841,6 +854,7 @@ export class BaseCustomFeature extends LitElement {
 	firstUpdated() {
 		this.addEventListener('keydown', this.onKeyDown);
 		this.addEventListener('keyup', this.onKeyUp);
+		this.addEventListener('touchstart', this.onTouchStart);
 		this.addEventListener('touchend', this.onTouchEnd);
 		this.addEventListener('confirmation-failed', this.confirmationFailed);
 	}
