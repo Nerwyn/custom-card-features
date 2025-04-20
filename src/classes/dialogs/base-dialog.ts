@@ -18,13 +18,9 @@ export class BaseDialog extends LitElement {
 			:host {
 				-webkit-tap-highlight-color: transparent;
 				-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-				--background: var(
-					--mdc-theme-primary,
-					var(--mdc-ripple-color, var(--mdc-theme-primary, #6200ee))
-				);
 			}
 			.buttons {
-				height: 36px;
+				height: var(--button-height, 36px);
 				width: fill-available;
 				width: -webkit-fill-available;
 				width: -moz-available;
@@ -39,7 +35,7 @@ export class BaseDialog extends LitElement {
 				min-width: 64px;
 				align-content: center;
 				cursor: pointer;
-				border-radius: var(--button-height, 40px);
+				border-radius: var(--button-height, 4px);
 				overflow: hidden;
 				display: flex;
 				align-items: center;
@@ -55,29 +51,35 @@ export class BaseDialog extends LitElement {
 				cursor: pointer;
 				padding: 0;
 				position: absolute;
+				background: var(
+					--mdc-theme-primary,
+					var(--mdc-ripple-color, var(--mdc-theme-primary, #6200ee))
+				);
+				opacity: 0;
+				transition: opacity 100ms ease-in-out;
 			}
 			@media (hover: hover) {
 				button:hover {
-					background: var(--background);
 					opacity: var(
 						--ha-ripple-hover-opacity,
 						var(--md-ripple-hover-opacity, 0.08)
 					);
 				}
 			}
-			button:active {
-				background: var(--background);
+			button:focus-visible {
+				outline: none;
 				opacity: var(
 					--ha-ripple-pressed-opacity,
 					var(--md-ripple-pressed-opacity, 0.12)
 				);
 			}
-			button:focus-visible {
-				outline: none;
-				background: var(--background);
-				opacity: var(
-					--ha-ripple-hover-opacity,
-					var(--md-ripple-hover-opacity, 0.08)
+			button:active {
+				opacity: calc(
+					2 *
+						var(
+							--ha-ripple-pressed-opacity,
+							var(--md-ripple-pressed-opacity, 0.12)
+						)
 				);
 			}
 

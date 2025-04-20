@@ -1,5 +1,4 @@
 import {
-	Action,
 	HapticType,
 	HomeAssistant,
 	IConfirmation,
@@ -105,226 +104,51 @@ export class BaseCustomFeature extends LitElement {
 				break;
 		}
 
-		action &&= this.deepRenderTemplate(action);
-		if (!action || !(await this.handleConfirmation(action))) {
-			this.dispatchEvent(new CustomEvent('confirmation-failed'));
-			return;
-		}
-
 		try {
-			switch (action.action) {
-				case 'navigate':
-					this.navigate(action);
-					break;
-				case 'url':
-					this.url(action);
-					break;
-				case 'assist':
-					this.assist(action);
-					break;
-				case 'more-info':
-					this.moreInfo(action);
-					break;
-				case 'toggle':
-					this.toggle(action);
-					break;
-				case 'call-service' as 'perform-action': // deprecated in 2024.8
-				case 'perform-action':
-					this.callService(action);
-					break;
-				case 'fire-dom-event':
-					this.fireDomEvent(action);
-					break;
+			let handler: Function;
+			action &&= this.deepRenderTemplate(action);
+			switch (action?.action) {
 				case 'eval':
-					this.eval(action);
+					handler = this.eval;
 					break;
 				case 'repeat':
 				case 'none':
+				case undefined:
+					return;
 				default:
-					break;
+					this.handleAction(action!);
+					return;
 			}
+
+			if (!action || !(await this.handleConfirmation(action))) {
+				this.dispatchEvent(new Event('confirmation-failed'));
+				return;
+			}
+
+			handler(action);
 		} catch (e) {
 			this.endAction();
 			throw e;
 		}
 	}
 
-	callService(action: IAction) {
-		const performAction =
-			action.perform_action ??
-			(action['service' as 'perform_action'] as string);
-
-		if (!performAction) {
-			this.showFailureToast(action.action);
-			return;
+	handleAction(action: IAction) {
+		let entity = action.target?.entity_id ?? this.config.entity_id;
+		if (Array.isArray(entity)) {
+			entity = entity[0];
 		}
 
-		const [domain, service] = performAction.split('.');
-		this.hass.callService(domain, service, action.data, action.target);
-	}
-
-	navigate(action: IAction) {
-		const path = action.navigation_path as string;
-
-		if (!path) {
-			this.showFailureToast(action.action);
-			return;
-		}
-
-		if (path.includes('//')) {
-			console.error(
-				'Protocol detected in navigation path. To navigate to another website use the action "url" with the key "url_path" instead.',
-			);
-			return;
-		}
-
-		const replace = action.navigation_replace ?? false;
-		if (replace == true) {
-			window.history.replaceState(
-				window.history.state?.root ? { root: true } : null,
-				'',
-				path,
-			);
-		} else {
-			window.history.pushState(null, '', path);
-		}
-		const event = new Event('location-changed', {
-			bubbles: false,
-			cancelable: true,
-			composed: false,
-		});
-		event.detail = { replace: replace == true };
-		window.dispatchEvent(event);
-	}
-
-	url(action: IAction) {
-		let url = action.url_path ?? '';
-
-		if (!url) {
-			this.showFailureToast(action.action);
-			return;
-		}
-
-		if (!url.includes('//')) {
-			url = `https://${url}`;
-		}
-		window.open(url);
-	}
-
-	assist(action: IAction) {
-		// eslint-disable-next-line
-		// @ts-ignore
-		if (this.hass?.auth?.external?.config?.hasAssist) {
-			// eslint-disable-next-line
-			// @ts-ignore
-			this.hass?.auth?.external?.fireMessage({
-				type: 'assist/show',
-				payload: {
-					pipeline_id: action.pipeline_id,
-					start_listening: action.start_listening,
-				},
-			});
-		} else {
-			window.open(`${window.location.href}?conversation=1`, '_self');
-			// TODO figure out how to make this work on desktop browsers
-			// const event = new Event('show-dialog', {
-			// 	bubbles: true,
-			// 	cancelable: true,
-			// 	composed: true,
-			// });
-			// event.detail = {
-			// 	dialogTag: 'ha-voice-command-dialog',
-			// 	dialogImport: () =>
-			// 		Object.getPrototypeOf(
-			// 			document.createElement('ha-voice-command-dialog'),
-			// 		),
-			// 	dialogParams: {
-			// 		pipeline_id: pipelineId ?? 'last_used',
-			// 		start_listening: startListening ?? false,
-			// 	},
-			// };
-			// this.dispatchEvent(event);
-		}
-	}
-
-	moreInfo(action: IAction) {
-		const entityId = action.target?.entity_id ?? this.config.entity_id;
-
-		if (!entityId) {
-			this.showFailureToast(action.action);
-			return;
-		}
-
-		const event = new Event('hass-more-info', {
+		const event = new Event('hass-action', {
 			bubbles: true,
-			cancelable: true,
 			composed: true,
 		});
-		event.detail = { entityId };
-		this.dispatchEvent(event);
-	}
-
-	toggle(action: IAction) {
-		const target = {
-			...action.data,
-			...action.target,
+		event.detail = {
+			action: 'tap',
+			config: {
+				entity,
+				tap_action: action,
+			},
 		};
-
-		if (!Object.keys(target).length) {
-			this.showFailureToast(action.action);
-			return;
-		}
-
-		if (Array.isArray(target.entity_id)) {
-			for (const entityId of target.entity_id) {
-				this.toggleSingle(entityId);
-			}
-		} else if (target.entity_id) {
-			this.toggleSingle(target.entity_id);
-		} else {
-			this.hass.callService('homeassistant', 'toggle', target);
-		}
-	}
-
-	toggleSingle(entityId: string) {
-		const turnOn = ['closed', 'locked', 'off'].includes(
-			this.hass.states[entityId].state,
-		);
-		let domain = entityId.split('.')[0];
-		let service: string;
-		switch (domain) {
-			case 'lock':
-				service = turnOn ? 'unlock' : 'lock';
-				break;
-			case 'cover':
-				service = turnOn ? 'open_cover' : 'close_cover';
-				break;
-			case 'button':
-				service = 'press';
-				break;
-			case 'input_button':
-				service = 'press';
-				break;
-			case 'scene':
-				service = 'turn_on';
-				break;
-			case 'valve':
-				service = turnOn ? 'open_valve' : 'close_valve';
-				break;
-			default:
-				domain = 'homeassistant';
-				service = turnOn ? 'turn_on' : 'turn_off';
-				break;
-		}
-		this.hass.callService(domain, service, { entity_id: entityId });
-	}
-
-	fireDomEvent(action: IAction) {
-		const event = new Event(action.event_type ?? 'll-custom', {
-			bubbles: true,
-			composed: true,
-		});
-		event.detail = action;
 		this.dispatchEvent(event);
 	}
 
@@ -414,40 +238,6 @@ export class BaseCustomFeature extends LitElement {
 		});
 		event.detail = result;
 		this.shadowRoot?.dispatchEvent(event);
-	}
-
-	showFailureToast(action: Action) {
-		let suffix = '';
-		switch (action) {
-			case 'more-info':
-				suffix = 'no_entity_more_info';
-				break;
-			case 'navigate':
-				suffix = 'no_navigation_path';
-				break;
-			case 'url':
-				suffix = 'no_url';
-				break;
-			case 'toggle':
-				suffix = 'no_entity_toggle';
-				break;
-			case 'perform-action':
-			case 'call-service' as 'perform-action':
-			default:
-				suffix = 'no_action';
-				break;
-		}
-		const event = new Event('hass-notification', {
-			bubbles: true,
-			composed: true,
-		});
-		event.detail = {
-			message: this.hass.localize(
-				`ui.panel.lovelace.cards.actions.${suffix}`,
-			),
-		};
-		this.dispatchEvent(event);
-		this.fireHapticEvent('failure');
 	}
 
 	setValue() {

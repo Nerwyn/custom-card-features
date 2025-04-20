@@ -61,8 +61,17 @@ export class ConfirmationDialog extends BaseDialog {
 			super.styles as CSSResult,
 			css`
 				.title {
-					font-size: 1.5em;
-					font-weight: 400;
+					font-size: var(
+						--md-sys-typescale-headline-small-size,
+						1.5em
+					);
+					font-weight: var(--md-sys-typescale-headline-small-weight);
+					line-height: var(
+						--md-sys-typescale-headline-small-line-height
+					);
+					letter-spacing: var(
+						--md-sys-typescale-headline-small-tracking
+					);
 				}
 				.message {
 					font-size: 1rem;
@@ -73,7 +82,10 @@ export class ConfirmationDialog extends BaseDialog {
 							var(--md-ref-typeface-weight-regular, 400)
 						)
 					);
-					line-height: 1.5rem;
+					line-height: var(
+						--md-sys-typescale-body-medium-line-height,
+						1.5rem
+					);
 					padding: var(--dialog-content-padding, 24px) 0;
 					padding-bottom: 8px;
 					box-sizing: border-box;

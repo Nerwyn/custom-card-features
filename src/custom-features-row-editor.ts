@@ -128,7 +128,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.entriesChanged(entries);
 	}
 
-	moveEntry(e: CustomEvent) {
+	moveEntry(e: Event) {
 		e.stopPropagation();
 		const { oldIndex, newIndex } = e.detail;
 		const entries = structuredClone(this.config.entries);
@@ -136,7 +136,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.entriesChanged(entries);
 	}
 
-	moveOption(e: CustomEvent) {
+	moveOption(e: Event) {
 		e.stopPropagation();
 		const { oldIndex, newIndex } = e.detail;
 		const entry = structuredClone(this.activeEntry) as IEntry;
@@ -146,21 +146,21 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.entryChanged(entry);
 	}
 
-	copyEntry(e: CustomEvent) {
+	copyEntry(e: Event) {
 		const entries = structuredClone(this.config.entries);
 		const i = (
-			e.currentTarget as unknown as CustomEvent & Record<'index', number>
+			e.currentTarget as unknown as Event & Record<'index', number>
 		).index;
 		const entry = structuredClone(entries[i]);
 		entries.splice(i, 1, entries[i], entry);
 		this.entriesChanged(entries);
 	}
 
-	copyOption(e: CustomEvent) {
+	copyOption(e: Event) {
 		const entry = structuredClone(this.activeEntry) as IEntry;
 		const options = structuredClone(entry.options) ?? [];
 		const i = (
-			e.currentTarget as unknown as CustomEvent & Record<'index', number>
+			e.currentTarget as unknown as Event & Record<'index', number>
 		).index;
 		const option = structuredClone(options[i]);
 		options.splice(i, 1, options[i], option);
@@ -168,11 +168,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.entryChanged(entry);
 	}
 
-	editEntry(e: CustomEvent) {
+	editEntry(e: Event) {
 		this.yamlStringsCache = {};
 		this.yamlString = undefined;
 		const i = (
-			e.currentTarget as unknown as CustomEvent & Record<'index', number>
+			e.currentTarget as unknown as Event & Record<'index', number>
 		).index;
 		this.activeEntryType = 'entry';
 		this.actionsTabIndex =
@@ -193,11 +193,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.entryIndex = i;
 	}
 
-	editOption(e: CustomEvent) {
+	editOption(e: Event) {
 		this.yamlStringsCache = {};
 		this.yamlString = undefined;
 		const i = (
-			e.currentTarget as unknown as CustomEvent & Record<'index', number>
+			e.currentTarget as unknown as Event & Record<'index', number>
 		).index;
 		this.activeEntryType = 'option';
 		this.actionsTabIndex =
@@ -223,18 +223,18 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.optionIndex = i;
 	}
 
-	removeEntry(e: CustomEvent) {
+	removeEntry(e: Event) {
 		const i = (
-			e.currentTarget as unknown as CustomEvent & Record<'index', number>
+			e.currentTarget as unknown as Event & Record<'index', number>
 		).index;
 		const entries = structuredClone(this.config.entries);
 		entries.splice(i, 1);
 		this.entriesChanged(entries);
 	}
 
-	removeOption(e: CustomEvent) {
+	removeOption(e: Event) {
 		const i = (
-			e.currentTarget as unknown as CustomEvent & Record<'index', number>
+			e.currentTarget as unknown as Event & Record<'index', number>
 		).index;
 		const entry = structuredClone(this.activeEntry) as IOption;
 		const options = entry.options ?? [];
@@ -243,7 +243,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.entryChanged(entry);
 	}
 
-	addEntry(e: CustomEvent) {
+	addEntry(e: Event) {
 		const i = e.detail.index as number;
 		const entries = structuredClone(this.config.entries);
 		entries.push({
@@ -252,7 +252,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.entriesChanged(entries);
 	}
 
-	addOption(_e: CustomEvent) {
+	addOption(_e: Event) {
 		const entry = structuredClone(this.activeEntry) as IOption;
 		const options = entry.options ?? [];
 		options.push({});
@@ -260,21 +260,21 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.entryChanged(entry);
 	}
 
-	exitEditEntry(_e: CustomEvent) {
+	exitEditEntry(_e: Event) {
 		this.activeEntryType = 'entry';
 		this.yamlStringsCache = {};
 		this.yamlString = undefined;
 		this.entryIndex = -1;
 	}
 
-	exitEditOption(_e: CustomEvent) {
+	exitEditOption(_e: Event) {
 		this.activeEntryType = 'entry';
 		this.yamlStringsCache = {};
 		this.yamlString = undefined;
 		this.optionIndex = -1;
 	}
 
-	toggleGuiMode(_e: CustomEvent) {
+	toggleGuiMode(_e: Event) {
 		this.yamlString = undefined;
 		this.configChanged(this.config);
 		this.guiMode = !this.guiMode;
@@ -316,7 +316,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 	}
 
-	handleYamlCodeChanged(e: CustomEvent) {
+	handleYamlCodeChanged(e: Event) {
 		e.stopPropagation();
 		const yaml = e.detail.value;
 		if (yaml != this.yaml) {
@@ -324,7 +324,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 	}
 
-	handleStyleCodeChanged(e: CustomEvent) {
+	handleStyleCodeChanged(e: Event) {
 		e.stopPropagation();
 		const css = e.detail.value;
 		if (this.entryIndex > -1) {
@@ -341,7 +341,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 	}
 
-	handleActionCodeChanged(e: CustomEvent) {
+	handleActionCodeChanged(e: Event) {
 		e.stopPropagation();
 		const actionType = (e.target as HTMLElement).id as ActionType;
 		const actionYaml = e.detail.value;
@@ -360,7 +360,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 	}
 
-	handleEvalCodeChanged(e: CustomEvent) {
+	handleEvalCodeChanged(e: Event) {
 		e.stopPropagation();
 		const actionType = (e.target as HTMLElement).id as ActionType;
 		const evalString = e.detail.value;
@@ -374,7 +374,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 	}
 
-	handleSpinboxTabSelected(e: CustomEvent) {
+	handleSpinboxTabSelected(e: Event) {
 		this.yamlStringsCache = {};
 		this.yamlString = undefined;
 		const i = e.detail.index;
@@ -396,7 +396,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.spinboxTabIndex = i;
 	}
 
-	handleActionsTabSelected(e: CustomEvent) {
+	handleActionsTabSelected(e: Event) {
 		this.yamlStringsCache = {};
 		const i = e.detail.index;
 		if (this.actionsTabIndex == i) {
@@ -405,7 +405,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.actionsTabIndex = i;
 	}
 
-	handleSelectorChange(e: CustomEvent) {
+	handleSelectorChange(e: Event) {
 		this.yamlStringsCache = {};
 		const key = (e.target as HTMLElement).id;
 		let value = e.detail.value;
@@ -423,7 +423,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	buildEntryList(field: 'entry' | 'option' = 'entry') {
 		let entries: IEntry[] | IOption[];
-		let handlers: Record<string, (e: CustomEvent) => void>;
+		let handlers: Record<string, (e: Event) => void>;
 		let listHeader: string;
 		switch (field) {
 			case 'option':
@@ -579,7 +579,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 						fixed
 						class="add-list-item"
 						@action=${this.addEntry}
-						@closed=${(e: CustomEvent) => e.stopPropagation()}
+						@closed=${(e: Event) => e.stopPropagation()}
 					>
 						<ha-button
 							slot="trigger"
@@ -602,7 +602,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	buildEntryHeader() {
 		let title: string;
-		let exitHandler: (e: CustomEvent) => void;
+		let exitHandler: (e: Event) => void;
 		switch (this.activeEntryType) {
 			case 'option':
 				switch (
@@ -1591,7 +1591,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	buildCodeEditor(mode: string, id?: string) {
 		let title: string | undefined;
 		let value: string;
-		let handler: (e: CustomEvent) => void;
+		let handler: (e: Event) => void;
 		let autocompleteEntities: boolean;
 		let autocompleteIcons: boolean;
 		switch (mode) {

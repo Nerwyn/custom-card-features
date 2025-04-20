@@ -155,7 +155,34 @@ export class CustomFeatureDialog extends LitElement {
 						)
 					)
 				);
-				border-radius: var(--ha-card-border-radius, 12px);
+				border-start-start-radius: var(
+					--md-dialog-container-shape-start-start,
+					var(
+						--md-dialog-container-shape,
+						var(--md-sys-shape-corner-extra-large, 28px)
+					)
+				);
+				border-start-end-radius: var(
+					--md-dialog-container-shape-start-end,
+					var(
+						--md-dialog-container-shape,
+						var(--md-sys-shape-corner-extra-large, 28px)
+					)
+				);
+				border-end-end-radius: var(
+					--md-dialog-container-shape-end-end,
+					var(
+						--md-dialog-container-shape,
+						var(--md-sys-shape-corner-extra-large, 28px)
+					)
+				);
+				border-end-start-radius: var(
+					--md-dialog-container-shape-end-start,
+					var(
+						--md-dialog-container-shape,
+						var(--md-sys-shape-corner-extra-large, 28px)
+					)
+				);
 			}
 			dialog[open] {
 				pointer-events: all;
@@ -201,7 +228,7 @@ export class CustomFeatureDialog extends LitElement {
 
 			.confirmation {
 				width: fit-content;
-				min-width: 320px;
+				min-width: 272px;
 			}
 		`;
 	}
