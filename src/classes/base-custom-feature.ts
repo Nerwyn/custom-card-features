@@ -605,7 +605,7 @@ export class BaseCustomFeature extends LitElement {
 		const ripple = this.shadowRoot?.querySelector('md-ripple') as MdRipple;
 		this.rippleEndTimer = setTimeout(
 			() => ripple?.endPressAnimation?.(),
-			100,
+			15,
 		);
 	}
 
