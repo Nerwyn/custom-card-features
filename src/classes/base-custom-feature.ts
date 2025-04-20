@@ -125,7 +125,7 @@ export class BaseCustomFeature extends LitElement {
 				return;
 			}
 
-			handler(action);
+			handler.call(this, action);
 		} catch (e) {
 			this.endAction();
 			throw e;
