@@ -15,19 +15,19 @@ _Formerly called Service Card Tile Feature_
 
 Call any [action](https://www.home-assistant.io/dashboards/actions/) via card features. These custom features will let you create super customizable buttons, dropdowns, selectors, sliders, spinboxes, and toggles. [The Home Assistant developers gave us the ability to create custom features](https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card-feature), why is no one else taking advantage of it? And why isn't something like a generic button feature already in Home Assistant? I don't know but here it is.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/example_tile.png" alt="example_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/example_tile.png" width="600"/>
 
 # Feature Types
 
 ## Buttons
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/buttons_tile.png" alt="buttons_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/buttons_tile.png" width="600"/>
 
 Buttons are the most basic type of custom feature, being based on the example provided in the Home Assistant developer documentation. In addition to tap actions, buttons also support double tap actions, hold actions, and an alternate momentary button mode. All of these are described in further detail below. Buttons (like most features) can be given an icon and label, and further stylized with custom CSS.
 
 ## Dropdowns
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/dropdowns_tile.png" alt="dropdowns_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/dropdowns_tile.png" width="600"/>
 
 Dropdowns allow you to create a dropdown window with multiple user provided options, similar to those available for select entities and climate attributes. Clicking on the dropdown will show you all of the available options. Like all features in this project each option can be used for any action. The Dropdown window itself does not have an icon or label, but each option has their own appearance fields and the currently selected option will be displayed in the dropdown window.
 
@@ -39,7 +39,7 @@ You can override the default behavior of each option by changing their action. T
 
 ## Selectors
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_tile.png" alt="selector_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_tile.png" width="600"/>
 
 Selectors allow you to create a row of custom button features with no gaps of which the currently active one will be highlighted, similar to those available for alarm control panel and thermostat modes. Like all features in this project it can be used for any action. Selectors do not have an overall icon or label, but each option has their own appearance fields.
 
@@ -51,7 +51,7 @@ Since each selector option is a custom feature button, you can override it's def
 
 ## Sliders
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_tile.png" alt="slider_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_tile.png" width="600"/>
 
 Sliders are input range elements made to look similar to the sliders found in Home Assistant default card features, similar to those available for light brightness and temperature. By default the slider will look like a normal tile light brightness or cover position slider, but you can change this to a few of other thumb styles using the `Thumb Type` appearance option.
 
@@ -63,7 +63,7 @@ To prevent value bouncing, sliders will wait for one second before retreiving an
 
 ## Spinboxes
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/spinbox_tile.png" alt="spinbox_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/spinbox_tile.png" width="600"/>
 
 Spinboxes allow you to create Home Assistant style number boxes with increment and decrement buttons, similar to the climate target temperature feature. By default the user can increment or decrement this feature's internal value using the corresponding buttons. Once the user stops pressing the buttons for a time period defined by `Debounce time` (default 1000ms), the user defined tap action will fire. Similar to sliders, spinboxes will wait one second before updating it's internal value but this can be changed using `Update after action delay`.
 
@@ -73,7 +73,7 @@ You can also override the default behavior of the increment and decrement button
 
 ## Toggles
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/toggle_tile.png" alt="toggle_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/toggle_tile.png" width="600"/>
 
 Toggles allow you to create Home Assistant style toggles, similar to the default switch and light entity toggle features. Like the default toggle, you can either tap or swipe on it in the correct direction to activate it. While toggles work best with `toggle` actions, like all features in this project it can be used with any action. You can use templates to change the toggle on and off options.
 
@@ -89,11 +89,11 @@ This project now has a fully featured configuration user interface! To get start
 
 All custom features are encapsulated in a custom features row. This allows you to add multiple custom features to a row, apply overall CSS styles, and change the widths of features in the row relative to each other using the `flex-basis` CSS property. You can add a custom features row just like any default feature, except that this feature is available for all entities.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/add_custom_features_row.png" alt="add_custom_features_row" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/add_custom_features_row.png" width="600"/>
 
 Within a custom features row you can add individual features using the add custom feature button. This works just like the top level add feature button but just for custom features. Each feature will look like a blank rectangle to start. Features can be reordered, copied, edited, and deleted from here.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/add_custom_feature.png" alt="add_custom_feature" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/add_custom_feature.png" width="600"/>
 
 You can also add CSS styles for the entire row here. CSS styles have to be encapsulated in a CSS selector like so.
 
@@ -107,7 +107,7 @@ By default, features will autofill with it's parent's entity information for tra
 
 ## General Options
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/basic_feature_options.png" alt="basic_feature_options" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/basic_feature_options.png" width="600"/>
 
 Every feature can have an entity assigned to it, which is used to track it's internal value. This value can then be used in styles and actions using templates, like `{{ value | float }}` By default the value will be derived from the entity state, but it can be changed to an attribute use the corresponding field.
 
@@ -124,7 +124,7 @@ Haptics are disabled for features by default, but can be toggled on at the featu
 
 ### Slider and Spinbox General Options
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_spinbox_general_options.png" alt="slider_spinbox_general_options" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_spinbox_general_options.png" width="600"/>
 
 Sliders and spinboxes have some additional general options. Both can have range `Min` and `Max` values defined by the user, but default to 0 and 100. Both can also have a `Step` size defined, which defaults to 1.
 
@@ -132,7 +132,7 @@ Sliders and spinboxes will wait one second before updating their internal values
 
 ### Dropdown and Selector General Options
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_general_options.png" alt="selector_general_options" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_dropdown_general_options.png" width="600"/>
 
 Dropdowns and selectors are made up of options, which can be added to, reordered, copied, deleted, and edited from a list similar to the overall features or custom features in a row. Dropdowns have dropdown options which can each have a single action, and selectors have buttons which can have multiple different actions.
 
@@ -140,13 +140,15 @@ Like sliders and spinboxes, selectors have a one second delay before updating th
 
 ### Toggle General Options
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/toggle_general_options.png" alt="toggle_general_options" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/toggle_general_options.png" width="600"/>
 
 While toggles are fairly simple, custom toggles have some extra options so you can customize their behavior. By default a toggle is considered on/checked if it's value (entity's state or attribute) is in the list `true, yes, on, enable, enabled, 1`, or if it's numerica cast is greater than zero. You can disable the numeric cast check with the option `Check numeric value`. You can also change the toggle check behavior to instead set the toggle state to off/unchecked if it's value is in the list `false, no, off, disable, disabled, 0, undefined, null` using the option `Allow/Block checked values`. If you want to make your toggle change it's state based on a value not in either of these lists or a limited list, you can use the `Alternate checked values` box to create an alternate allow or block list.
 
+For default toggles and default styled custom toggles, you can swipe on them in the correct direction in addition to tapping them to actuate them. You can make it so that default styled custom toggles only activate on swipe. In addition to this, you can enable full swipe mode, where the toggle thumb will move as you drag it and will only activate if you drag it all the way to the other end of the toggle track. This makes it perform like a "swipe to unlock" switch.
+
 ## Appearance
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/appearance_options.png" alt="appearance_options" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/appearance_options.png" width="600"/>
 
 All features can have a `Label`, `Icon`, and `Units` (dropdowns and selectors support these fields at the option level). These fields can also be set using templates. Like the overall custom features row, each custom feature can have it's CSS styles set (including using templates).
 
@@ -451,17 +453,17 @@ Most features have additional custom CSS attributes which can be used to style t
 ></custom-feature-toggle>
 ```
 
-## Actions
+## Interactions
 
-There are three traditional ways to trigger an action - tap, double tap, and hold. Buttons, selector options, and spinbox buttons support all three. Dropdown options, sliders, and toggles only support tap actions. While you can swipe horizontally on toggles this is considered a tap action. Defining a double tap action that is not `none` introduces a 200ms delay to single tap actions.
+There are three traditional interactions supported by Home Assistant - tap, double tap, and hold. Buttons, selector options, and spinbox buttons support all three. Dropdown options, sliders, and toggles only support tap actions. While you can swipe horizontally on the default toggle this is considered a tap action. Defining a double tap action that is not `none` introduces a 200ms delay to single tap actions.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/button_actions_options.png" alt="button_actions_options" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/button_actions_options.png" width="600"/>
 
 Each action also supports the `confirmation` field. More information on Home Assistant action confirmations can be found [here](https://www.home-assistant.io/dashboards/actions/#options-for-confirmation).
 
 When setting the action for a slider or spinbox, you must use `value` within a template in the action data to use the feature value in action. For convenience, a codebox for the action will be displayed below the normal action options.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_action_options.png" alt="slider_action_options" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_action_options.png" width="600"/>
 
 ### Action Types
 
@@ -510,7 +512,7 @@ Double tap actions have a default window of 200ms to trigger before a single tap
 
 ### Momentary Button mode
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/momentary_actions_options.png" alt="momentary_actions_options" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/momentary_actions_options.png" width="600"/>
 
 As an alternative to normal tap, hold, and double tap actions, buttons, including those within selectors and spinboxes, can also be used in a momentary mode. Configuring this option disables the normal tap, hold, and double tap actions.
 
@@ -526,7 +528,7 @@ While all configuration can now be done through the user interface, these YAML e
 
 A lock tile with a toggle.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/lock_tile.png" alt="lock_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/lock_tile.png" width="600"/>
 
 <details>
 
@@ -576,7 +578,7 @@ card_mod:
 
 A light tile with a button for each bulb, a color selector and dropdown, brightness and temperature sliders, and a brightness spinbox with emphasis on certain options.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/example_tile.png" alt="light_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/example_tile.png" width="600"/>
 
 <details>
 
@@ -1063,7 +1065,7 @@ vertical: false
 
 Multiple sliders for a room's light, curtains, and media control.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_tile.png" alt="slider_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_tile.png" width="600"/>
 
 <details>
 
@@ -1345,7 +1347,7 @@ layout_options:
 
 Selectors for input selects. Note that the opacity of selector buttons is set to 0 by default, so they are completely transparent against the selector background.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_tile.png" alt="selector_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_tile.png" width="600"/>
 
 <details>
 
@@ -1549,7 +1551,7 @@ layout_options:
 
 Using a selector to display different features.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_show_tile.png" alt="selector_show_tile" width="1200"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_show_tile.png" width="1200"/>
 
 <details>
 
@@ -1843,7 +1845,7 @@ layout_options:
 
 A better looking temperature spinbox with hold on repeat, tile color, and an icon and label. Also an XKCD button that opens a different comic based on how long you hold it using momentary button mode, and two buttons that change background color based on their state.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/spinbox_tile.png" alt="spinbox_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/spinbox_tile.png" width="600"/>
 
 <details>
 
@@ -1931,7 +1933,7 @@ layout_options:
 
 A read only timer display with buttons and multiple labels.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/timer_tile.png" alt="timer_tile" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/timer_tile.png" width="600"/>
 
 <details>
 
