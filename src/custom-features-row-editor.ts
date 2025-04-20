@@ -865,7 +865,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			${action == 'eval'
 				? html`
 						${this.buildAlertBox(
-							"Evaluating raw JavaScript strings in browser is considered extremely unsafe. Do not use unless you know what you're doing!",
+							"It's easy to crash your browser or server if you use this to send too many commands in a loop. Make sure you know what you're doing!",
 							'warning',
 						)}
 						${this.buildCodeEditor('eval', actionType)}

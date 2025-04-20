@@ -513,6 +513,21 @@ export class BaseCustomFeature extends LitElement {
 			this.requestUpdate();
 		}, valueFromHassDelay);
 	}
+	buildIcon(icon?: string, context?: object) {
+		const rendered = this.renderTemplate(icon as string, context);
+		return rendered
+			? html`<ha-icon class="icon" .icon=${rendered}></ha-icon>`
+			: '';
+	}
+
+	buildLabel(label?: string, context?: object) {
+		const rendered = this.renderTemplate(label as string, context);
+		return rendered ? html`<pre class="label">${rendered}</pre>` : '';
+	}
+
+	buildBackground() {
+		return html`<div class="background"></div>`;
+	}
 
 	buildRipple() {
 		return this.shouldRenderRipple ? html`<md-ripple></md-ripple>` : '';
@@ -529,22 +544,6 @@ export class BaseCustomFeature extends LitElement {
 					</style>
 				`
 			: '';
-	}
-
-	buildBackground() {
-		return html` <div class="background"></div>`;
-	}
-
-	buildIcon(icon?: string, context?: object) {
-		const rendered = this.renderTemplate(icon as string, context);
-		return rendered
-			? html`<ha-icon class="icon" .icon=${rendered}></ha-icon>`
-			: '';
-	}
-
-	buildLabel(label?: string, context?: object) {
-		const rendered = this.renderTemplate(label as string, context);
-		return rendered ? html`<pre class="label">${rendered}</pre>` : '';
 	}
 
 	onPointerDown(e: PointerEvent) {
