@@ -8,14 +8,6 @@ import { BaseCustomFeature } from './base-custom-feature';
 export class CustomFeatureDropdown extends BaseCustomFeature {
 	@state() open: boolean = false;
 
-	onConfirmationResult(result: boolean) {
-		const options = (this.shadowRoot?.querySelectorAll('.option') ??
-			[]) as BaseCustomFeature[];
-		for (const option of options) {
-			option.onConfirmationResult(result);
-		}
-	}
-
 	onPointerUp(_e: PointerEvent) {
 		if (!this.swiping && this.initialX && this.initialY) {
 			this.open = !this.open;

@@ -77,10 +77,3 @@ export const ActionTypes = [
 	'momentary_end_action',
 ] as const;
 export type ActionType = (typeof ActionTypes)[number];
-
-export const DialogTypes = ['confirmation'] as const;
-export type DialogType = (typeof DialogTypes)[number];
-export interface IDialog {
-	type: DialogType;
-	text?: string;
-}

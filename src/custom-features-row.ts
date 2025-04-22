@@ -8,10 +8,7 @@ import { renderTemplate } from 'ha-nunjucks';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { HomeAssistant } from './models/interfaces';
 
-import { BaseCustomFeature } from './classes/base-custom-feature';
 import './classes/custom-feature-button';
-import './classes/custom-feature-dialog';
-import { CustomFeatureDialog } from './classes/custom-feature-dialog';
 import './classes/custom-feature-dropdown';
 import './classes/custom-feature-selector';
 import './classes/custom-feature-slider';
@@ -203,28 +200,7 @@ class CustomFeaturesRow extends LitElement {
 			>
 				${row}
 			</div>
-			${styles}
-			<custom-feature-dialog .hass=${this.hass}></custom-feature-dialog>`;
-	}
-
-	showDialog(e: Event) {
-		const dialog = this.shadowRoot?.querySelector(
-			'custom-feature-dialog',
-		) as CustomFeatureDialog;
-		dialog.showDialog(e.detail);
-	}
-
-	onConfirmationResult(e: Event) {
-		const features = (this.shadowRoot?.querySelector('.row')?.children ??
-			[]) as BaseCustomFeature[];
-		for (const feature of features) {
-			feature.onConfirmationResult(e.detail);
-		}
-	}
-
-	firstUpdated() {
-		this.addEventListener('dialog-show', this.showDialog);
-		this.addEventListener('confirmation-result', this.onConfirmationResult);
+			${styles}`;
 	}
 
 	static get styles() {

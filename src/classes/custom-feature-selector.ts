@@ -6,14 +6,6 @@ import './custom-feature-button';
 
 @customElement('custom-feature-selector')
 export class CustomFeatureSelector extends BaseCustomFeature {
-	onConfirmationResult(result: boolean) {
-		const options = (this.shadowRoot?.querySelectorAll('.option') ??
-			[]) as BaseCustomFeature[];
-		for (const option of options) {
-			option.onConfirmationResult(result);
-		}
-	}
-
 	onPointerUp(e: PointerEvent) {
 		if (!this.swiping && this.initialX && this.initialY) {
 			clearTimeout(this.getValueFromHassTimer);

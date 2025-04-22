@@ -16,15 +16,6 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 	holdTimer?: ReturnType<typeof setTimeout>;
 	holdInterval?: ReturnType<typeof setInterval>;
 
-	onConfirmationResult(result: boolean) {
-		const operators = (this.shadowRoot?.querySelectorAll('.operator') ??
-			[]) as BaseCustomFeature[];
-		for (const operator of operators) {
-			operator.onConfirmationResult(result);
-		}
-		super.onConfirmationResult(result);
-	}
-
 	onPointerDown(e: PointerEvent) {
 		super.onPointerDown(e);
 
