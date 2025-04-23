@@ -10,6 +10,7 @@ import { UPDATE_AFTER_ACTION_DELAY } from '../models/constants';
 import { ActionType, IAction, IActions, IEntry } from '../models/interfaces';
 import { MdRipple } from '../models/interfaces/MdRipple';
 import { deepGet, deepSet, getDeepKeys } from '../utils';
+import { buildStyles } from '../utils/styles';
 
 @customElement('base-custom-feature')
 export class BaseCustomFeature extends LitElement {
@@ -498,16 +499,12 @@ export class BaseCustomFeature extends LitElement {
 	}
 
 	buildStyles(styles?: string, context?: object) {
-		const rendered = this.renderTemplate(styles as string, context);
-		return rendered
-			? html`
-					<style>
-						${(rendered as string)
-							.replace(/ !important/g, '')
-							.replace(/;/g, ' !important;')}
-					</style>
-				`
-			: '';
+		const rendered = this.renderTemplate(
+			styles as string,
+			context,
+		) as string;
+
+		return buildStyles(rendered);
 	}
 
 	onPointerDown(e: PointerEvent) {

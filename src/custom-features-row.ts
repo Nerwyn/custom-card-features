@@ -17,6 +17,7 @@ import './classes/custom-feature-toggle';
 import { CustomFeaturesRowEditor } from './custom-features-row-editor';
 import { IConfig, IEntry } from './models/interfaces';
 import { atLeastHaVersion } from './utils';
+import { buildStyles } from './utils/styles';
 
 console.info(
 	`%c CUSTOM-FEATURES-FOR-TILES-AND-MORE v${packageInfo.version}`,
@@ -80,6 +81,15 @@ class CustomFeaturesRow extends LitElement {
 		}
 
 		return str;
+	}
+
+	buildStyles(styles?: string, context?: object) {
+		const rendered = this.renderTemplate(
+			styles as string,
+			context,
+		) as string;
+
+		return buildStyles(rendered);
 	}
 
 	render() {
@@ -177,21 +187,6 @@ class CustomFeaturesRow extends LitElement {
 			stateObj: this.stateObj,
 		};
 
-		const styles = this.config.styles
-			? html`
-					<style>
-						${(
-							this.renderTemplate(
-								this.config.styles,
-								context,
-							) as string
-						)
-							.replace(/!important/g, '')
-							.replace(/;/g, ' !important;')}
-					</style>
-				`
-			: '';
-
 		const version = this.hass.config.version;
 		return html`<div
 				class="row ${classMap({
@@ -200,7 +195,7 @@ class CustomFeaturesRow extends LitElement {
 			>
 				${row}
 			</div>
-			${styles}`;
+			${this.buildStyles(this.config.styles, context)}`;
 	}
 
 	static get styles() {
