@@ -1,4 +1,9 @@
-import { HapticType, HomeAssistant, IConfirmation } from '../models/interfaces';
+import {
+	Action,
+	HapticType,
+	HomeAssistant,
+	IConfirmation,
+} from '../models/interfaces';
 
 import { renderTemplate } from 'ha-nunjucks';
 import { CSSResult, LitElement, css, html } from 'lit';
@@ -100,38 +105,55 @@ export class BaseCustomFeature extends LitElement {
 				break;
 		}
 
+		action &&= this.deepRenderTemplate(action);
+		if (!action || !(await this.handleConfirmation(action))) {
+			this.dispatchEvent(new Event('confirmation-failed'));
+			return;
+		}
+
 		try {
-			let handler: Function;
 			action &&= this.deepRenderTemplate(action);
 			switch (action?.action) {
+				case 'navigate':
+					this.navigate(action);
+					break;
+				case 'url':
+					this.url(action);
+					break;
+				case 'assist':
+					this.assist(action);
+					break;
+				case 'more-info':
+					this.moreInfo(action);
+					break;
+				case 'toggle':
+					this.toggle(action);
+					break;
+				case 'call-service' as 'perform-action': // deprecated in 2024.8
+				case 'perform-action':
+					this.callService(action);
+					break;
 				case 'eval':
-					handler = this.eval;
+					this.eval(action);
 					break;
 				case 'repeat':
 				case 'none':
-				case undefined:
-					return;
-				default:
-					this.handleAction(action!);
-					return;
+					break;
 			}
-
-			if (!action || !(await this.handleConfirmation(action))) {
-				return;
-			}
-
-			handler.call(this, action);
 		} catch (e) {
 			this.endAction();
 			throw e;
 		}
 	}
 
-	handleAction(action: IAction) {
+	hassAction(action: IAction) {
+		// This normally cannot be used directly, because it fires a haptic event
+		// Ignoring the haptic settings of the individual element
 		let entity = action.target?.entity_id ?? this.config.entity_id;
 		if (Array.isArray(entity)) {
 			entity = entity[0];
 		}
+		action.confirmation = false;
 
 		const event = new Event('hass-action', {
 			bubbles: true,
@@ -147,6 +169,153 @@ export class BaseCustomFeature extends LitElement {
 		this.dispatchEvent(event);
 	}
 
+	callService(action: IAction) {
+		const performAction =
+			action.perform_action ??
+			(action['service' as 'perform_action'] as string);
+
+		if (!performAction) {
+			this.showFailureToast(action.action);
+			return;
+		}
+
+		const [domain, service] = performAction.split('.');
+		this.hass.callService(domain, service, action.data, action.target);
+	}
+
+	navigate(action: IAction) {
+		const path = action.navigation_path as string;
+
+		if (!path) {
+			this.showFailureToast(action.action);
+			return;
+		}
+
+		if (path.includes('//')) {
+			console.error(
+				'Protocol detected in navigation path. To navigate to another website use the action "url" with the key "url_path" instead.',
+			);
+			return;
+		}
+
+		const replace = action.navigation_replace ?? false;
+		if (replace == true) {
+			window.history.replaceState(
+				window.history.state?.root ? { root: true } : null,
+				'',
+				path,
+			);
+		} else {
+			window.history.pushState(null, '', path);
+		}
+		const event = new Event('location-changed', {
+			bubbles: false,
+			cancelable: true,
+			composed: false,
+		});
+		event.detail = { replace: replace == true };
+		window.dispatchEvent(event);
+	}
+
+	url(action: IAction) {
+		let url = action.url_path ?? '';
+
+		if (!url) {
+			this.showFailureToast(action.action);
+			return;
+		}
+
+		if (!url.includes('//')) {
+			url = `https://${url}`;
+		}
+		window.open(url);
+	}
+
+	assist(action: IAction) {
+		this.hassAction(action);
+	}
+
+	moreInfo(action: IAction) {
+		const entityId = action.target?.entity_id ?? this.config.entity_id;
+
+		if (!entityId) {
+			this.showFailureToast(action.action);
+			return;
+		}
+
+		const event = new Event('hass-more-info', {
+			bubbles: true,
+			cancelable: true,
+			composed: true,
+		});
+		event.detail = { entityId };
+		this.dispatchEvent(event);
+	}
+
+	toggle(action: IAction) {
+		const target = {
+			...action.data,
+			...action.target,
+		};
+
+		if (!Object.keys(target).length) {
+			this.showFailureToast(action.action);
+			return;
+		}
+
+		if (Array.isArray(target.entity_id)) {
+			for (const entityId of target.entity_id) {
+				this.toggleSingle(entityId);
+			}
+		} else if (target.entity_id) {
+			this.toggleSingle(target.entity_id);
+		} else {
+			this.hass.callService('homeassistant', 'toggle', target);
+		}
+	}
+
+	toggleSingle(entityId: string) {
+		const turnOn = ['closed', 'locked', 'off'].includes(
+			this.hass.states[entityId].state,
+		);
+		let domain = entityId.split('.')[0];
+		let service: string;
+		switch (domain) {
+			case 'lock':
+				service = turnOn ? 'unlock' : 'lock';
+				break;
+			case 'cover':
+				service = turnOn ? 'open_cover' : 'close_cover';
+				break;
+			case 'button':
+				service = 'press';
+				break;
+			case 'input_button':
+				service = 'press';
+				break;
+			case 'scene':
+				service = 'turn_on';
+				break;
+			case 'valve':
+				service = turnOn ? 'open_valve' : 'close_valve';
+				break;
+			default:
+				domain = 'homeassistant';
+				service = turnOn ? 'turn_on' : 'turn_off';
+				break;
+		}
+		this.hass.callService(domain, service, { entity_id: entityId });
+	}
+
+	fireDomEvent(action: IAction) {
+		const event = new Event(action.event_type ?? 'll-custom', {
+			bubbles: true,
+			composed: true,
+		});
+		event.detail = action;
+		this.dispatchEvent(event);
+	}
+
 	eval(action: IAction) {
 		eval(action.eval ?? '');
 	}
@@ -159,6 +328,42 @@ export class BaseCustomFeature extends LitElement {
 					(e) => e.user == this.hass.user?.id,
 				))
 		) {
+			// Retrieve original confirmation text or get translation
+			let text = (action.confirmation as IConfirmation).text;
+			if (!text) {
+				let serviceName;
+				const [domain, service] = (
+					action.perform_action ??
+					action['service' as 'perform_action'] ??
+					''
+				).split('.');
+				if (this.hass.services[domain]?.[service]) {
+					const localize =
+						await this.hass.loadBackendTranslation('title');
+					serviceName = `${
+						localize(`component.${domain}.title`) || domain
+					}: ${
+						localize(
+							`component.${domain}.services.${service}.name`,
+						) ||
+						this.hass.services[domain][service].name ||
+						service
+					}`;
+				}
+
+				text = this.hass.localize(
+					'ui.panel.lovelace.cards.actions.action_confirmation',
+					{
+						action:
+							serviceName ??
+							this.hass.localize(
+								`ui.panel.lovelace.editor.action-editor.actions.${action.action}`,
+							) ??
+							action.action,
+					},
+				);
+			}
+
 			// Use hass-action to fire a dom event with a confirmation
 			const event = new Event('hass-action', {
 				bubbles: true,
@@ -169,7 +374,10 @@ export class BaseCustomFeature extends LitElement {
 				config: {
 					tap_action: {
 						action: 'fire-dom-event',
-						confirmation: action.confirmation,
+						confirmation: {
+							text,
+						},
+						confirmed: true,
 					},
 				},
 			};
@@ -185,9 +393,11 @@ export class BaseCustomFeature extends LitElement {
 				};
 
 				// ll-custom event is fired when the user accepts the confirmation
-				const confirmTrue = () => {
-					cleanup();
-					resolve(true);
+				const confirmTrue = (e: Event) => {
+					if (e.detail.confirmed) {
+						cleanup();
+						resolve(true);
+					}
 				};
 				window.addEventListener('ll-custom', confirmTrue);
 
@@ -203,6 +413,40 @@ export class BaseCustomFeature extends LitElement {
 			});
 		}
 		return true;
+	}
+
+	showFailureToast(action: Action) {
+		let suffix = '';
+		switch (action) {
+			case 'more-info':
+				suffix = 'no_entity_more_info';
+				break;
+			case 'navigate':
+				suffix = 'no_navigation_path';
+				break;
+			case 'url':
+				suffix = 'no_url';
+				break;
+			case 'toggle':
+				suffix = 'no_entity_toggle';
+				break;
+			case 'perform-action':
+			case 'call-service' as 'perform-action':
+			default:
+				suffix = 'no_action';
+				break;
+		}
+		const event = new Event('hass-notification', {
+			bubbles: true,
+			composed: true,
+		});
+		event.detail = {
+			message: this.hass.localize(
+				`ui.panel.lovelace.cards.actions.${suffix}`,
+			),
+		};
+		this.dispatchEvent(event);
+		this.fireHapticEvent('failure');
 	}
 
 	setValue() {
