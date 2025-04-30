@@ -841,7 +841,9 @@ export class BaseCustomFeature extends LitElement {
 	}
 
 	firstUpdated() {
-		this.addEventListener('touchstart', this.onTouchStart);
+		this.addEventListener('touchstart', this.onTouchStart, {
+			passive: true,
+		});
 		this.addEventListener('touchend', this.onTouchEnd);
 		this.addEventListener('keydown', this.onKeyDown);
 		this.addEventListener('keyup', this.onKeyUp);
