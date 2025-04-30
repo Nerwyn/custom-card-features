@@ -116,9 +116,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		this.sliderOn =
 			!(
 				this.value == undefined ||
-				this.hass.states[this.entityId as string].state == 'off' ||
-				(this.entityId?.startsWith('timer.') &&
-					this.hass.states[this.entityId as string].state == 'idle')
+				['off', 'idle', null, undefined].includes(
+					this.hass.states[this.entityId as string].state,
+				)
 			) || ((this.value as number) ?? this.range[0]) > this.range[0];
 	}
 
