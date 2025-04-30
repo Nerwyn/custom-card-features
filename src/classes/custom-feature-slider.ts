@@ -2,13 +2,7 @@ import { css, CSSResult, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { StyleInfo, styleMap } from 'lit/directives/style-map.js';
 
-import {
-	RANGE_MAX,
-	RANGE_MIN,
-	SLIDER_ANIMATION,
-	STEP,
-	STEP_COUNT,
-} from '../models/constants';
+import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
 import { SliderThumbType } from '../models/interfaces';
 import { BaseCustomFeature } from './base-custom-feature';
 
@@ -17,14 +11,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	@state() showTooltip: boolean = false;
 	@state() thumbOffset: number = 0;
 	@state() sliderOn: boolean = true;
-	@state() currentValue = this.value;
 
-	oldValue?: number;
-	newValue?: number;
-	speed: number = 2;
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
-	intervalId?: ReturnType<typeof setTimeout>;
 
 	thumbWidth: number = 0;
 	sliderClass: string = 'slider ';
@@ -35,74 +24,15 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		}
 	});
 
-	onInput(e: InputEvent) {
-		const slider = e.currentTarget as HTMLInputElement;
-
-		if (!this.swiping && this.initialX && this.initialY) {
-			clearTimeout(this.getValueFromHassTimer);
-			this.getValueFromHass = false;
-			this.value = slider.value;
-
-			this.fireHapticEvent('selection');
-
-			const start = parseFloat(
-				(this.oldValue as unknown as string) ?? this.value ?? '0',
-			);
-			const end = parseFloat(slider.value ?? start);
-			this.newValue = end;
-
-			this.currentValue = start;
-			this.setThumbOffset();
-			this.showTooltip = true;
-
-			if (end > this.range[0]) {
-				this.sliderOn = true;
-			}
-
-			clearInterval(this.intervalId);
-			this.intervalId = undefined;
-			let i = start;
-			if (start > end) {
-				this.intervalId = setInterval(() => {
-					i -= this.speed;
-					this.currentValue = i;
-					this.setThumbOffset();
-
-					if (end >= i) {
-						clearInterval(this.intervalId);
-						this.intervalId = undefined;
-						this.currentValue = end;
-						this.setThumbOffset();
-					}
-				}, SLIDER_ANIMATION);
-			} else if (start < end) {
-				this.sliderOn = true;
-				this.intervalId = setInterval(() => {
-					i += this.speed;
-					this.currentValue = i;
-					this.setThumbOffset();
-
-					if (end <= i) {
-						clearInterval(this.intervalId);
-						this.intervalId = undefined;
-						this.currentValue = end;
-						this.setThumbOffset();
-					}
-				}, SLIDER_ANIMATION);
-			} else {
-				this.currentValue = end;
-			}
-
-			this.oldValue = end;
-		} else {
-			if (this.value == undefined) {
-				this.getValueFromHass = true;
-			}
-			this.setValue();
-			this.currentValue = this.value ?? 0;
-			this.setThumbOffset();
-			this.showTooltip = false;
+	set _value(value: string | number | boolean | undefined) {
+		value = Math.max(
+			Math.min(Number(value) ?? this.range[0], this.range[1]),
+			this.range[0],
+		);
+		if (!this.precision) {
+			value = Math.trunc(value as number);
 		}
+		this.value = value;
 	}
 
 	onPointerDown(e: PointerEvent) {
@@ -112,36 +42,27 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		if (!this.swiping) {
 			clearTimeout(this.getValueFromHassTimer);
 			this.getValueFromHass = false;
-			this.currentValue = slider.value;
-			this.value = slider.value;
+			this._value = slider.value;
 			this.setThumbOffset();
 			this.showTooltip = true;
 			this.sliderOn = true;
 		}
 	}
 
-	async onPointerUp(_e: PointerEvent) {
+	async onPointerUp(e: PointerEvent) {
 		this.setThumbOffset();
 		this.showTooltip = false;
-		this.setValue();
+		const slider = e.currentTarget as HTMLInputElement;
 
 		if (!this.swiping && this.initialX && this.initialY) {
-			if (!this.newValue && this.newValue != 0) {
-				this.newValue = Number(this.value);
-			}
-			if (!this.precision) {
-				this.newValue = Math.trunc(this.newValue);
-			}
-			this.value = this.newValue;
-
+			this._value = slider.value;
 			this.fireHapticEvent('light');
 			await this.sendAction('tap_action');
 		} else {
 			this.getValueFromHass = true;
 			this.setValue();
-			this.currentValue = this.value ?? 0;
 			this.setThumbOffset();
-			this.setSliderState(this.currentValue as number);
+			this.setSliderState();
 		}
 
 		this.endAction();
@@ -150,6 +71,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 	onPointerMove(e: PointerEvent) {
 		super.onPointerMove(e);
+		const slider = e.currentTarget as HTMLInputElement;
 
 		// Only consider significant enough movement
 		const sensitivity = 40;
@@ -160,34 +82,30 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			this.swiping = true;
 			this.getValueFromHass = true;
 			this.setValue();
-			this.currentValue = this.value ?? 0;
 			this.setThumbOffset();
 			this.showTooltip = false;
-			this.setSliderState(this.value as number);
+			this.setSliderState();
+		} else {
+			this._value = slider.value;
 		}
 	}
 
 	setValue() {
 		super.setValue();
 		if (this.getValueFromHass) {
-			this.oldValue = Number(this.value);
-			if (this.newValue == undefined) {
-				this.newValue = Number(this.value);
-			}
+			this._value = this.value;
 		}
 	}
 
 	setThumbOffset() {
 		const maxOffset = (this.featureWidth - this.thumbWidth) / 2;
-		const value = Number(
-			this.getValueFromHass ? this.value : this.currentValue,
-		);
 		this.thumbOffset = Math.min(
 			Math.max(
 				Math.round(
 					((this.featureWidth - this.thumbWidth) /
 						(this.range[1] - this.range[0])) *
-						(value - (this.range[0] + this.range[1]) / 2),
+						(((this.value as number) ?? this.range[0]) -
+							(this.range[0] + this.range[1]) / 2),
 				),
 				-1 * maxOffset,
 			),
@@ -195,14 +113,14 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		);
 	}
 
-	setSliderState(value: number) {
+	setSliderState() {
 		this.sliderOn =
 			!(
-				value == undefined ||
+				this.value == undefined ||
 				this.hass.states[this.entityId as string].state == 'off' ||
 				(this.entityId?.startsWith('timer.') &&
 					this.hass.states[this.entityId as string].state == 'idle')
-			) || (Number(value) as number) > this.range[0];
+			) || ((this.value as number) ?? this.range[0]) > this.range[0];
 	}
 
 	buildTooltip() {
@@ -213,18 +131,15 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		`;
 	}
 
-	buildSlider(context: object) {
+	buildSlider() {
 		const style: StyleInfo = {};
 		if (
-			this.renderTemplate(
-				this.config.tap_action?.action as string,
-				context,
-			) == 'none'
+			this.renderTemplate(this.config.tap_action?.action as string) ==
+			'none'
 		) {
 			style['pointer-events'] = 'none';
 		}
 
-		const value = context['value' as keyof typeof context] as number;
 		return html`
 			<input
 				id="slider"
@@ -235,9 +150,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				min="${this.range[0]}"
 				max="${this.range[1]}"
 				step=${this.step}
-				value="${value}"
-				.value="${value}"
-				@input=${this.onInput}
+				value="${this.range[0]}"
+				.value="${this.value}"
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}
 				@pointermove=${this.onPointerMove}
@@ -248,10 +162,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		`;
 	}
 
-	buildSliderStyles(context: object) {
+	buildSliderStyles() {
 		const styles = `
 			:host {
-				--tooltip-label: '${this.renderTemplate('{{ value }}{{ unit }}', context)}';
+				--tooltip-label: '${this.renderTemplate('{{ value }}{{ unit }}')}';
 			}
 			${
 				this.rtl
@@ -274,29 +188,19 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 	render() {
 		this.setValue();
-		if (this.getValueFromHass) {
-			this.currentValue = this.value;
-		}
-		const context = {
-			value: this.getValueFromHass ? this.value : this.currentValue,
-		};
 
 		if (this.config.range) {
 			this.range[0] = parseFloat(
 				(this.renderTemplate(
 					this.config.range[0] as unknown as string,
-					context,
 				) as string) ?? RANGE_MIN,
 			);
 			this.range[1] = parseFloat(
 				(this.renderTemplate(
 					this.config.range[1] as unknown as string,
-					context,
 				) as string) ?? RANGE_MAX,
 			);
 		}
-
-		this.speed = (this.range[1] - this.range[0]) / 50;
 
 		if (this.config.step) {
 			this.step = parseFloat(
@@ -343,7 +247,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				this.thumbWidth = 12;
 				break;
 		}
-		this.setSliderState(context['value' as keyof typeof context] as number);
+		this.setSliderState();
 
 		if (sliderElement) {
 			const style = getComputedStyle(sliderElement);
@@ -362,12 +266,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 		return html`
 			<div class="container ${this.sliderOn ? 'on' : 'off'}">
-				${this.buildBackground()}${this.buildSlider(context)}
-				${this.buildIcon(this.config.icon, context)}
-				${this.buildLabel(this.config.label, context)}
+				${this.buildBackground()}${this.buildSlider()}
+				${this.buildIcon(this.config.icon)}
+				${this.buildLabel(this.config.label)}
 			</div>
-			${this.buildTooltip()}${this.buildSliderStyles(context)}
-			${this.buildStyles(this.config.styles, context)}
+			${this.buildTooltip()}${this.buildSliderStyles()}
+			${this.buildStyles(this.config.styles)}
 		`;
 	}
 
@@ -377,19 +281,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			e.preventDefault();
 			this.getValueFromHass = false;
 			this.showTooltip = true;
-			this.currentValue = Math.min(
-				Math.max(
-					parseFloat(
-						(this.currentValue ??
-							this.value ??
-							this.range[0]) as string,
-					) +
-						((e.key == 'ArrowLeft') != this.rtl ? -1 : 1) *
-							this.step,
-					this.range[0],
-				),
-				this.range[1],
-			);
+			this._value =
+				parseFloat((this.value ?? this.range[0]) as unknown as string) +
+				((e.key == 'ArrowLeft') != this.rtl ? -1 : 1) * this.step;
 		}
 	}
 
@@ -397,7 +291,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
 			e.preventDefault();
 			this.showTooltip = false;
-			this.value = this.currentValue;
 			await this.sendAction('tap_action');
 			this.endAction();
 			this.resetGetValueFromHass();
