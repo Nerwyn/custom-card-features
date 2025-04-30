@@ -180,7 +180,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				'.option',
 			) as unknown as HTMLElement[];
 			for (const i in options) {
-				if (!changedProperties.get('open')) {
+				if (!changedProperties.get('open') && this.open) {
 					const selected =
 						String(this.value) ==
 						String(

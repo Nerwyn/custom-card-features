@@ -1,6 +1,5 @@
 import { css, CSSResult, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import { StyleInfo, styleMap } from 'lit/directives/style-map.js';
 
 import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
 import { SliderThumbType } from '../models/interfaces';
@@ -132,21 +131,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	buildSlider() {
-		const style: StyleInfo = {};
-		if (
-			this.renderTemplate(this.config.tap_action?.action as string) ==
-			'none'
-		) {
-			style['pointer-events'] = 'none';
-		}
-
 		return html`
 			<input
 				id="slider"
 				type="range"
 				class="${this.sliderClass}"
 				tabindex="-1"
-				style=${styleMap(style)}
 				min="${this.range[0]}"
 				max="${this.range[1]}"
 				step=${this.step}
@@ -180,6 +170,16 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			}
 			.slider::-moz-range-thumb {
 				scale: -1;
+			}
+			`
+					: ''
+			}
+			${
+				this.renderTemplate(this.config.tap_action?.action as string) ==
+				'none'
+					? `
+			.slider {
+				pointer-events: none;
 			}
 			`
 					: ''
@@ -415,17 +415,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					-webkit-appearance: none;
 					height: var(--feature-height, 40px);
 					width: var(--thumb-width, 16px);
-					/*
-					background: var(--color, var(--feature-color));
-					cursor: pointer;
-					opacity: var(--opacity, 1);
-					box-shadow: var(
-						--thumb-box-shadow,
-						calc(-100vw - (var(--thumb-width, 16px) / 2)) 0 0 100vw
-							var(--color, var(--feature-color))
-					);
-					border-radius: var(--thumb-border-radius, 0);
-					*/
 				}
 
 				.flat-thumb::-moz-range-thumb {
@@ -433,18 +422,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					-moz-appearance: none;
 					height: var(--feature-height, 40px);
 					width: var(--thumb-width, 16px);
-					/*
-					border-color: var(--color, var(--feature-color));
-					background: var(--color, var(--feature-color));
-					cursor: pointer;
-					opacity: var(--opacity, 1);
-					box-shadow: var(
-						--thumb-box-shadow,
-						calc(-100vw - (var(--thumb-width, 16px) / 2)) 0 0 100vw
-							var(--color, var(--feature-color))
-					);
-					border-radius: var(--thumb-border-radius, 0);
-					*/
 				}
 
 				.line-thumb::-webkit-slider-thumb {
