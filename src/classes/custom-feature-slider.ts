@@ -159,6 +159,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				@pointerleave=${this.onPointerLeave}
 				@contextmenu=${this.onContextMenu}
 			/>
+			<div
+				class="thumb ${this.renderTemplate(
+					this.config.thumb as SliderThumbType,
+				)}"
+			></div>
 		`;
 	}
 
@@ -410,6 +415,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					-webkit-appearance: none;
 					height: var(--feature-height, 40px);
 					width: var(--thumb-width, 16px);
+					/*
 					background: var(--color, var(--feature-color));
 					cursor: pointer;
 					opacity: var(--opacity, 1);
@@ -419,6 +425,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							var(--color, var(--feature-color))
 					);
 					border-radius: var(--thumb-border-radius, 0);
+					*/
 				}
 
 				.flat-thumb::-moz-range-thumb {
@@ -426,6 +433,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					-moz-appearance: none;
 					height: var(--feature-height, 40px);
 					width: var(--thumb-width, 16px);
+					/*
 					border-color: var(--color, var(--feature-color));
 					background: var(--color, var(--feature-color));
 					cursor: pointer;
@@ -436,6 +444,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							var(--color, var(--feature-color))
 					);
 					border-radius: var(--thumb-border-radius, 0);
+					*/
 				}
 
 				.line-thumb::-webkit-slider-thumb {
@@ -515,6 +524,29 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 				.off > ::-moz-range-thumb {
 					visibility: hidden;
+				}
+
+				.thumb {
+					height: var(--feature-height, 40px);
+					width: var(--thumb-width, var(--feature-height, 40px));
+					position: absolute;
+					translate: var(--thumb-offset) 0;
+					transition:
+						translate 180ms ease-in-out,
+						background 180ms ease-in-out;
+				}
+				.thumb.flat {
+					background: var(--color, var(--feature-color));
+					box-shadow: var(
+						--thumb-box-shadow,
+						calc(
+								-100vw - (var(
+												--thumb-width,
+												var(--feature-height, 40px)
+											) / 2)
+							)
+							0 0 100vw var(--color, var(--feature-color))
+					);
 				}
 
 				.tooltip {
