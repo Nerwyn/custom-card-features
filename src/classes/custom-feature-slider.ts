@@ -322,7 +322,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					overflow: visible;
 					pointer-events: none;
 					cursor: pointer;
-					--height: var(--feature-height, 40px);
 				}
 
 				.background {
@@ -368,6 +367,15 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 				.line-thumb {
 					width: calc(100% - 5px);
+				}
+
+				::-webkit-slider-thumb,
+				::-moz-range-thumb {
+					appearance: none;
+					-webkit-appearance: none;
+					-moz-appearance: none;
+					height: var(--feature-height, 40px);
+					width: var(--feature-height, 40px);
 				}
 
 				.default-thumb::-webkit-slider-thumb {
@@ -465,34 +473,45 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				.round-thumb::-webkit-slider-thumb {
 					appearance: none;
 					-webkit-appearance: none;
-					height: var(--height);
-					width: var(--thumb-width, var(--height));
+					height: var(--feature-height, 40px);
+					width: var(--feature-height, 40px);
 					background: var(--color, var(--feature-color));
 					cursor: pointer;
 					opacity: var(--opacity, 1);
 					box-shadow: var(
 						--thumb-box-shadow,
-						calc(-100vw - (var(--thumb-width, var(--height)) / 2)) 0
-							0 100vw var(--color, var(--feature-color))
+						calc(-100vw - (var(--feature-height, 40px) / 2)) 0 0
+							100vw var(--color, var(--feature-color))
 					);
-					border-radius: var(--thumb-border-radius, var(--height));
+					border-radius: var(
+						--thumb-border-radius,
+						var(--feature-height, 40px)
+					);
 				}
 
 				.round-thumb::-moz-range-thumb {
 					appearance: none;
 					-moz-appearance: none;
-					height: var(--height);
-					width: var(--thumb-width, var(--height));
+					height: var(--feature-height, 40px);
+					width: var(--thumb-width, var(--feature-height, 40px));
 					border-color: var(--color, var(--feature-color));
 					background: var(--color, var(--feature-color));
 					cursor: pointer;
 					opacity: var(--opacity, 1);
 					box-shadow: var(
 						--thumb-box-shadow,
-						calc(-100vw - (var(--thumb-width, var(--height)) / 2)) 0
-							0 100vw var(--color, var(--feature-color))
+						calc(
+								-100vw - (var(
+												--thumb-width,
+												var(--feature-height, 40px)
+											) / 2)
+							)
+							0 0 100vw var(--color, var(--feature-color))
 					);
-					border-radius: var(--thumb-border-radius, var(--height));
+					border-radius: var(
+						--thumb-border-radius,
+						var(--feature-height, 40px)
+					);
 				}
 
 				.off > ::-webkit-slider-thumb {
@@ -525,6 +544,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							0 0 100vw var(--color, var(--feature-color))
 					);
 				}
+				.off > .thumb {
+					visibility: hidden;
+				}
 
 				.tooltip {
 					background: var(--clear-background-color);
@@ -539,7 +561,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						--tooltip-transform,
 						translate(
 							var(--thumb-offset),
-							calc(-0.5 * var(--height) - 0.4em - 10px)
+							calc(
+								-0.5 * var(--feature-height, 40px) - 0.4em - 10px
+							)
 						)
 					);
 					display: var(--tooltip-display);
