@@ -121,6 +121,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		return html`<div class="tooltip"></div>`;
 	}
 
+	buildThumb(thumbType: SliderThumbType) {
+		return html`<div class="thumb ${thumbType}"></div>`;
+	}
+
 	buildSlider() {
 		return html`
 			<input
@@ -139,11 +143,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				@pointerleave=${this.onPointerLeave}
 				@contextmenu=${this.onContextMenu}
 			/>
-			<div
-				class="thumb ${this.renderTemplate(
-					this.config.thumb ?? 'default',
-				)}"
-			></div>
 		`;
 	}
 
@@ -215,7 +214,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		}
 
 		const sliderElement = this.shadowRoot?.querySelector('input');
-		switch (this.renderTemplate(this.config.thumb as SliderThumbType)) {
+		let thumbType = this.renderTemplate(
+			this.config.thumb as string,
+		) as SliderThumbType;
+		switch (thumbType) {
 			case 'round': {
 				if (sliderElement) {
 					const style = getComputedStyle(sliderElement);
@@ -230,8 +232,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			}
 			case 'line':
 			case 'flat':
+				this.thumbWidth = 12;
+				break;
 			default:
 				this.thumbWidth = 12;
+				thumbType = 'default';
 				break;
 		}
 		this.setSliderState();
@@ -253,7 +258,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 		return html`
 			<div class="container ${this.sliderOn ? 'on' : 'off'}">
-				${this.buildBackground()}${this.buildSlider()}
+				${this.buildBackground()}${this.buildSlider()}${this.buildThumb(
+					thumbType,
+				)}
 				<div class="icon-label">
 					${this.buildIcon(this.config.icon)}
 					${this.buildLabel(this.config.label)}
@@ -303,6 +310,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				:host {
 					overflow: visible;
 					--thumb-transition: translate 180ms ease-in-out;
+					--thumb-width: 12px;
 				}
 
 				.background {
@@ -345,18 +353,18 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					appearance: none;
 					-webkit-appearance: none;
 					height: var(--feature-height, 40px);
-					width: 12px;
+					width: var(--thumb-width);
 				}
 				::-moz-range-thumb {
 					appearance: none;
 					-moz-appearance: none;
 					height: var(--feature-height, 40px);
-					width: 12px;
+					width: var(--thumb-width);
 				}
 
 				.thumb {
 					height: var(--feature-height, 40px);
-					width: 12px;
+					width: var(--thumb-width);
 					opacity: var(--opacity, 1);
 					position: absolute;
 					pointer-events: none;
