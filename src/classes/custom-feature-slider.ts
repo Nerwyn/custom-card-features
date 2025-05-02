@@ -2,17 +2,20 @@ import { css, CSSResult, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
-import { SliderThumbType } from '../models/interfaces';
+import { SliderThumbType, SliderThumbTypes } from '../models/interfaces';
+import { getNumericPixels } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-slider')
 export class CustomFeatureSlider extends BaseCustomFeature {
 	@state() thumbOffset: number = 0;
 	@state() sliderOn: boolean = true;
+	@state() pressed: boolean = false;
 
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
 
+	thumbType: SliderThumbType = 'default';
 	thumbWidth: number = 0;
 	resizeObserver = new ResizeObserver((entries) => {
 		for (const entry of entries) {
@@ -32,9 +35,15 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		this.value = value;
 	}
 
+	endAction() {
+		super.endAction();
+		this.pressed = false;
+	}
+
 	onPointerDown(e: PointerEvent) {
 		super.onPointerDown(e);
 		const slider = e.currentTarget as HTMLInputElement;
+		this.pressed = true;
 
 		if (!this.swiping) {
 			clearTimeout(this.getValueFromHassTimer);
@@ -48,6 +57,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	async onPointerUp(e: PointerEvent) {
 		this.setThumbOffset();
 		const slider = e.currentTarget as HTMLInputElement;
+		this.pressed = false;
 
 		if (!this.swiping && this.initialX && this.initialY) {
 			this._value = slider.value;
@@ -174,6 +184,17 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			`
 					: ''
 			}
+			${
+				this.pressed
+					? `
+			:host {
+				--thumb-transition: none !important;
+				--tooltip-transition: opacity 540ms ease-in-out 0s !important;
+				--tooltip-opacity: 1 !important;
+			}
+			`
+					: ''
+			}
 		`;
 
 		return html`<style>
@@ -213,41 +234,13 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			this.precision = 0;
 		}
 
-		const sliderElement = this.shadowRoot?.querySelector('input');
 		let thumbType = this.renderTemplate(
 			this.config.thumb as string,
 		) as SliderThumbType;
-		switch (thumbType) {
-			case 'round': {
-				if (sliderElement) {
-					const style = getComputedStyle(sliderElement);
-					const height = style.getPropertyValue('height');
-					if (height) {
-						this.thumbWidth = parseInt(
-							height.replace(/[^0-9]+/g, ''),
-						);
-					}
-				}
-				break;
-			}
-			case 'line':
-			case 'flat':
-				this.thumbWidth = 12;
-				break;
-			default:
-				this.thumbWidth = 12;
-				thumbType = 'default';
-				break;
-		}
+		this.thumbType = SliderThumbTypes.includes(thumbType)
+			? thumbType
+			: 'default';
 		this.setSliderState();
-
-		if (sliderElement) {
-			const style = getComputedStyle(sliderElement);
-			const thumbWidth = style.getPropertyValue('--thumb-width');
-			if (thumbWidth) {
-				this.thumbWidth = parseInt(thumbWidth.replace(/[^0-9]+/g, ''));
-			}
-		}
 
 		this.rtl = getComputedStyle(this).direction == 'rtl';
 		this.setThumbOffset();
@@ -269,6 +262,32 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			${this.buildTooltip()}${this.buildSliderStyles()}
 			${this.buildStyles(this.config.styles)}
 		`;
+	}
+
+	updated() {
+		// Ensure that both the input range and div thumbs are the same size
+		const thumb = this.shadowRoot?.querySelector('.thumb') as HTMLElement;
+		const style = getComputedStyle(thumb);
+		const thumbWidth = getNumericPixels(style.getPropertyValue('width'));
+		const userThumbWidth = style.getPropertyValue('--thumb-width');
+
+		if (userThumbWidth) {
+			this.thumbWidth = getNumericPixels(userThumbWidth);
+		} else {
+			switch (this.thumbType) {
+				case 'round': {
+					const height = style.getPropertyValue('height');
+					this.thumbWidth = getNumericPixels(height);
+					break;
+				}
+				case 'line':
+				case 'flat':
+				default:
+					this.thumbWidth = thumbWidth;
+					break;
+			}
+			this.style.setProperty('--thumb-width', `${this.thumbWidth}px`);
+		}
 	}
 
 	async onKeyDown(e: KeyboardEvent) {
@@ -310,7 +329,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				:host {
 					overflow: visible;
 					--thumb-transition: translate 180ms ease-in-out;
-					--thumb-width: 12px;
+					--tooltip-transition: opacity 180ms ease-in-out 0s;
+					--tooltip-opacity: 0;
 				}
 
 				.background {
@@ -353,18 +373,18 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					appearance: none;
 					-webkit-appearance: none;
 					height: var(--feature-height, 40px);
-					width: var(--thumb-width);
+					width: var(--thumb-width, 12px);
 				}
 				::-moz-range-thumb {
 					appearance: none;
 					-moz-appearance: none;
 					height: var(--feature-height, 40px);
-					width: var(--thumb-width);
+					width: var(--thumb-width, 12px);
 				}
 
 				.thumb {
 					height: var(--feature-height, 40px);
-					width: var(--thumb-width);
+					width: var(--thumb-width, 12px);
 					opacity: var(--opacity, 1);
 					position: absolute;
 					pointer-events: none;
@@ -376,11 +396,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 				.off > .thumb {
 					visibility: hidden;
-				}
-				:host(:active) .thumb,
-				:host(:active) .icon,
-				:host(:active) .label {
-					--thumb-transition: none;
 				}
 
 				.thumb.default {
@@ -447,7 +462,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 				.tooltip {
 					display: var(--tooltip-display);
-					opacity: 0;
 					background: var(--clear-background-color);
 					color: var(--primary-text-color);
 					position: absolute;
@@ -466,11 +480,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							)
 						)
 					);
-					transition: opacity 180ms ease-in-out 0s;
-				}
-				:host(:active) .tooltip {
-					opacity: 1;
-					transition: opacity 540ms ease-in-out 0s;
+					transition: var(--tooltip-transition);
+					opacity: var(--tooltip-opacity);
 				}
 				.tooltip::after {
 					content: var(--tooltip-label, '0');

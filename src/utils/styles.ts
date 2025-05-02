@@ -33,3 +33,12 @@ export function buildStyles(styles?: string): TemplateResult<1> {
 		${importantStyles}
 	</style>`;
 }
+
+/**
+ * Parse pixel string to float
+ * @param {string} pixels The pixel string, typicaly ends with 'px'
+ * @returns The pixel string as a float
+ */
+export function getNumericPixels(pixels: string) {
+	return parseFloat(pixels.replace(/[^0-9]+/g, ''));
+}
