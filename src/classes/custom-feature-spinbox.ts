@@ -320,12 +320,6 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 					place-content: center;
 				}
 
-				.icon-label-container {
-					display: flex;
-					flex-flow: column;
-					align-items: center;
-				}
-
 				.icon {
 					opacity: 0.77;
 				}

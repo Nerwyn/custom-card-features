@@ -7,7 +7,6 @@ import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-slider')
 export class CustomFeatureSlider extends BaseCustomFeature {
-	@state() showTooltip: boolean = false;
 	@state() thumbOffset: number = 0;
 	@state() sliderOn: boolean = true;
 
@@ -15,7 +14,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	step: number = STEP;
 
 	thumbWidth: number = 0;
-	sliderClass: string = 'slider ';
 	resizeObserver = new ResizeObserver((entries) => {
 		for (const entry of entries) {
 			this.featureWidth = entry.contentRect.width;
@@ -43,14 +41,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			this.getValueFromHass = false;
 			this._value = slider.value;
 			this.setThumbOffset();
-			this.showTooltip = true;
 			this.sliderOn = true;
 		}
 	}
 
 	async onPointerUp(e: PointerEvent) {
 		this.setThumbOffset();
-		this.showTooltip = false;
 		const slider = e.currentTarget as HTMLInputElement;
 
 		if (!this.swiping && this.initialX && this.initialY) {
@@ -82,7 +78,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			this.getValueFromHass = true;
 			this.setValue();
 			this.setThumbOffset();
-			this.showTooltip = false;
 			this.setSliderState();
 		} else {
 			this._value = slider.value;
@@ -123,11 +118,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	buildTooltip() {
-		return html`
-			<div
-				class="tooltip ${this.showTooltip ? 'faded-in' : 'faded-out'}"
-			></div>
-		`;
+		return html`<div class="tooltip"></div>`;
 	}
 
 	buildSlider() {
@@ -135,7 +126,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			<input
 				id="slider"
 				type="range"
-				class="${this.sliderClass}"
 				tabindex="-1"
 				min="${this.range[0]}"
 				max="${this.range[1]}"
@@ -151,7 +141,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			/>
 			<div
 				class="thumb ${this.renderTemplate(
-					this.config.thumb as SliderThumbType,
+					this.config.thumb ?? 'default',
 				)}"
 			></div>
 		`;
@@ -165,10 +155,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			${
 				this.rtl
 					? `
-			.slider::-webkit-slider-thumb {
+			::-webkit-slider-thumb {
 				scale: -1;
 			}
-			.slider::-moz-range-thumb {
+			::-moz-range-thumb {
 				scale: -1;
 			}
 			`
@@ -178,8 +168,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				this.renderTemplate(this.config.tap_action?.action as string) ==
 				'none'
 					? `
-			.slider {
+			input {
 				pointer-events: none;
+				cursor: default;
 			}
 			`
 					: ''
@@ -224,18 +215,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		}
 
 		const sliderElement = this.shadowRoot?.querySelector('input');
-		this.sliderClass = 'slider ';
 		switch (this.renderTemplate(this.config.thumb as SliderThumbType)) {
-			case 'line':
-				this.sliderClass += 'line-thumb';
-				this.thumbWidth = 10;
-				break;
-			case 'flat':
-				this.sliderClass += 'flat-thumb';
-				this.thumbWidth = 16;
-				break;
 			case 'round': {
-				this.sliderClass += 'round-thumb';
 				if (sliderElement) {
 					const style = getComputedStyle(sliderElement);
 					const height = style.getPropertyValue('height');
@@ -247,8 +228,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 				break;
 			}
+			case 'line':
+			case 'flat':
 			default:
-				this.sliderClass += 'default-thumb';
 				this.thumbWidth = 12;
 				break;
 		}
@@ -272,8 +254,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		return html`
 			<div class="container ${this.sliderOn ? 'on' : 'off'}">
 				${this.buildBackground()}${this.buildSlider()}
-				${this.buildIcon(this.config.icon)}
-				${this.buildLabel(this.config.label)}
+				<div class="icon-label">
+					${this.buildIcon(this.config.icon)}
+					${this.buildLabel(this.config.label)}
+				</div>
 			</div>
 			${this.buildTooltip()}${this.buildSliderStyles()}
 			${this.buildStyles(this.config.styles)}
@@ -285,7 +269,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		if (keys.includes(e.key)) {
 			e.preventDefault();
 			this.getValueFromHass = false;
-			this.showTooltip = true;
 			this._value =
 				parseFloat((this.value ?? this.range[0]) as unknown as string) +
 				((e.key == 'ArrowLeft') != this.rtl ? -1 : 1) * this.step;
@@ -295,7 +278,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	async onKeyUp(e: KeyboardEvent) {
 		if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
 			e.preventDefault();
-			this.showTooltip = false;
 			await this.sendAction('tap_action');
 			this.endAction();
 			this.resetGetValueFromHass();
@@ -320,8 +302,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			css`
 				:host {
 					overflow: visible;
-					pointer-events: none;
-					cursor: pointer;
+					--thumb-transition: translate 180ms ease-in-out;
 				}
 
 				.background {
@@ -343,212 +324,122 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					display: none;
 				}
 
-				.slider {
+				input {
 					position: absolute;
 					appearance: none;
 					-webkit-appearance: none;
 					-moz-appearance: none;
 					height: inherit;
+					width: inherit;
 					background: none;
+					overflow: hidden;
+					touch-action: pan-y;
 					pointer-events: all;
+					cursor: pointer;
 				}
-				.slider:focus-visible {
+				input:focus-visible {
 					outline: none;
 				}
 
-				.slider,
-				.default-thumb,
-				.flat-thumb,
-				.round-thumb {
-					width: inherit;
-					overflow: hidden;
-					touch-action: pan-y;
+				::-webkit-slider-thumb {
+					appearance: none;
+					-webkit-appearance: none;
+					height: var(--feature-height, 40px);
+					width: 12px;
 				}
-
-				.line-thumb {
-					width: calc(100% - 5px);
-				}
-
-				::-webkit-slider-thumb,
 				::-moz-range-thumb {
 					appearance: none;
-					-webkit-appearance: none;
 					-moz-appearance: none;
 					height: var(--feature-height, 40px);
-					width: var(--feature-height, 40px);
+					width: 12px;
 				}
 
-				.default-thumb::-webkit-slider-thumb {
-					appearance: none;
-					-webkit-appearance: none;
-					height: 30px;
-					width: var(--thumb-width, 12px);
-					border-style: solid;
-					border-width: 4px;
-					border-radius: var(--thumb-border-radius, 12px);
-					border-color: var(--color, var(--feature-color));
-					background: #ffffff;
-					cursor: pointer;
-					opacity: var(--opacity, 1);
-					box-shadow: var(
-						--thumb-box-shadow,
-						calc(-100vw - (var(--thumb-width, 12px) / 2)) 0 0 100vw
-							var(--color, var(--feature-color)),
-						-7px 0 0 8px var(--color, var(--feature-color))
-					);
-				}
-
-				.default-thumb::-moz-range-thumb {
-					appearance: none;
-					-moz-appearance: none;
-					height: 22px;
-					width: var(--thumb-width, 4px);
-					border-style: solid;
-					border-width: 4px;
-					border-radius: var(--thumb-border-radius, 12px);
-					border-color: var(--color, var(--feature-color));
-					background: #ffffff;
-					cursor: pointer;
-					opacity: var(--opacity, 1);
-					box-shadow: var(
-						--thumb-box-shadow,
-						calc(-100vw - (var(--thumb-width, 12px) / 2)) 0 0 100vw
-							var(--color, var(--feature-color)),
-						-7px 0 0 8px var(--color, var(--feature-color))
-					);
-				}
-
-				.flat-thumb::-webkit-slider-thumb {
-					appearance: none;
-					-webkit-appearance: none;
+				.thumb {
 					height: var(--feature-height, 40px);
-					width: var(--thumb-width, 16px);
-				}
-
-				.flat-thumb::-moz-range-thumb {
-					appearance: none;
-					-moz-appearance: none;
-					height: var(--feature-height, 40px);
-					width: var(--thumb-width, 16px);
-				}
-
-				.line-thumb::-webkit-slider-thumb {
-					appearance: none;
-					-webkit-appearance: none;
-					height: 28px;
-					width: var(--thumb-width, 10px);
-					border-style: solid;
-					border-color: #ffffff;
-					border-width: 3px;
-					border-radius: var(--thumb-border-radius, 12px);
-					background: #8a8c99;
-					cursor: pointer;
+					width: 12px;
 					opacity: var(--opacity, 1);
-					box-shadow: var(
-						--thumb-box-shadow,
-						0 7px 0 0 #ffffff,
-						0 -7px 0 0 #ffffff
-					);
+					position: absolute;
+					pointer-events: none;
+					translate: var(--thumb-offset) 0;
+					transition:
+						var(--thumb-transition),
+						background 180ms ease-in-out,
+						box-shadow 180ms ease-in-out;
+				}
+				.off > .thumb {
+					visibility: hidden;
+				}
+				:host(:active) .thumb,
+				:host(:active) .icon,
+				:host(:active) .label {
+					--thumb-transition: none;
 				}
 
-				.line-thumb::-moz-range-thumb {
-					appearance: none;
-					-moz-appearance: none;
-					height: 24px;
-					width: var(--thumb-width, 4px);
-					border-style: solid;
-					border-color: #ffffff;
-					border-width: 3px;
+				.thumb.default {
 					border-radius: var(--thumb-border-radius, 12px);
-					background: #8a8c99;
-					cursor: pointer;
-					opacity: var(--opacity, 1);
-					box-shadow: var(
-						--thumb-box-shadow,
-						0 7px 0 0 #ffffff,
-						0 -7px 0 0 #ffffff
-					);
-				}
-
-				.round-thumb::-webkit-slider-thumb {
-					appearance: none;
-					-webkit-appearance: none;
-					height: var(--feature-height, 40px);
-					width: var(--feature-height, 40px);
 					background: var(--color, var(--feature-color));
-					cursor: pointer;
+					box-shadow: var(
+						--thumb-box-shadow,
+						calc(-100vw - 6px) 0 0 100vw
+							var(--color, var(--feature-color))
+					);
+				}
+				.thumb.default::after {
+					content: '';
+					position: absolute;
+					height: 22px;
+					width: 4px;
+					top: 25%;
+					right: 4px;
+					border-radius: 4px;
+					background: #ffffff;
+				}
+
+				.thumb.flat {
+					background: var(--color, var(--feature-color));
+					box-shadow: var(
+						--thumb-box-shadow,
+						-100vw 0 0 100vw var(--color, var(--feature-color))
+					);
+				}
+
+				.thumb.line {
+					border-radius: 8px;
+					background: #ffffff;
+				}
+				.thumb.line::after {
+					content: '';
+					position: absolute;
+					height: 22px;
+					width: 4px;
+					border-radius: 4px;
+					top: 25%;
+					right: 4px;
+					background: #8a8c99;
+				}
+
+				.thumb.round {
+					height: var(--feature-height, 40px);
+					width: var(--feature-height, 40px);
+					border-radius: var(--feature-height, 40px);
+					background: var(--color, var(--feature-color));
 					opacity: var(--opacity, 1);
 					box-shadow: var(
 						--thumb-box-shadow,
 						calc(-100vw - (var(--feature-height, 40px) / 2)) 0 0
 							100vw var(--color, var(--feature-color))
 					);
-					border-radius: var(
-						--thumb-border-radius,
-						var(--feature-height, 40px)
-					);
 				}
 
-				.round-thumb::-moz-range-thumb {
-					appearance: none;
-					-moz-appearance: none;
-					height: var(--feature-height, 40px);
-					width: var(--thumb-width, var(--feature-height, 40px));
-					border-color: var(--color, var(--feature-color));
-					background: var(--color, var(--feature-color));
-					cursor: pointer;
-					opacity: var(--opacity, 1);
-					box-shadow: var(
-						--thumb-box-shadow,
-						calc(
-								-100vw - (var(
-												--thumb-width,
-												var(--feature-height, 40px)
-											) / 2)
-							)
-							0 0 100vw var(--color, var(--feature-color))
-					);
-					border-radius: var(
-						--thumb-border-radius,
-						var(--feature-height, 40px)
-					);
+				.thumb.md2 {
 				}
 
-				.off > ::-webkit-slider-thumb {
-					visibility: hidden;
-				}
-
-				.off > ::-moz-range-thumb {
-					visibility: hidden;
-				}
-
-				.thumb {
-					height: var(--feature-height, 40px);
-					width: var(--thumb-width, var(--feature-height, 40px));
-					position: absolute;
-					translate: var(--thumb-offset) 0;
-					transition:
-						translate 180ms ease-in-out,
-						background 180ms ease-in-out;
-				}
-				.thumb.flat {
-					background: var(--color, var(--feature-color));
-					box-shadow: var(
-						--thumb-box-shadow,
-						calc(
-								-100vw - (var(
-												--thumb-width,
-												var(--feature-height, 40px)
-											) / 2)
-							)
-							0 0 100vw var(--color, var(--feature-color))
-					);
-				}
-				.off > .thumb {
-					visibility: hidden;
+				.thumb.md3 {
 				}
 
 				.tooltip {
+					display: var(--tooltip-display);
+					opacity: 0;
 					background: var(--clear-background-color);
 					color: var(--primary-text-color);
 					position: absolute;
@@ -556,6 +447,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					padding: 0.2em 0.4em;
 					height: 20px;
 					width: fit-content;
+					pointer-events: none;
 					line-height: 20px;
 					transform: var(
 						--tooltip-transform,
@@ -566,18 +458,23 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							)
 						)
 					);
-					display: var(--tooltip-display);
-				}
-				.faded-out {
-					opacity: 0;
 					transition: opacity 180ms ease-in-out 0s;
 				}
-				.faded-in {
+				:host(:active) .tooltip {
 					opacity: 1;
 					transition: opacity 540ms ease-in-out 0s;
 				}
 				.tooltip::after {
 					content: var(--tooltip-label, '0');
+				}
+
+				.icon-label {
+					height: 100%;
+					width: 100%;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
 				}
 			`,
 		];
