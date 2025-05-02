@@ -374,12 +374,14 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					-webkit-appearance: none;
 					height: var(--feature-height, 40px);
 					width: var(--thumb-width, 12px);
+					opacity: 0;
 				}
 				::-moz-range-thumb {
 					appearance: none;
 					-moz-appearance: none;
 					height: var(--feature-height, 40px);
 					width: var(--thumb-width, 12px);
+					opacity: 0;
 				}
 
 				.thumb {
