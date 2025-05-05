@@ -132,7 +132,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	buildThumb(thumbType: SliderThumbType) {
-		return html`<div class="thumb ${thumbType}"></div>`;
+		return html`<div class="thumb ${thumbType}">
+			<div class="active"></div>
+		</div>`;
 	}
 
 	buildSlider() {
@@ -393,21 +395,22 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					translate: var(--thumb-offset) 0;
 					transition:
 						var(--thumb-transition),
-						background 180ms ease-in-out,
-						box-shadow 180ms ease-in-out;
+						background 180ms ease-in-out;
 				}
 				.off > .thumb {
 					visibility: hidden;
 				}
+				.thumb .active {
+					height: 100%;
+					width: 100vw;
+					position: absolute;
+					right: calc(var(--thumb-width) / 2);
+					background: inherit;
+				}
 
 				.thumb.default {
-					border-radius: var(--thumb-border-radius, 12px);
+					border-radius: var(--thumb-border-radius, 8px);
 					background: var(--color, var(--feature-color));
-					box-shadow: var(
-						--thumb-box-shadow,
-						calc(-100vw - 6px) 0 0 100vw
-							var(--color, var(--feature-color))
-					);
 				}
 				.thumb.default::after {
 					content: '';
@@ -415,17 +418,13 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					height: 22px;
 					width: 4px;
 					top: 25%;
-					right: 4px;
+					right: 6px;
 					border-radius: 4px;
 					background: #ffffff;
 				}
 
 				.thumb.flat {
 					background: var(--color, var(--feature-color));
-					box-shadow: var(
-						--thumb-box-shadow,
-						-100vw 0 0 100vw var(--color, var(--feature-color))
-					);
 				}
 
 				.thumb.line {
@@ -442,6 +441,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					right: 4px;
 					background: #8a8c99;
 				}
+				.thumb.line .active {
+					display: none;
+				}
 
 				.thumb.round {
 					height: var(--feature-height, 40px);
@@ -449,11 +451,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					border-radius: var(--feature-height, 40px);
 					background: var(--color, var(--feature-color));
 					opacity: var(--opacity, 1);
-					box-shadow: var(
-						--thumb-box-shadow,
-						calc(-100vw - (var(--feature-height, 40px) / 2)) 0 0
-							100vw var(--color, var(--feature-color))
-					);
 				}
 
 				.thumb.md2 {
