@@ -1,4 +1,4 @@
-import { renderTemplate } from 'ha-nunjucks';
+import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { css, html, LitElement, TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 
@@ -1111,6 +1111,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 									value: 'round',
 									label: 'Round',
 								},
+								{
+									value: 'md2-slider',
+									label: 'Material Design 2',
+								},
+								{
+									value: 'md3-slider',
+									label: 'Material Design 3',
+								},
 							],
 							reorder: false,
 						},
@@ -1512,16 +1520,16 @@ export class CustomFeaturesRowEditor extends LitElement {
 									label: 'Default',
 								},
 								{
-									value: 'checkbox',
-									label: 'Checkbox',
-								},
-								{
 									value: 'md2-switch',
-									label: 'Material Design 2 Switch',
+									label: 'Material Design 2',
 								},
 								{
 									value: 'md3-switch',
-									label: 'Material Design 3 Switch',
+									label: 'Material Design 3',
+								},
+								{
+									value: 'checkbox',
+									label: 'Checkbox',
 								},
 							],
 							reorder: false,
@@ -1748,6 +1756,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	renderTemplate(str: string | number | boolean, context: object) {
+		if (!hasTemplate(str)) {
+			return str;
+		}
 		context = {
 			render: (str2: string) => this.renderTemplate(str2, context),
 			stateObj: {
@@ -1757,7 +1768,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 		};
 
 		try {
-			const res = renderTemplate(this.hass, str as string, context);
+			const res = renderTemplate(
+				this.hass,
+				str as string,
+				context,
+				false,
+			);
 			if (res != str) {
 				return res;
 			}

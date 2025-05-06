@@ -5,7 +5,7 @@ import {
 	IConfirmation,
 } from '../models/interfaces';
 
-import { renderTemplate } from 'ha-nunjucks';
+import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { CSSResult, LitElement, css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
@@ -639,6 +639,10 @@ export class BaseCustomFeature extends LitElement {
 		str: string | number | boolean,
 		context?: object,
 	): string | number | boolean {
+		if (!hasTemplate(str)) {
+			return str;
+		}
+
 		let holdSecs: number = 0;
 		if (this.momentaryStart && this.momentaryEnd) {
 			holdSecs = (this.momentaryEnd - this.momentaryStart) / 1000;
@@ -681,7 +685,12 @@ export class BaseCustomFeature extends LitElement {
 		}
 
 		try {
-			const res = renderTemplate(this.hass, str as string, context);
+			const res = renderTemplate(
+				this.hass,
+				str as string,
+				context,
+				false,
+			);
 			if (res != str) {
 				return res;
 			}

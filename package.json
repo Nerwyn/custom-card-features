@@ -27,7 +27,7 @@
 	},
 	"homepage": "https://github.com/Nerwyn/custom-card-features#readme",
 	"dependencies": {
-		"ha-nunjucks": "latest",
+		"ha-nunjucks": "github:nerwyn/ha-nunjucks#dev",
 		"js-yaml": "latest",
 		"lit": "latest"
 	},

@@ -4,7 +4,7 @@ import { LitElement, TemplateResult, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
-import { renderTemplate } from 'ha-nunjucks';
+import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { HomeAssistant } from './models/interfaces';
 
@@ -65,13 +65,22 @@ class CustomFeaturesRow extends LitElement {
 		str: string | number | boolean,
 		context?: object,
 	): string | number | boolean {
+		if (!hasTemplate(str)) {
+			return str;
+		}
+
 		context = {
 			render: (str2: string) => this.renderTemplate(str2, context),
 			...context,
 		};
 
 		try {
-			const res = renderTemplate(this.hass, str as string, context);
+			const res = renderTemplate(
+				this.hass,
+				str as string,
+				context,
+				false,
+			);
 			if (res != str) {
 				return res;
 			}
