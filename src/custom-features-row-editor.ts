@@ -1768,21 +1768,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 		};
 
 		try {
-			const res = renderTemplate(
-				this.hass,
-				str as string,
-				context,
-				false,
-			);
-			if (res != str) {
-				return res;
-			}
+			return renderTemplate(this.hass, str as string, context, false);
 		} catch (e) {
 			console.error(e);
 			return '';
 		}
-
-		return str;
 	}
 
 	getEntryContext(entry: IEntry) {

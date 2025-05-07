@@ -685,21 +685,11 @@ export class BaseCustomFeature extends LitElement {
 		}
 
 		try {
-			const res = renderTemplate(
-				this.hass,
-				str as string,
-				context,
-				false,
-			);
-			if (res != str) {
-				return res;
-			}
+			return renderTemplate(this.hass, str as string, context, false);
 		} catch (e) {
 			console.error(e);
 			return '';
 		}
-
-		return str;
 	}
 
 	deepRenderTemplate<T extends object>(obj: T, context?: object): T {
