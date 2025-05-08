@@ -53,6 +53,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 	activeEntryType: 'entry' | 'option' | 'decrement' | 'increment' = 'entry';
 	people: Record<string, string>[] = [];
 
+	ACTIONS_TABS = ['default', 'momentary'];
+	SPINBOX_TABS = ['decrement', 'center', 'increment'];
+
 	static get properties() {
 		return { hass: {}, config: {} };
 	}
@@ -377,7 +380,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	handleSpinboxTabSelected(e: Event) {
 		this.yamlStringsCache = {};
 		this.yamlString = undefined;
-		const i = e.detail.index;
+		const i = this.SPINBOX_TABS.indexOf(e.detail.name);
 		switch (i) {
 			case 0:
 				this.activeEntryType = 'decrement';
@@ -398,7 +401,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	handleActionsTabSelected(e: Event) {
 		this.yamlStringsCache = {};
-		const i = e.detail.index;
+		const i = this.ACTIONS_TABS.indexOf(e.detail.name);
 		if (this.actionsTabIndex == i) {
 			return;
 		}
@@ -905,16 +908,29 @@ export class CustomFeaturesRowEditor extends LitElement {
 		</div>`;
 	}
 
-	buildButtonGuiEditor(parentEntry?: IEntry) {
-		const actionsTabBar = html`
-			<mwc-tab-bar
-				.activeIndex=${this.actionsTabIndex}
-				@MDCTabBar:activated=${this.handleActionsTabSelected}
-			>
-				<mwc-tab .label=${'default'}></mwc-tab>
-				<mwc-tab .label=${'momentary'}></mwc-tab>
-			</mwc-tab-bar>
+	buildTabBar(index: number, handler: (e: Event) => void, tabs: string[]) {
+		return html`
+			<sl-tab-group @sl-tab-show=${handler}>
+				${tabs.map(
+					(tab, i) =>
+						html`<sl-tab
+							slot="nav"
+							panel=${tab}
+							.active=${i == index}
+							>${tab}</sl-tab
+						>`,
+				)}
+			</sl-tab-group>
 		`;
+	}
+
+	buildButtonGuiEditor(parentEntry?: IEntry) {
+		const actionsTabBar = this.buildTabBar(
+			this.actionsTabIndex,
+			this.handleActionsTabSelected,
+			this.ACTIONS_TABS,
+		);
+
 		let actionSelectors: TemplateResult<1>;
 		const actionsNoRepeat = Actions.concat();
 		actionsNoRepeat.splice(Actions.indexOf('repeat'), 1);
@@ -1280,16 +1296,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 				defaultHoldActions,
 			)}
 		`;
-		const spinboxTabBar = html`
-			<mwc-tab-bar
-				.activeIndex=${this.spinboxTabIndex}
-				@MDCTabBar:activated=${this.handleSpinboxTabSelected}
-			>
-				<mwc-tab .label=${'decrement'}></mwc-tab>
-				<mwc-tab .label=${'center'}></mwc-tab>
-				<mwc-tab .label=${'increment'}></mwc-tab>
-			</mwc-tab-bar>
-		`;
+		const spinboxTabBar = this.buildTabBar(
+			this.spinboxTabIndex,
+			this.handleSpinboxTabSelected,
+			this.SPINBOX_TABS,
+		);
 
 		let spinboxGuiEditor: TemplateResult<1>;
 		switch (this.spinboxTabIndex) {
@@ -2403,6 +2414,16 @@ export class CustomFeaturesRowEditor extends LitElement {
 				gap: 8px;
 				box-sizing: border-box;
 				width: 100%;
+			}
+			sl-tab-group {
+				text-transform: capitalize;
+			}
+			sl-tab {
+				flex: 1;
+			}
+			sl-tab::part(base) {
+				width: 100%;
+				justify-content: center;
 			}
 
 			ha-expansion-panel {

@@ -1,7 +1,7 @@
 {
 	"name": "Custom Features for Home Assistant Cards",
 	"content_in_root": false,
-	"homeassistant": "2024.7.2",
+	"homeassistant": "2025.5.0",
 	"filename": "custom-card-features.min.js",
 	"render_readme": true,
 	"hide_default_branch": true
