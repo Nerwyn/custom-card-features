@@ -1,5 +1,6 @@
 import { css, CSSResult, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
 
 import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
 import { SliderThumbType, SliderThumbTypes } from '../models/interfaces';
@@ -122,9 +123,21 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			!(
 				this.value == undefined ||
 				['off', 'idle', null, undefined].includes(
-					this.hass.states[this.entityId as string].state,
+					this.hass.states[this.entityId as string]?.state,
 				)
 			) || ((this.value as number) ?? this.range[0]) > this.range[0];
+	}
+
+	setSliderStyles() {
+		this.style.setProperty(
+			'--tooltip-label',
+			`'${this.renderTemplate('{{ value }}{{ unit }}')}'`,
+		);
+
+		this.style.setProperty(
+			'--thumb-offset',
+			`calc(${this.rtl ? '-1 * ' : ''}${this.thumbOffset}px)`,
+		);
 	}
 
 	buildTooltip() {
@@ -140,7 +153,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	buildSlider() {
 		return html`
 			<input
-				id="slider"
 				type="range"
 				tabindex="-1"
 				min="${this.range[0]}"
@@ -156,52 +168,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				@contextmenu=${this.onContextMenu}
 			/>
 		`;
-	}
-
-	buildSliderStyles() {
-		const styles = `
-			:host {
-				--tooltip-label: '${this.renderTemplate('{{ value }}{{ unit }}')}';
-			}
-			${
-				this.rtl
-					? `
-			::-webkit-slider-thumb {
-				scale: -1;
-			}
-			::-moz-range-thumb {
-				scale: -1;
-			}
-			`
-					: ''
-			}
-			${
-				this.renderTemplate(this.config.tap_action?.action as string) ==
-				'none'
-					? `
-			input {
-				pointer-events: none;
-				cursor: default;
-			}
-			`
-					: ''
-			}
-			${
-				this.pressed
-					? `
-			:host {
-				--thumb-transition: none !important;
-				--tooltip-transition: opacity 540ms ease-in-out 0s !important;
-				--tooltip-opacity: 1 !important;
-			}
-			`
-					: ''
-			}
-		`;
-
-		return html`<style>
-			${styles}
-		</style>`;
 	}
 
 	render() {
@@ -246,13 +212,20 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 		this.rtl = getComputedStyle(this).direction == 'rtl';
 		this.setThumbOffset();
-		this.style.setProperty(
-			'--thumb-offset',
-			`calc(${this.rtl ? '-1 * ' : ''}${this.thumbOffset}px)`,
-		);
+		this.setSliderStyles();
 
 		return html`
-			<div class="container ${this.sliderOn ? 'on' : 'off'}">
+			<div
+				class="container ${classMap({
+					off: !this.sliderOn,
+					pressed: this.pressed,
+					'read-only':
+						this.renderTemplate(
+							this.config.tap_action?.action as string,
+						) == 'none',
+					rtl: this.rtl,
+				})}"
+			>
 				${this.buildBackground()}${this.buildSlider()}${this.buildThumb(
 					thumbType,
 				)}
@@ -261,8 +234,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					${this.buildLabel(this.config.label)}
 				</div>
 			</div>
-			${this.buildTooltip()}${this.buildSliderStyles()}
-			${this.buildStyles(this.config.styles)}
+			${this.buildTooltip()}${this.buildStyles(this.config.styles)}
 		`;
 	}
 
@@ -270,22 +242,33 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		// Ensure that both the input range and div thumbs are the same size
 		const thumb = this.shadowRoot?.querySelector('.thumb') as HTMLElement;
 		const style = getComputedStyle(thumb);
-		const thumbWidth = getNumericPixels(style.getPropertyValue('width'));
 		const userThumbWidth = style.getPropertyValue('--thumb-width');
 
 		if (userThumbWidth) {
-			this.thumbWidth = getNumericPixels(userThumbWidth);
+			const pixels = getNumericPixels(userThumbWidth);
+			if (!isNaN(pixels)) {
+				this.thumbWidth = pixels;
+			}
 		} else {
 			switch (this.thumbType) {
 				case 'round': {
-					const height = style.getPropertyValue('height');
-					this.thumbWidth = getNumericPixels(height);
+					const pixels = getNumericPixels(
+						style.getPropertyValue('height'),
+					);
+					if (!isNaN(pixels)) {
+						this.thumbWidth = pixels;
+					}
 					break;
 				}
 				case 'line':
 				case 'flat':
 				default:
-					this.thumbWidth = thumbWidth;
+					const pixels = getNumericPixels(
+						style.getPropertyValue('width'),
+					);
+					if (!isNaN(pixels)) {
+						this.thumbWidth = pixels;
+					}
 					break;
 			}
 			this.style.setProperty('--thumb-width', `${this.thumbWidth}px`);
@@ -330,9 +313,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			css`
 				:host {
 					overflow: visible;
-					--thumb-transition: translate 180ms ease-in-out;
-					--tooltip-transition: opacity 180ms ease-in-out 0s;
-					--tooltip-opacity: 0;
 				}
 
 				.background {
@@ -343,15 +323,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							var(--feature-color, var(--state-inactive-color))
 						)
 					);
-				}
-				.off > .background {
-					background: var(
-						--background,
-						var(--color, var(--state-inactive-color))
-					);
-				}
-				.off > .label {
-					display: none;
 				}
 
 				input {
@@ -394,11 +365,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					pointer-events: none;
 					translate: var(--thumb-offset) 0;
 					transition:
-						var(--thumb-transition),
+						translate 180ms ease-in-out,
 						background 180ms ease-in-out;
-				}
-				.off > .thumb {
-					visibility: hidden;
 				}
 				.thumb .active {
 					height: 100%;
@@ -479,8 +447,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							)
 						)
 					);
-					transition: var(--tooltip-transition);
-					opacity: var(--tooltip-opacity);
+					transition: opacity 180ms ease-in-out 0s;
+					opacity: 0;
 				}
 				.tooltip::after {
 					content: var(--tooltip-label, '0');
@@ -493,6 +461,42 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					flex-direction: column;
 					justify-content: center;
 					align-items: center;
+				}
+
+				.off .background {
+					background: var(
+						--background,
+						var(--color, var(--state-inactive-color))
+					);
+				}
+				.off .thumb {
+					visibility: hidden;
+				}
+				.off .label {
+					display: none;
+				}
+
+				.pressed .thumb {
+					transition: background 180ms ease-in-out;
+				}
+				.pressed ~ .tooltip {
+					transition: opacity 540ms ease-in-out 0s;
+					opacity: 1;
+				}
+
+				.read-only input {
+					pointer-events: none;
+					cursor: default;
+				}
+
+				.rtl ::-webkit-slider-thumb {
+					scale: -1;
+				}
+				.rtl ::-moz-range-thumb {
+					scale: -1;
+				}
+				.rtl .thumb {
+					scale: -1;
 				}
 			`,
 		];
