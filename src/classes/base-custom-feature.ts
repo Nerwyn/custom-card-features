@@ -840,6 +840,7 @@ export class BaseCustomFeature extends LitElement {
 	}
 
 	firstUpdated() {
+		this.rtl = this.classList.contains('rtl');
 		this.addEventListener('touchstart', this.onTouchStart, {
 			passive: true,
 		});

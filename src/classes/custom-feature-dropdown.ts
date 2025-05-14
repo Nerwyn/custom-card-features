@@ -44,30 +44,10 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 		}
 	}
 
-	buildDropdownStyles() {
-		const styles = `
-		${
-			this.rtl
-				? `
-		.down-arrow {
-			right: unset !important;
-			left: 10px !important;
-		}
-		`
-				: ''
-		}
-		`;
-
-		return html`<style>
-			${styles}
-		</style>`;
-	}
-
 	render() {
 		this.setValue();
 
 		// Dropdown position and height
-		this.rtl = getComputedStyle(this).direction == 'rtl';
 		if (this.open) {
 			// Calculate dropdown height without vertical scroll
 			let optionHeight = parseInt(
@@ -168,7 +148,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 			<ha-icon class="down-arrow" .icon=${'mdi:menu-down'}></ha-icon>
 		</div>`;
 
-		return html`${select}${dropdown}${this.buildDropdownStyles()}${this.buildStyles(
+		return html`${select}${dropdown}${this.buildStyles(
 			this.config.styles,
 		)}`;
 	}
@@ -305,6 +285,13 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					--background-opacity: 0.26;
 					--md-ripple-hover-opacity: 0;
 					--md-ripple-pressed-opacity: 0.26;
+				}
+
+				:host(.rtl) .down-arrow {
+					right: unset;
+					left: 10px;
+				}
+				:host(.rtl) .dropdown {
 				}
 			`,
 		];

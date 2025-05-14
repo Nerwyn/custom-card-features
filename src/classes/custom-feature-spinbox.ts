@@ -177,30 +177,6 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 			: html``;
 	}
 
-	buildSpinboxStyles() {
-		const styles = `
-			${
-				this.rtl
-					? `
-			#decrement {
-				left: unset !important;
-				right: 0 !important;
-			}
-
-			#increment {
-				left: 0 !important;
-				right: unset !important;
-			}
-			`
-					: ''
-			}
-		`;
-
-		return html`<style>
-			${styles}
-		</style>`;
-	}
-
 	render() {
 		this.setValue();
 
@@ -241,16 +217,12 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 			);
 		}
 
-		this.rtl = getComputedStyle(this).direction == 'rtl';
-
 		return html`
 			${this.buildBackground()}${this.buildButton('decrement')}
 			${this.buildIcon(this.config.icon)}${this.buildLabel(
 				this.config.label,
 			)}
-			${this.buildButton(
-				'increment',
-			)}${this.buildSpinboxStyles()}${this.buildStyles(
+			${this.buildButton('increment')}${this.buildStyles(
 				this.config.styles,
 			)}
 		`;
@@ -386,6 +358,15 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 
 					--opacity: 0;
 					--color: rgb(0, 0, 0, 0);
+				}
+
+				:host(.rtl) #decrement {
+					left: unset !important;
+					right: 0 !important;
+				}
+				:host(.rtl) #increment {
+					left: 0 !important;
+					right: unset !important;
 				}
 			`,
 		];

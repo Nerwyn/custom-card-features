@@ -210,7 +210,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			: 'default';
 		this.setSliderState();
 
-		this.rtl = getComputedStyle(this).direction == 'rtl';
 		this.setThumbOffset();
 		this.setSliderStyles();
 
@@ -223,7 +222,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						this.renderTemplate(
 							this.config.tap_action?.action as string,
 						) == 'none',
-					rtl: this.rtl,
 				})}"
 			>
 				${this.buildBackground()}${this.buildSlider()}${this.buildThumb(
@@ -489,13 +487,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					cursor: default;
 				}
 
-				.rtl ::-webkit-slider-thumb {
-					scale: -1;
-				}
-				.rtl ::-moz-range-thumb {
-					scale: -1;
-				}
-				.rtl .thumb {
+				:host(.rtl) .thumb {
 					scale: -1;
 				}
 			`,

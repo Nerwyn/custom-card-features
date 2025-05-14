@@ -149,15 +149,6 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 
 	buildMD3Switch() {
 		this.removeAttribute('tabindex');
-		const styles = this.rtl
-			? `
-				.container,
-				.thumb > .icon {
-					flex-direction: row-reverse !important;
-					scale: -1 1 !important;
-				}
-			`
-			: '';
 		return html`
 			<div class="icon-label">
 				${this.buildIcon(this.config.icon)}${this.buildLabel(
@@ -181,22 +172,11 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					)}
 				</div>
 			</div>
-			<style>
-				${styles}
-			</style>
 		`;
 	}
 
 	buildMD2Switch() {
 		this.removeAttribute('tabindex');
-		const styles = this.rtl
-			? `
-				.container,
-				.thumb > .icon {
-					scale: -1 1 !important;
-				}
-			`
-			: '';
 		return html`
 			<div class="icon-label">
 				${this.buildIcon(this.config.icon)}${this.buildLabel(
@@ -220,9 +200,6 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					)}${this.buildRipple()}
 				</div>
 			</div>
-			<style>
-				${styles}
-			</style>
 		`;
 	}
 
@@ -254,21 +231,12 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 	}
 
 	buildDefaultToggle() {
-		const rtlStyles = this.rtl
-			? `
-			.container,
-			.icon,
-			.label {
-				scale: -1 1 !important;
-			}
-		`
-			: '';
-		let fullSwipeStyles = '';
-		if (
+		const fullSwipe =
 			String(
 				this.renderTemplate(String(this.config.full_swipe ?? false)),
-			) == 'true'
-		) {
+			) == 'true';
+		let fullSwipeStyles = '';
+		if (fullSwipe) {
 			const maxTranslate =
 				100 * (this.featureWidth / this.thumbWidth - 1);
 			if (!this.swiping && this.initialX && this.initialY) {
@@ -291,7 +259,10 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		}
 		return html`
 			<div
-				class="container ${this.checked ? 'on' : 'off'}"
+				class="container default ${fullSwipe ? 'full-swipe' : ''} ${this
+					.checked
+					? 'on'
+					: 'off'}"
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}
 				@pointermove=${this.onPointerMove}
@@ -310,7 +281,6 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				</div>
 			</div>
 			<style>
-				${rtlStyles}
 				${fullSwipeStyles}
 			</style>
 		`;
@@ -318,7 +288,6 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 
 	render() {
 		this.setValue();
-		this.rtl = getComputedStyle(this).direction == 'rtl';
 
 		this.thumbType = this.renderTemplate(
 			this.config.thumb ?? 'default',
@@ -519,6 +488,11 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				.on > .thumb {
 					translate: 100%;
 				}
+				:host(.rtl) .default,
+				:host(.rtl) .default .icon,
+				:host(.rtl) .default .label {
+					scale: -1 1;
+				}
 
 				/* Material Design Checkbox */
 				:host(:has(.checkbox)) {
@@ -717,6 +691,10 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				.md2-switch:focus-visible > .thumb::after {
 					opacity: var(--ha-ripple-pressed-opacity);
 				}
+				:host(.rtl) .md2-switch,
+				:host(.rtl) .md2-switch .thumb > .icon {
+					scale: -1 1;
+				}
 
 				/* Material Design 3 Switch */
 				.md3-switch {
@@ -852,6 +830,11 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				.md3-switch:focus-visible > .background::after,
 				.md3-switch:active > .background::after {
 					opacity: 0.1;
+				}
+				:host(.rtl) .md3-switch,
+				:host(.rtl) .md3-switch .thumb > .icon {
+					flex-direction: row-reverse;
+					scale: -1 1;
 				}
 			`,
 		];

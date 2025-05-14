@@ -18,7 +18,6 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 
 	render() {
 		this.setValue();
-		this.rtl = getComputedStyle(this).direction == 'rtl';
 
 		const selector = [this.buildBackground()];
 		const options = this.config.options ?? [];
