@@ -1,4 +1,4 @@
-import { css, CSSResult, html } from 'lit';
+import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
@@ -11,7 +11,6 @@ import { BaseCustomFeature } from './base-custom-feature';
 export class CustomFeatureSlider extends BaseCustomFeature {
 	@state() thumbOffset: number = 0;
 	@state() sliderOn: boolean = true;
-	@state() pressed: boolean = false;
 
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
@@ -36,15 +35,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		this.value = value;
 	}
 
-	endAction() {
-		super.endAction();
-		this.pressed = false;
-	}
-
 	onPointerDown(e: PointerEvent) {
 		super.onPointerDown(e);
 		const slider = e.currentTarget as HTMLInputElement;
-		this.pressed = true;
 
 		if (!this.swiping) {
 			clearTimeout(this.getValueFromHassTimer);
@@ -56,9 +49,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	async onPointerUp(e: PointerEvent) {
+		super.onPointerUp(e);
 		this.setThumbOffset();
 		const slider = e.currentTarget as HTMLInputElement;
-		this.pressed = false;
 
 		if (!this.swiping && this.initialX && this.initialY) {
 			this._value = slider.value;
@@ -217,7 +210,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			<div
 				class="container ${classMap({
 					off: !this.sliderOn,
-					pressed: this.pressed,
 					'read-only':
 						this.renderTemplate(
 							this.config.tap_action?.action as string,
@@ -236,7 +228,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		`;
 	}
 
-	updated() {
+	updated(changedProperties: PropertyValues) {
+		super.updated(changedProperties);
+
 		// Ensure that both the input range and div thumbs are the same size
 		const thumb = this.shadowRoot?.querySelector('.thumb') as HTMLElement;
 		const style = getComputedStyle(thumb);
@@ -311,6 +305,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			css`
 				:host {
 					overflow: visible;
+
+					--thumb-translate: var(--thumb-offset) 0;
+					--thumb-transition: translate 180ms ease-in-out,
+						background 180ms ease-in-out;
 				}
 
 				.background {
@@ -361,10 +359,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					opacity: var(--opacity, 1);
 					position: absolute;
 					pointer-events: none;
-					translate: var(--thumb-offset) 0;
-					transition:
-						translate 180ms ease-in-out,
-						background 180ms ease-in-out;
+					translate: var(--thumb-translate);
+					transition: var(--thumb-transition);
 				}
 				.thumb .active {
 					height: 100%;
@@ -474,10 +470,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					display: none;
 				}
 
-				.pressed .thumb {
-					transition: background 180ms ease-in-out;
+				:host([pressed]) {
+					--thumb-transition: background 180ms ease-in-out;
 				}
-				.pressed ~ .tooltip {
+				:host([pressed]) .tooltip {
 					transition: opacity 540ms ease-in-out 0s;
 					opacity: 1;
 				}
@@ -487,7 +483,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					cursor: default;
 				}
 
-				:host(.rtl) .thumb {
+				:host([dir='rtl']) .thumb {
 					scale: -1;
 				}
 			`,

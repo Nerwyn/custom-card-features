@@ -8,7 +8,8 @@ import { BaseCustomFeature } from './base-custom-feature';
 export class CustomFeatureDropdown extends BaseCustomFeature {
 	@state() open: boolean = false;
 
-	onPointerUp(_e: PointerEvent) {
+	onPointerUp(e: PointerEvent) {
+		super.onPointerUp(e);
 		if (!this.swiping && this.initialX && this.initialY) {
 			this.open = !this.open;
 			this.endAction();
@@ -154,6 +155,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 	}
 
 	updated(changedProperties: PropertyValues) {
+		super.updated(changedProperties);
 		if (changedProperties.has('open')) {
 			const options = this.config.options ?? [];
 			const optionElements = this.shadowRoot?.querySelectorAll(
@@ -287,11 +289,9 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					--md-ripple-pressed-opacity: 0.26;
 				}
 
-				:host(.rtl) .down-arrow {
+				:host([dir='rtl']) .down-arrow {
 					right: unset;
 					left: 10px;
-				}
-				:host(.rtl) .dropdown {
 				}
 			`,
 		];
@@ -308,6 +308,7 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 	}
 
 	async onPointerUp(e: PointerEvent) {
+		super.onPointerUp(e);
 		e.preventDefault();
 		if (!this.swiping && this.initialX && this.initialY) {
 			this.closeDropdown(
@@ -388,8 +389,8 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 		}
 	}
 
-	firstUpdated() {
-		super.firstUpdated();
+	firstUpdated(changedProperties: PropertyValues) {
+		super.firstUpdated(changedProperties);
 		this.removeAttribute('tabindex');
 	}
 

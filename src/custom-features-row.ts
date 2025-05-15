@@ -95,6 +95,9 @@ class CustomFeaturesRow extends LitElement {
 		}
 
 		this.rtl = getComputedStyle(this).direction == 'rtl';
+		if (this.rtl) {
+			this.setAttribute('dir', 'rtl');
+		}
 
 		const row: TemplateResult[] = [];
 		for (const entry of this.config.entries) {
@@ -123,7 +126,6 @@ class CustomFeaturesRow extends LitElement {
 				case 'toggle':
 					row.push(
 						html`<custom-feature-toggle
-							class="${this.rtl ? 'rtl' : ''}"
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
@@ -133,7 +135,6 @@ class CustomFeaturesRow extends LitElement {
 				case 'spinbox':
 					row.push(
 						html`<custom-feature-spinbox
-							class="${this.rtl ? 'rtl' : ''}"
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
@@ -143,7 +144,6 @@ class CustomFeaturesRow extends LitElement {
 				case 'slider':
 					row.push(
 						html`<custom-feature-slider
-							class="${this.rtl ? 'rtl' : ''}"
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
@@ -153,7 +153,6 @@ class CustomFeaturesRow extends LitElement {
 				case 'selector':
 					row.push(
 						html`<custom-feature-selector
-							class="${this.rtl ? 'rtl' : ''}"
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
@@ -163,7 +162,6 @@ class CustomFeaturesRow extends LitElement {
 				case 'dropdown':
 					row.push(
 						html`<custom-feature-dropdown
-							class="${this.rtl ? 'rtl' : ''}"
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
@@ -174,7 +172,6 @@ class CustomFeaturesRow extends LitElement {
 				default:
 					row.push(
 						html`<custom-feature-button
-							class="${this.rtl ? 'rtl' : ''}"
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}

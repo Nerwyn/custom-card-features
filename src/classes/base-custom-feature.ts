@@ -6,7 +6,7 @@ import {
 } from '../models/interfaces';
 
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
-import { CSSResult, LitElement, css, html } from 'lit';
+import { CSSResult, LitElement, PropertyValues, css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
 import { HassEntity } from 'home-assistant-js-websocket';
@@ -41,6 +41,7 @@ export class BaseCustomFeature extends LitElement {
 
 	swiping: boolean = false;
 
+	@state() pressed: boolean = false;
 	initialX?: number;
 	initialY?: number;
 	currentX?: number;
@@ -73,6 +74,7 @@ export class BaseCustomFeature extends LitElement {
 
 		this.swiping = false;
 
+		this.pressed = false;
 		this.initialX = undefined;
 		this.initialY = undefined;
 		this.currentX = undefined;
@@ -752,6 +754,7 @@ export class BaseCustomFeature extends LitElement {
 
 	onPointerDown(e: PointerEvent) {
 		if (!this.initialX && !this.initialY) {
+			this.pressed = true;
 			this.swiping = false;
 			this.initialX = e.clientX;
 			this.initialY = e.clientY;
@@ -762,7 +765,9 @@ export class BaseCustomFeature extends LitElement {
 		}
 	}
 
-	onPointerUp(_e: PointerEvent) {}
+	onPointerUp(_e: PointerEvent) {
+		this.pressed = false;
+	}
 
 	onPointerMove(e: PointerEvent) {
 		if (this.currentX && this.currentY && e.isPrimary) {
@@ -839,14 +844,25 @@ export class BaseCustomFeature extends LitElement {
 		}
 	}
 
-	firstUpdated() {
-		this.rtl = this.classList.contains('rtl');
+	firstUpdated(_changedProperties: PropertyValues) {
+		this.rtl = getComputedStyle(this).direction == 'rtl';
+		if (this.rtl) {
+			this.setAttribute('dir', 'rtl');
+		}
 		this.addEventListener('touchstart', this.onTouchStart, {
 			passive: true,
 		});
 		this.addEventListener('touchend', this.onTouchEnd);
 		this.addEventListener('keydown', this.onKeyDown);
 		this.addEventListener('keyup', this.onKeyUp);
+	}
+
+	updated(_changedProperties: PropertyValues) {
+		if (this.pressed) {
+			this.setAttribute('pressed', '');
+		} else {
+			this.removeAttribute('pressed');
+		}
 	}
 
 	static get styles(): CSSResult | CSSResult[] {

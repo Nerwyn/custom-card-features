@@ -1,4 +1,11 @@
-import { css, CSSResult, html, PropertyValueMap, TemplateResult } from 'lit';
+import {
+	css,
+	CSSResult,
+	html,
+	PropertyValueMap,
+	PropertyValues,
+	TemplateResult,
+} from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import {
 	CheckedValues,
@@ -20,7 +27,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		}
 	});
 
-	async onPointerUp(_e: PointerEvent) {
+	async onPointerUp(e: PointerEvent) {
+		super.onPointerUp(e);
 		if (!this.swiping && this.initialX && this.initialY) {
 			if (this.direction) {
 				// Reject non-full width swipes if enabled
@@ -312,8 +320,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		return html`${toggle}${this.buildStyles(this.config.styles)}`;
 	}
 
-	firstUpdated() {
-		super.firstUpdated();
+	firstUpdated(changedProperties: PropertyValues) {
+		super.firstUpdated(changedProperties);
 
 		// Firefox md checkbox and switch flex and overflow fixes
 		// Because :host:has() doesn't work with Firefox
@@ -336,7 +344,9 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		}
 	}
 
-	updated() {
+	updated(changedProperties: PropertyValues) {
+		super.updated(changedProperties);
+
 		// Get thumb width
 		const thumb = this.shadowRoot?.querySelector('.thumb');
 		if (thumb) {
@@ -488,9 +498,9 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				.on > .thumb {
 					translate: 100%;
 				}
-				:host(.rtl) .default,
-				:host(.rtl) .default .icon,
-				:host(.rtl) .default .label {
+				:host([dir='rtl']) .default,
+				:host([dir='rtl']) .default .icon,
+				:host([dir='rtl']) .default .label {
 					scale: -1 1;
 				}
 
@@ -691,8 +701,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				.md2-switch:focus-visible > .thumb::after {
 					opacity: var(--ha-ripple-pressed-opacity);
 				}
-				:host(.rtl) .md2-switch,
-				:host(.rtl) .md2-switch .thumb > .icon {
+				:host([dir='rtl']) .md2-switch,
+				:host([dir='rtl']) .md2-switch .thumb > .icon {
 					scale: -1 1;
 				}
 
@@ -831,8 +841,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				.md3-switch:active > .background::after {
 					opacity: 0.1;
 				}
-				:host(.rtl) .md3-switch,
-				:host(.rtl) .md3-switch .thumb > .icon {
+				:host([dir='rtl']) .md3-switch,
+				:host([dir='rtl']) .md3-switch .thumb > .icon {
 					flex-direction: row-reverse;
 					scale: -1 1;
 				}

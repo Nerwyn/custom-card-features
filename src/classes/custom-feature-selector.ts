@@ -1,4 +1,4 @@
-import { css, CSSResult, html } from 'lit';
+import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import { BaseCustomFeature } from './base-custom-feature';
@@ -7,6 +7,7 @@ import './custom-feature-button';
 @customElement('custom-feature-selector')
 export class CustomFeatureSelector extends BaseCustomFeature {
 	onPointerUp(e: PointerEvent) {
+		super.onPointerUp(e);
 		if (!this.swiping && this.initialX && this.initialY) {
 			clearTimeout(this.getValueFromHassTimer);
 			this.getValueFromHass = false;
@@ -104,14 +105,15 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 		}
 	}
 
-	firstUpdated() {
-		super.firstUpdated();
+	firstUpdated(changedProperties: PropertyValues) {
+		super.firstUpdated(changedProperties);
 		this.removeAttribute('tabindex');
 		this.addEventListener('focus', this.onFocus);
 		this.addEventListener('focusout', this.onFocusOut);
 	}
 
-	updated() {
+	updated(changedProperties: PropertyValues) {
+		super.updated(changedProperties);
 		const options = this.config.options ?? [];
 		const optionElements = this.shadowRoot?.querySelectorAll(
 			'.option',

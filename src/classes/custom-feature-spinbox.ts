@@ -1,4 +1,4 @@
-import { css, CSSResult, html } from 'lit';
+import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import { DEBOUNCE_TIME } from '../models/constants';
@@ -56,6 +56,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 	}
 
 	onPointerUp(e: PointerEvent) {
+		super.onPointerUp(e);
 		clearTimeout(this.debounceTimer);
 
 		if (!this.swiping && this.initialX && this.initialY) {
@@ -274,8 +275,8 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 		}
 	}
 
-	firstUpdated() {
-		super.firstUpdated();
+	firstUpdated(changedProperties: PropertyValues) {
+		super.firstUpdated(changedProperties);
 		this.shadowRoot
 			?.querySelector('#decrement')
 			?.removeAttribute('tabindex');
@@ -360,13 +361,13 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 					--color: rgb(0, 0, 0, 0);
 				}
 
-				:host(.rtl) #decrement {
-					left: unset !important;
-					right: 0 !important;
+				:host([dir='rtl']) #decrement {
+					left: unset;
+					right: 0;
 				}
-				:host(.rtl) #increment {
-					left: 0 !important;
-					right: unset !important;
+				:host([dir='rtl']) #increment {
+					left: 0;
+					right: unset;
 				}
 			`,
 		];
