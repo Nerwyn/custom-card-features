@@ -415,12 +415,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					opacity: var(--opacity, 1);
 				}
 
-				.thumb.md2 {
-				}
-
-				.thumb.md3 {
-				}
-
 				.tooltip {
 					display: var(--tooltip-display);
 					background: var(--clear-background-color);
