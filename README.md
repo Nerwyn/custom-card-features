@@ -53,7 +53,7 @@ Since each selector option is a custom feature button, you can override it's def
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_tile.png" width="600"/>
 
-Sliders are input range elements made to look similar to the sliders found in Home Assistant default card features, similar to those available for light brightness and temperature. By default the slider will look like a normal tile light brightness or cover position slider, but you can change this to a few of other thumb styles using the `Thumb Type` appearance option.
+Sliders are similar to the sliders found in Home Assistant default card features, like those available for light brightness and temperature. By default the slider will look like a normal tile light brightness or cover position slider, but you can change this to a few of other thumb styles using the `Thumb Type` appearance option.
 
 Sliders can track either the state or attribute of an entity, meaning that when that entity's state or attribute changes so will the slider to match. By default it will track the `state` of an entity. To change this, set `Attribute` to the name of the attribute you want the slider to track. In order to pass the the slider's value to an action, set the value in the action data to `{{ value | float }}`.
 
@@ -203,9 +203,9 @@ General style options and custom feature specific properties can be set within t
 
 ```css
 :host {
+  flex-basis: 200%;
   --color: red;
   --icon-color: blue;
-  flex-basis: 200%;
 }
 ```
 
@@ -218,7 +218,8 @@ All sub-elements within a custom feature are given easy to remember classes to a
 | .background | The background of the custom feature.                                       |
 | .icon       | The icon of the custom feature.                                             |
 | .label      | The label of the custom feature.                                            |
-| .slider     | The input range slider element.                                             |
+| .thumb      | The slider thumb element.                                                   |
+| .active     | The slider active area trailing thumb.                                      |
 | .tooltip    | The slider tooltip, which appears when the slider is being interacted with. |
 
 ```css
@@ -261,44 +262,40 @@ Most features have additional custom CSS attributes which can be used to style t
 ```html
 <custom-feature-button>
   #shadow-root
-  <button class="background">
+  <button class="background" part="button">
     ::before
-    <md-ripple></md-ripple>
+    <md-ripple part="ripple"></md-ripple>
   </button>
-  <ha-icon class="icon"></ha-icon>
-  <pre class="label"></pre>
+  <ha-icon class="icon" part="icon"></ha-icon>
+  <pre class="label" part="label"></pre>
 </custom-feature-button>
 ```
 
 #### Slider CSS Attributes and HTML
 
-| Name                  | Description                                                                                            |
-| --------------------- | ------------------------------------------------------------------------------------------------------ |
-| --thumb-width         | Width of the actual slider thumb, not including box shadow. Default varies by thumb style and browser. |
-| --thumb-border-radius | Border radius of the slider thumb. Default varies by thumb style.                                      |
-| --thumb-box-shadow    | Box shadow of the slider thumb. Default varies by thumb style.                                         |
-| --tooltip-label       | Tooltip label template, defaults to `{{ value }}{{ unit }}`.                                           |
-| --tooltip-transform   | Tooltip location transform function, defaults to `translate(var(--thumb-offset), -35px)`.              |
-| --tooltip-display     | Tooltip display value, set to `none` to hide tooltip, defaults to `initial`.                           |
+| Name                  | Description                                                                                                      |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| --thumb-width         | Width of the actual slider thumb, not including box shadow. Default varies by thumb style and browser.           |
+| --thumb-border-radius | Border radius of the slider thumb. Default varies by thumb style.                                                |
+| --thumb-translate     | Thumb translation to match the input range position. Defaults to `var(--thumb-offset) 0`.                        |
+| --thumb-transition    | Thumb transition to animate the slider. Defaults to `translate 180ms ease-in-out, background 180ms ease-in-out`. |
+| --tooltip-label       | Tooltip label template, defaults to `{{ value }}{{ unit }}`.                                                     |
+| --tooltip-transform   | Tooltip location transform function, defaults to `translate(var(--thumb-offset), -35px)`.                        |
+| --tooltip-display     | Tooltip display value, set to `none` to hide tooltip, defaults to `initial`.                                     |
 
 ```html
 <custom-feature-slider>
   #shadow-root
-  <div class="container on">
-    <div class="background"></div>
-    <input
-      id="slider"
-      type="range"
-      class="slider default-thumb"
-      min="0"
-      max="100"
-      step="1"
-      value="100"
-    />
-    <ha-icon class="icon"></ha-icon>
-    <pre class="label"></pre>
+  <div class="container on" part="container">
+    <div class="background" part="background"></div>
+    <input type="range" part="range" min="0" max="100" step="1" value="0" />
+    <div part="thumb" class="thumb default">
+      <div class="active"></div>
+    </div>
+    <ha-icon class="icon" part="icon"></ha-icon>
+    <pre class="label" part="label"></pre>
   </div>
-  <div class="tooltip faded-out">::after</div>
+  <div class="tooltip faded-out" part="tooltip">::after</div>
 </custom-feature-slider>
 ```
 
@@ -312,13 +309,22 @@ Most features have additional custom CSS attributes which can be used to style t
 ```html
 <custom-feature-selector>
   #shadow-root
-  <div class="background"></div>
-  <custom-feature-button id="option_A" class="option"></custom-feature-button>
+  <div class="background" part="background"></div>
+  <custom-feature-button
+    id="option_A"
+    class="option"
+    part="selector-option"
+  ></custom-feature-button>
   <custom-feature-button
     id="option_B"
     class="selected option"
+    part="selector-option"
   ></custom-feature-button>
-  <custom-feature-button id="option_C" class="option"></custom-feature-button>
+  <custom-feature-button
+    id="option_C"
+    class="option"
+    part="selector-option"
+  ></custom-feature-button>
 </custom-feature-selector>
 ```
 
@@ -336,31 +342,37 @@ Most features have additional custom CSS attributes which can be used to style t
 ```html
 <custom-feature-dropdown>
   #shadow-root
-  <div class="container">
-    <div class="background"></div>
-    <div class="select">
-      <ha-icon class="icon"></ha-icon>
-      <pre class="label"></pre>
-      <md-ripple></md-ripple>
+  <div class="container" part="container">
+    <div class="background" part="background"></div>
+    <div class="select" part="select">
+      <ha-icon class="icon" part="icon"></ha-icon>
+      <pre class="label" part="label"></pre>
+      <md-ripple part="ripple"></md-ripple>
     </div>
-    <ha-icon class="down-arrow"></ha-icon>
+    <ha-icon class="down-arrow" part="down-arrow"></ha-icon>
   </div>
-  <div class="dropdown">
-    <custom-feature-dropdown-option id="option_A" class="selected option">
+  <div class="dropdown" part="dropdown">
+    <custom-feature-dropdown-option
+      id="option_A"
+      class="selected option"
+      part="dropdown-option"
+    >
       #shadow-root
-      <div class="background"></div>
-      <div class="content">
-        <ha-icon class="icon"></ha-icon>
-        <pre class="label"></pre>
+      <div class="background" part="background"></div>
+      <div class="content" part="dropdown-option-content">
+        <ha-icon class="icon" part="icon"></ha-icon>
+        <pre class="label" part="label"></pre>
       </div>
     </custom-feature-dropdown-option>
     <custom-feature-dropdown-option
       id="option_B"
       class="option"
+      part="dropdown-option"
     ></custom-feature-dropdown-option>
     <custom-feature-dropdown-option
       id="option_C"
       class="option"
+      part="dropdown-option"
     ></custom-feature-dropdown-option>
   </div>
 </custom-feature-dropdown>
@@ -388,13 +400,13 @@ Most features have additional custom CSS attributes which can be used to style t
 <!-- Default -->
 <custom-feature-toggle>
   #shadow-root
-  <div class="container off">
-    <div class="background"></div>
-    <ha-icon class="icon"></ha-icon>
-    <ha-icon class="icon"></ha-icon>
-    <div class="thumb">
-      <ha-icon class="icon"></ha-icon>
-      <pre class="label"></pre>
+  <div class="container off" part="default-switch">
+    <div class="background" part="background"></div>
+    <ha-icon class="icon" part="icon"></ha-icon>
+    <ha-icon class="icon" part="icon"></ha-icon>
+    <div class="thumb" part="thumb">
+      <ha-icon class="icon" part="icon"></ha-icon>
+      <pre class="label" part="label"></pre>
     </div>
   </div>
   <custom-feature-toggle></custom-feature-toggle
@@ -403,15 +415,15 @@ Most features have additional custom CSS attributes which can be used to style t
 <!-- Checkbox -->
 <custom-feature-toggle style="justify-content: flex-end;">
   #shadow-root
-  <div class="container on">
+  <div class="container on" part="checkbox">
     <div class="checkbox">
-      <ha-icon class="icon"></ha-icon>
+      <ha-icon class="icon" part="icon"></ha-icon>
     </div>
-    <md-ripple></md-ripple>
+    <md-ripple part="ripple"></md-ripple>
   </div>
   <div class="icon-label">
-    <ha-icon class="icon"></ha-icon>
-    <pre class="label"></pre>
+    <ha-icon class="icon" part="icon"></ha-icon>
+    <pre class="label" part="label"></pre>
   </div>
   <custom-feature-toggle></custom-feature-toggle
 ></custom-feature-toggle>
@@ -420,15 +432,15 @@ Most features have additional custom CSS attributes which can be used to style t
 <custom-feature-toggle style="justify-content: flex-end;">
   #shadow-root
   <div class="icon-label">
-    <ha-icon class="icon"></ha-icon>
-    <pre class="label"></pre>
+    <ha-icon class="icon" part="icon"></ha-icon>
+    <pre class="label" part="label"></pre>
   </div>
-  <div class="container md2-switch on">
-    <div class="background"></div>
-    <div class="thumb">
+  <div class="container md2-switch on" part="md2-switch">
+    <div class="background" part="background"></div>
+    <div class="thumb" part="thumb">
       ::before
-      <ha-icon class="icon"></ha-icon>
-      <md-ripple></md-ripple>
+      <ha-icon class="icon" part="icon"></ha-icon>
+      <md-ripple part="ripple"></md-ripple>
     </div>
   </div>
   <custom-feature-toggle></custom-feature-toggle
@@ -438,14 +450,14 @@ Most features have additional custom CSS attributes which can be used to style t
 <custom-feature-toggle style="justify-content: flex-end;">
   #shadow-root
   <div class="icon-label">
-    <ha-icon class="icon"></ha-icon>
-    <pre class="label"></pre>
+    <ha-icon class="icon" part="icon"></ha-icon>
+    <pre class="label" part="label"></pre>
   </div>
-  <div class="container md3-switch off">
-    <div class="background"></div>
-    <div class="thumb">
+  <div class="container md3-switch off" part="md3-switch">
+    <div class="background" part="background"></div>
+    <div class="thumb" part="thumb">
       ::before
-      <ha-icon class="icon"></ha-icon>
+      <ha-icon class="icon" part="icon"></ha-icon>
       <md-ripple></md-ripple>
     </div>
   </div>

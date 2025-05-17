@@ -286,7 +286,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				${this.buildIcon(this.config.checked_icon) || html`<div></div>`}
 				${this.buildIcon(this.config.unchecked_icon) ||
 				html`<div></div>`}
-				<div class="thumb">
+				<div class="thumb" part="thumb">
 					${this.buildIcon(this.config.icon)}${this.buildLabel(
 						this.config.label,
 					)}
