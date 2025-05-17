@@ -115,21 +115,24 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					.stateObj=${this.stateObj}
 					id=${optionName}
 					class="option"
+					part="dropdown-option"
 				/>
 			`);
 		}
 		const dropdown = html`<div
 			class="dropdown ${this.open ? '' : 'collapsed'}"
+			part="dropdown"
 			tabindex="-1"
 			@dropdown-close=${this.closeDropdown}
 		>
 			${dropdownOptions}
 		</div>`;
 
-		const select = html`<div class="container">
+		const select = html`<div class="container" part="container">
 			${this.buildBackground()}
 			<div
 				class="select"
+				part="select"
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}
 				@pointermove=${this.onPointerMove}
@@ -146,7 +149,11 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					: ''}
 				${this.buildRipple()}
 			</div>
-			<ha-icon class="down-arrow" .icon=${'mdi:menu-down'}></ha-icon>
+			<ha-icon
+				class="down-arrow"
+				part="down-arrow"
+				.icon=${'mdi:menu-down'}
+			></ha-icon>
 		</div>`;
 
 		return html`${select}${dropdown}${this.buildStyles(
@@ -353,6 +360,7 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 		return html`${this.buildBackground()}
 			<div
 				class="content"
+				part="dropdown-option-content"
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}
 				@pointermove=${this.onPointerMove}

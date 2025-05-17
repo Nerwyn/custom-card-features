@@ -212,6 +212,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 
 		const button = html`<button
 			class=${`${this.className} background`}
+			part="button"
 			tabindex="-1"
 			@pointerdown=${this.onPointerDown}
 			@pointerup=${this.onPointerUp}

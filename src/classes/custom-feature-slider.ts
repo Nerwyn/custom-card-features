@@ -134,12 +134,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	buildTooltip() {
-		return html`<div class="tooltip"></div>`;
+		return html`<div class="tooltip" part="tooltip"></div>`;
 	}
 
 	buildThumb(thumbType: SliderThumbType) {
-		return html`<div class="thumb ${thumbType}">
-			<div class="active"></div>
+		return html`<div class="thumb ${thumbType}" part="thumb">
+			<div class="active" part="active"></div>
 		</div>`;
 	}
 
@@ -147,6 +147,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		return html`
 			<input
 				type="range"
+				part="range"
 				tabindex="-1"
 				min="${this.range[0]}"
 				max="${this.range[1]}"
@@ -215,6 +216,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							this.config.tap_action?.action as string,
 						) == 'none',
 				})}"
+				part="container"
 			>
 				${this.buildBackground()}${this.buildSlider()}${this.buildThumb(
 					thumbType,

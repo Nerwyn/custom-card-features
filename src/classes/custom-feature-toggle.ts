@@ -165,6 +165,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 			</div>
 			<div
 				class="container md3-switch ${this.checked ? 'on' : 'off'}"
+				part="md3-switch"
 				tabindex="0"
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}
@@ -173,8 +174,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				@pointerleave=${this.onPointerLeave}
 				@contextmenu=${this.onContextMenu}
 			>
-				<div class="background"></div>
-				<div class="thumb">
+				${this.buildBackground()}
+				<div class="thumb" part="thumb">
 					${this.buildIcon(
 						this.config[`${this.checked ? '' : 'un'}checked_icon`],
 					)}
@@ -193,6 +194,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 			</div>
 			<div
 				class="container md2-switch ${this.checked ? 'on' : 'off'}"
+				part="md2-switch"
 				tabindex="0"
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}
@@ -201,8 +203,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				@pointerleave=${this.onPointerLeave}
 				@contextmenu=${this.onContextMenu}
 			>
-				<div class="background"></div>
-				<div class="thumb">
+				${this.buildBackground()}
+				<div class="thumb" part="thumb">
 					${this.buildIcon(
 						this.config[`${this.checked ? '' : 'un'}checked_icon`],
 					)}${this.buildRipple()}
@@ -216,6 +218,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		return html`
 			<div
 				class="container ${this.checked ? 'on' : 'off'}"
+				part="checkbox"
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}
 				@pointermove=${this.onPointerMove}
@@ -271,6 +274,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					.checked
 					? 'on'
 					: 'off'}"
+				part="default-switch"
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}
 				@pointermove=${this.onPointerMove}
@@ -278,7 +282,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				@pointerleave=${this.onPointerLeave}
 				@contextmenu=${this.onContextMenu}
 			>
-				<div class="background"></div>
+				${this.buildBackground()}
 				${this.buildIcon(this.config.checked_icon) || html`<div></div>`}
 				${this.buildIcon(this.config.unchecked_icon) ||
 				html`<div></div>`}

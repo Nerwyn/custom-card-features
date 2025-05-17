@@ -726,21 +726,29 @@ export class BaseCustomFeature extends LitElement {
 	buildIcon(icon?: string, context?: object) {
 		const rendered = this.renderTemplate(icon as string, context);
 		return rendered
-			? html`<ha-icon class="icon" .icon=${rendered}></ha-icon>`
+			? html`<ha-icon
+					class="icon"
+					part="icon"
+					.icon=${rendered}
+				></ha-icon>`
 			: '';
 	}
 
 	buildLabel(label?: string, context?: object) {
 		const rendered = this.renderTemplate(label as string, context);
-		return rendered ? html`<pre class="label">${rendered}</pre>` : '';
+		return rendered
+			? html`<pre class="label" part="label">${rendered}</pre>`
+			: '';
 	}
 
 	buildBackground() {
-		return html`<div class="background"></div>`;
+		return html`<div class="background" part="background"></div>`;
 	}
 
 	buildRipple() {
-		return this.shouldRenderRipple ? html`<md-ripple></md-ripple>` : '';
+		return this.shouldRenderRipple
+			? html`<md-ripple part="ripple"></md-ripple>`
+			: '';
 	}
 
 	buildStyles(styles?: string, context?: object) {

@@ -148,6 +148,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 			return html`
 				<custom-feature-button
 					id=${operator}
+					part="${operator}"
 					.hass=${this.hass}
 					.config=${actions}
 					.shouldRenderRipple=${false}
@@ -159,6 +160,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 				<custom-feature-spinbox-operator-button
 					class="operator"
 					id="${operator}"
+					part="${operator}"
 					.hass=${this.hass}
 					.config=${actions}
 					@pointerdown=${this.onPointerDown}

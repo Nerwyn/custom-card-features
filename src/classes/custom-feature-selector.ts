@@ -30,6 +30,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 					.config=${option}
 					.shouldRenderRipple=${false}
 					class="option"
+					part="selector-option"
 					id=${this.renderTemplate(option.option as string)}
 					@pointerdown=${this.onPointerDown}
 					@pointerup=${this.onPointerUp}
