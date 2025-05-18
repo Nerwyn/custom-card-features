@@ -45,14 +45,7 @@ export interface IDropdownSelectorOptions {
 	options?: IOption[];
 }
 
-export const SliderThumbTypes = [
-	'default',
-	'line',
-	'flat',
-	'round',
-	'md2-slider',
-	'md3-slider',
-] as const;
+export const SliderThumbTypes = ['default', 'line', 'flat', 'round'] as const;
 export const ToggleThumbTypes = [
 	'default',
 	'md2-switch',

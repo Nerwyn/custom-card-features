@@ -137,8 +137,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		return html`<div class="tooltip" part="tooltip"></div>`;
 	}
 
-	buildThumb(thumbType: SliderThumbType) {
-		return html`<div class="thumb ${thumbType}" part="thumb">
+	buildThumb() {
+		return html`<div class="thumb" part="thumb">
 			<div class="active" part="active"></div>
 		</div>`;
 	}
@@ -215,12 +215,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						this.renderTemplate(
 							this.config.tap_action?.action as string,
 						) == 'none',
+					[this.thumbType]: true,
 				})}"
 				part="container"
 			>
-				${this.buildBackground()}${this.buildSlider()}${this.buildThumb(
-					thumbType,
-				)}
+				${this.buildBackground()}${this.buildSlider()}${this.buildThumb()}
 				<div class="icon-label">
 					${this.buildIcon(this.config.icon)}
 					${this.buildLabel(this.config.label)}
@@ -372,11 +371,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					background: inherit;
 				}
 
-				.thumb.default {
+				.default .thumb {
 					border-radius: var(--thumb-border-radius, 8px);
 					background: var(--color, var(--feature-color));
 				}
-				.thumb.default::after {
+				.default .thumb::after {
 					content: '';
 					position: absolute;
 					height: 22px;
@@ -387,15 +386,15 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					background: #ffffff;
 				}
 
-				.thumb.flat {
+				.flat .thumb {
 					background: var(--color, var(--feature-color));
 				}
 
-				.thumb.line {
+				.line .thumb {
 					border-radius: 8px;
 					background: #ffffff;
 				}
-				.thumb.line::after {
+				.line .thumb::after {
 					content: '';
 					position: absolute;
 					height: 22px;
@@ -405,16 +404,19 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					right: 4px;
 					background: #8a8c99;
 				}
-				.thumb.line .active {
+				.line .thumb .active {
 					display: none;
 				}
 
-				.thumb.round {
+				.round .thumb {
 					height: var(--feature-height, 40px);
 					width: var(--feature-height, 40px);
 					border-radius: var(--feature-height, 40px);
 					background: var(--color, var(--feature-color));
 					opacity: var(--opacity, 1);
+				}
+				.round.container {
+					border-radius: var(--feature-height, 40px);
 				}
 
 				.tooltip {
