@@ -38,7 +38,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			clearTimeout(this.getValueFromHassTimer);
 			this.getValueFromHass = false;
 			this._value = slider.value;
-			this.setThumbOffset();
 			this.sliderOn = true;
 		}
 	}
@@ -60,7 +59,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	async onPointerUp(e: PointerEvent) {
 		clearTimeout(this.pressedTimeout);
 		super.onPointerUp(e);
-		this.setThumbOffset();
 		const slider = e.currentTarget as HTMLInputElement;
 
 		if (!this.swiping && this.initialX && this.initialY) {
@@ -70,7 +68,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		} else {
 			this.getValueFromHass = true;
 			this.setValue();
-			this.setThumbOffset();
 			this.setSliderState();
 		}
 
@@ -94,7 +91,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				this.swiping = true;
 				this.getValueFromHass = true;
 				this.setValue();
-				this.setThumbOffset();
 				this.setSliderState();
 			} else {
 				this._value = slider.value;
@@ -111,6 +107,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 	setThumbOffset() {
 		const maxOffset = (this.clientWidth - this.thumbWidth) / 2;
+
 		this.thumbOffset = Math.min(
 			Math.max(
 				Math.round(
@@ -123,6 +120,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			),
 			maxOffset,
 		);
+
+		this.style.setProperty(
+			'--thumb-offset',
+			`${(this.rtl ? -1 : 1) * this.thumbOffset}px`,
+		);
 	}
 
 	setSliderState() {
@@ -133,18 +135,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					this.hass.states[this.entityId as string]?.state,
 				)
 			) || ((this.value as number) ?? this.range[0]) > this.range[0];
-	}
-
-	setSliderStyles() {
-		this.style.setProperty(
-			'--tooltip-label',
-			`'${this.renderTemplate('{{ value }}{{ unit }}')}'`,
-		);
-
-		this.style.setProperty(
-			'--thumb-offset',
-			`calc(${this.rtl ? '-1 * ' : ''}${this.thumbOffset}px)`,
-		);
 	}
 
 	buildTooltip() {
@@ -218,9 +208,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			? thumbType
 			: 'default';
 		this.setSliderState();
-
 		this.setThumbOffset();
-		this.setSliderStyles();
+
+		this.style.setProperty(
+			'--tooltip-label',
+			`'${this.renderTemplate('{{ value }}{{ unit }}')}'`,
+		);
 
 		return html`
 			<div
