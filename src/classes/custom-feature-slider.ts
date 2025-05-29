@@ -242,28 +242,32 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			if (!isNaN(pixels)) {
 				this.thumbWidth = pixels;
 			}
-		} else {
-			switch (this.thumbType) {
-				case 'round': {
-					const pixels = getNumericPixels(
-						style.getPropertyValue('height'),
-					);
-					if (!isNaN(pixels)) {
-						this.thumbWidth = pixels;
-					}
-					break;
-				}
-				case 'line':
-				case 'flat':
-				default:
-					const pixels = getNumericPixels(
-						style.getPropertyValue('width'),
-					);
-					if (!isNaN(pixels)) {
-						this.thumbWidth = pixels;
-					}
-					break;
+			return;
+		}
+
+		let pixels: number;
+		switch (this.thumbType) {
+			case 'round': {
+				// Round thumbs should have the same height and width
+				pixels = thumb.clientHeight;
+				break;
 			}
+			case 'line':
+			case 'flat':
+			default:
+				// Other thumb types should use a fixed width
+				pixels = thumb.clientWidth;
+				break;
+		}
+
+		// Ensure that thumb width is valid, as it can return an invalid massive number at high dpi
+		if (
+			pixels &&
+			!isNaN(pixels) &&
+			pixels < document.body.clientHeight &&
+			pixels < document.body.clientWidth
+		) {
+			this.thumbWidth = pixels;
 			this.style.setProperty('--thumb-width', `${this.thumbWidth}px`);
 		}
 	}
@@ -409,11 +413,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 
 				.round .thumb {
-					height: var(--feature-height, 40px);
 					width: var(--feature-height, 40px);
 					border-radius: var(--feature-height, 40px);
 					background: var(--color, var(--feature-color));
 					opacity: var(--opacity, 1);
+					aspect-ratio: 1 / 1;
 				}
 				.round.container {
 					border-radius: var(--feature-height, 40px);
