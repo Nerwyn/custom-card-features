@@ -18,6 +18,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	thumbType: SliderThumbType = 'default';
 	thumbWidth: number = 0;
 
+	pressedTimeout?: ReturnType<typeof setTimeout>;
+
 	set _value(value: string | number | boolean | undefined) {
 		value = Math.max(
 			Math.min(Number(value) ?? this.range[0], this.range[1]),
@@ -29,8 +31,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		this.value = value;
 	}
 
-	onPointerDown(e: PointerEvent) {
-		super.onPointerDown(e);
+	onInput(e: InputEvent) {
 		const slider = e.currentTarget as HTMLInputElement;
 
 		if (!this.swiping) {
@@ -42,7 +43,22 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		}
 	}
 
+	onPointerDown(e: PointerEvent) {
+		super.onPointerDown(e);
+
+		// Delay pressed state to fix initial slider thumb transition
+		this.pressed = false;
+		this.pressedTimeout = setTimeout(() => (this.pressed = true), 150);
+
+		if (!this.swiping) {
+			clearTimeout(this.getValueFromHassTimer);
+			this.getValueFromHass = false;
+			this.sliderOn = true;
+		}
+	}
+
 	async onPointerUp(e: PointerEvent) {
+		clearTimeout(this.pressedTimeout);
 		super.onPointerUp(e);
 		this.setThumbOffset();
 		const slider = e.currentTarget as HTMLInputElement;
@@ -64,21 +80,25 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 	onPointerMove(e: PointerEvent) {
 		super.onPointerMove(e);
-		const slider = e.currentTarget as HTMLInputElement;
 
-		// Only consider significant enough movement
-		const sensitivity = 40;
-		if (
-			Math.abs((this.currentX ?? 0) - (this.initialX ?? 0)) <
-			Math.abs((this.currentY ?? 0) - (this.initialY ?? 0)) - sensitivity
-		) {
-			this.swiping = true;
-			this.getValueFromHass = true;
-			this.setValue();
-			this.setThumbOffset();
-			this.setSliderState();
-		} else {
-			this._value = slider.value;
+		if (this.currentX && this.currentY && e.isPrimary) {
+			const slider = e.currentTarget as HTMLInputElement;
+
+			// Only consider significant enough movement
+			const sensitivity = 40;
+			if (
+				Math.abs((this.currentX ?? 0) - (this.initialX ?? 0)) <
+				Math.abs((this.currentY ?? 0) - (this.initialY ?? 0)) -
+					sensitivity
+			) {
+				this.swiping = true;
+				this.getValueFromHass = true;
+				this.setValue();
+				this.setThumbOffset();
+				this.setSliderState();
+			} else {
+				this._value = slider.value;
+			}
 		}
 	}
 
@@ -148,6 +168,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				step=${this.step}
 				value="${this.range[0]}"
 				.value="${this.value}"
+				@input=${this.onInput}
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}
 				@pointermove=${this.onPointerMove}
