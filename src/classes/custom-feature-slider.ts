@@ -17,12 +17,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 	thumbType: SliderThumbType = 'default';
 	thumbWidth: number = 0;
-	resizeObserver = new ResizeObserver((entries) => {
-		for (const entry of entries) {
-			this.featureWidth = entry.contentRect.width;
-			this.setThumbOffset();
-		}
-	});
 
 	set _value(value: string | number | boolean | undefined) {
 		value = Math.max(
@@ -96,11 +90,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	setThumbOffset() {
-		const maxOffset = (this.featureWidth - this.thumbWidth) / 2;
+		const maxOffset = (this.clientWidth - this.thumbWidth) / 2;
 		this.thumbOffset = Math.min(
 			Math.max(
 				Math.round(
-					((this.featureWidth - this.thumbWidth) /
+					((this.clientWidth - this.thumbWidth) /
 						(this.range[1] - this.range[0])) *
 						(((this.value as number) ?? this.range[0]) -
 							(this.range[0] + this.range[1]) / 2),
@@ -292,18 +286,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		}
 	}
 
-	connectedCallback(): void {
-		super.connectedCallback();
-		this.resizeObserver.observe(
-			this.shadowRoot?.querySelector('.container') ?? this,
-		);
-	}
-
-	disconnectedCallback(): void {
-		super.disconnectedCallback();
-		this.resizeObserver.disconnect();
-	}
-
 	static get styles() {
 		return [
 			super.styles as CSSResult,
@@ -359,7 +341,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 
 				.thumb {
-					height: var(--feature-height, 40px);
+					height: 100%;
 					width: var(--thumb-width, 12px);
 					opacity: var(--opacity, 1);
 					position: absolute;
@@ -406,18 +388,17 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					border-radius: 4px;
 					top: 25%;
 					right: 4px;
-					background: #8a8c99;
+					background: #c6c6d0;
 				}
 				.line .thumb .active {
 					display: none;
 				}
 
 				.round .thumb {
-					width: var(--feature-height, 40px);
+					aspect-ratio: 1 / 1;
 					border-radius: var(--feature-height, 40px);
 					background: var(--color, var(--feature-color));
 					opacity: var(--opacity, 1);
-					aspect-ratio: 1 / 1;
 				}
 				.round.container {
 					border-radius: var(--feature-height, 40px);

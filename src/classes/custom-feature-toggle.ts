@@ -16,16 +16,10 @@ import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-toggle')
 export class CustomFeatureToggle extends BaseCustomFeature {
+	@state() thumbWidth: number = 0;
 	@state() checked: boolean = false;
 	direction?: 'left' | 'right';
 	thumbType: ToggleThumbType = 'default';
-
-	@state() thumbWidth: number = 0;
-	resizeObserver = new ResizeObserver((entries) => {
-		for (const entry of entries) {
-			this.featureWidth = entry.contentRect.width;
-		}
-	});
 
 	async onPointerUp(e: PointerEvent) {
 		super.onPointerUp(e);
@@ -39,8 +33,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 						),
 					) == 'true'
 				) {
-					const swipeSensitivity =
-						this.featureWidth - this.thumbWidth;
+					const swipeSensitivity = this.clientWidth - this.thumbWidth;
 					if (
 						Math.abs((this.currentX ?? 0) - (this.initialX ?? 0)) <
 						swipeSensitivity
@@ -248,8 +241,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 			) == 'true';
 		let fullSwipeStyles = '';
 		if (fullSwipe) {
-			const maxTranslate =
-				100 * (this.featureWidth / this.thumbWidth - 1);
+			const maxTranslate = 100 * (this.clientWidth / this.thumbWidth - 1);
 			if (!this.swiping && this.initialX && this.initialY) {
 				fullSwipeStyles = `
 					.thumb {
@@ -417,18 +409,6 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				/deltaX|initialX|currentX/.test(this.config.styles ?? '')) ||
 			super.shouldUpdate(changedProperties)
 		);
-	}
-
-	connectedCallback(): void {
-		super.connectedCallback();
-		this.resizeObserver.observe(
-			this.shadowRoot?.querySelector('.container') ?? this,
-		);
-	}
-
-	disconnectedCallback(): void {
-		super.disconnectedCallback();
-		this.resizeObserver.disconnect();
 	}
 
 	static get styles(): CSSResult | CSSResult[] {
