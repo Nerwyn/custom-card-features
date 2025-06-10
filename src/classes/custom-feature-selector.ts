@@ -28,6 +28,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 				html`<custom-feature-button
 					.hass=${this.hass}
 					.config=${option}
+					.stateObj=${this.stateObj}
 					.shouldRenderRipple=${false}
 					class="option"
 					part="selector-option"
