@@ -10,6 +10,10 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
 
+	async onClick(_e: MouseEvent) {
+		this.shadowRoot?.querySelector('input')?.focus();
+	}
+
 	async onKeyDown(e: KeyboardEvent) {
 		this.getValueFromHass = false;
 		const input = e.target as HTMLInputElement;
@@ -76,17 +80,21 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 
 				return html`
 					${this.buildBackground()}
-					<input
-						type="number"
-						part="number"
-						min="${this.range[0]}"
-						max="${this.range[1]}"
-						step="${this.step}"
-						placeholder="${label}"
-						value="${this.value}"
-						.value="${this.value}"
-						@keydown=${this.onKeyDown}
-					/>
+					${this.buildIcon(this.config.icon)}
+					<div class="label-input">
+						${this.buildLabel(this.config.label)}
+						<input
+							type="number"
+							part="number"
+							min="${this.range[0]}"
+							max="${this.range[1]}"
+							step="${this.step}"
+							placeholder="${label}"
+							value="${this.value}"
+							.value="${this.value}"
+							@keydown=${this.onKeyDown}
+						/>
+					</div>
 					<div class="line-ripple"></div>
 				`;
 			case 'text':
@@ -94,17 +102,21 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 				const pattern = this.renderTemplate(this.config.pattern ?? '');
 				return html`
 					${this.buildBackground()}
-					<input
-						type="text"
-						part="text"
-						minlength="${this.range[0]}"
-						maxlength="${this.range[1]}"
-						pattern="${pattern}"
-						placeholder="${label}"
-						value="${this.value}"
-						.value="${this.value}"
-						@keydown=${this.onKeyDown}
-					/>
+					${this.buildIcon(this.config.icon)}
+					<div class="label-input">
+						${this.buildLabel(this.config.label)}
+						<input
+							type="text"
+							part="text"
+							minlength="${this.range[0]}"
+							maxlength="${this.range[1]}"
+							pattern="${pattern}"
+							placeholder="${label}"
+							value="${this.value}"
+							.value="${this.value}"
+							@keydown=${this.onKeyDown}
+						/>
+					</div>
 					<div class="line-ripple"></div>
 				`;
 		}
@@ -113,6 +125,7 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 	firstUpdated(changedProperties: PropertyValues) {
 		super.firstUpdated(changedProperties);
 		this.removeAttribute('tabindex');
+		this.addEventListener('click', this.onClick);
 	}
 
 	static get styles() {
@@ -120,6 +133,8 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 			super.styles as CSSResult,
 			css`
 				:host {
+					flex-direction: row;
+					gap: 12px;
 					border-radius: 0;
 					border-top-left-radius: var(--mdc-shape-small, 4px);
 					border-top-right-radius: var(--mdc-shape-small, 4px);
@@ -154,6 +169,59 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 					}
 				}
 
+				.icon {
+					color: var(
+						--icon-color,
+						var(
+							--mdc-text-field-label-ink-color,
+							rgba(0, 0, 0, 0.6)
+						)
+					);
+					inset-inline-start: -4px;
+				}
+
+				.label-input {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					height: 100%;
+					width: 100%;
+				}
+				.label {
+					justify-content: flex-start;
+					color: var(
+						--label-color,
+						var(
+							--mdc-text-field-label-ink-color,
+							rgba(0, 0, 0, 0.6)
+						)
+					);
+					font-family: var(
+						--mdc-typography-subtitle1-font-family,
+						var(--mdc-typography-font-family, Roboto, sans-serif)
+					);
+					font-size: var(--mdc-typography-subtitle1-font-size, 10px);
+					font-weight: var(
+						--mdc-typography-subtitle1-font-weight,
+						400
+					);
+					letter-spacing: var(
+						--mdc-typography-subtitle1-letter-spacing,
+						0.009375em
+					);
+					text-decoration: var(
+						--mdc-typography-subtitle1-text-decoration,
+						inherit
+					);
+					text-transform: var(
+						--mdc-typography-subtitle1-text-transform,
+						inherit
+					);
+				}
+				:host(:focus-within) .label {
+					color: var(--mdc-theme-primary, #6200ee);
+				}
+
 				input {
 					font-family: var(
 						--mdc-typography-subtitle1-font-family,
@@ -182,7 +250,6 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						inherit
 					);
 
-					height: 100%;
 					width: 100%;
 					background: transparent;
 					border: none;
