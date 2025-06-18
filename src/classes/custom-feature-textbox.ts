@@ -14,9 +14,17 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 		this.shadowRoot?.querySelector('input')?.focus();
 	}
 
+	async onChange(e: Event) {
+		const input = e.target as HTMLInputElement;
+		if (input && this.precision) {
+			input.value = Number(input.value).toFixed(this.precision);
+		}
+	}
+
 	async onKeyDown(e: KeyboardEvent) {
 		this.getValueFromHass = false;
 		const input = e.target as HTMLInputElement;
+
 		if (!e.repeat && input && ['Enter', 'Escape'].includes(e.key)) {
 			e.preventDefault();
 			e.stopImmediatePropagation();
@@ -93,6 +101,7 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 							value="${this.value}"
 							.value="${this.value}"
 							@keydown=${this.onKeyDown}
+							@change=${this.onChange}
 						/>
 					</div>
 					<div class="line-ripple"></div>
