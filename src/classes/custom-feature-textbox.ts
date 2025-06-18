@@ -29,16 +29,18 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 		this.getValueFromHass = false;
 		const input = e.target as HTMLInputElement;
 
-		if (!e.repeat && input && ['Enter', 'Escape'].includes(e.key)) {
+		if (!e.repeat && input && ['Enter', 'Tab', 'Escape'].includes(e.key)) {
 			e.preventDefault();
 			e.stopImmediatePropagation();
 
 			switch (e.key) {
 				case 'Enter':
+				case 'Tab':
 					this.value = input.value;
 					this.fireHapticEvent('light');
 					await this.sendAction('tap_action');
 					this.resetGetValueFromHass();
+					input.blur();
 					break;
 				case 'Escape':
 				default:
@@ -96,6 +98,7 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						<input
 							type="number"
 							part="number"
+							enterkeyhint="done"
 							min="${this.range[0]}"
 							max="${this.range[1]}"
 							step="${this.step}"
@@ -119,6 +122,7 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						<input
 							type="text"
 							part="text"
+							enterkeyhint="done"
 							minlength="${this.range[0]}"
 							maxlength="${this.range[1]}"
 							pattern="${pattern}"

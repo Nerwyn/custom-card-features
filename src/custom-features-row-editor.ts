@@ -2228,7 +2228,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 							switch (domain) {
 								case 'input_text':
 									tap_action.perform_action =
-										'inpu_text.set_value';
+										'input_text.set_value';
 									if (!data.value) {
 										data.value = '{{ value | string }}';
 										tap_action.data = data;
