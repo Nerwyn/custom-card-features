@@ -10,8 +10,12 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
 
-	async onClick(_e: MouseEvent) {
-		this.shadowRoot?.querySelector('input')?.focus();
+	async onPointerUp(e: PointerEvent) {
+		super.onPointerUp(e);
+		if (!this.swiping) {
+			this.shadowRoot?.querySelector('input')?.focus();
+		}
+		this.endAction();
 	}
 
 	async onChange(e: Event) {
@@ -34,13 +38,11 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 					this.value = input.value;
 					this.fireHapticEvent('light');
 					await this.sendAction('tap_action');
-					this.endAction();
 					this.resetGetValueFromHass();
 					break;
 				case 'Escape':
 				default:
 					input.value = String(this.value);
-					this.endAction();
 					this.getValueFromHass = true;
 					break;
 			}
@@ -134,7 +136,9 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 	firstUpdated(changedProperties: PropertyValues) {
 		super.firstUpdated(changedProperties);
 		this.removeAttribute('tabindex');
-		this.addEventListener('click', this.onClick);
+		this.addEventListener('pointerdown', this.onPointerDown);
+		this.addEventListener('pointermove', this.onPointerMove);
+		this.addEventListener('pointerup', this.onPointerUp);
 	}
 
 	static get styles() {
