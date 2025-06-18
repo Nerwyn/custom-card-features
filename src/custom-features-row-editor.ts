@@ -15,6 +15,7 @@ import {
 	REPEAT_DELAY,
 	STEP,
 	STEP_COUNT,
+	TEXTBOX_TYPE,
 	UPDATE_AFTER_ACTION_DELAY,
 } from './models/constants';
 import {
@@ -29,6 +30,8 @@ import {
 	IEntry,
 	IOption,
 	ITarget,
+	TextBoxType,
+	ThumbType,
 	TileFeatureType,
 	TileFeatureTypes,
 	UncheckedValues,
@@ -806,7 +809,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 						{
 							number: {
 								min: 0,
-								step: 0,
+								step: 1,
 								mode: 'box',
 								unit_of_measurement: 'ms',
 							},
@@ -821,7 +824,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 								{
 									number: {
 										min: 0,
-										step: 0,
+										step: 1,
 										mode: 'box',
 										unit_of_measurement: 'ms',
 									},
@@ -838,7 +841,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 										{
 											number: {
 												min: 0,
-												step: 0,
+												step: 1,
 												mode: 'box',
 												unit_of_measurement: 'ms',
 											},
@@ -1060,14 +1063,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				${this.buildSelector('Step', 'step', {
 					number: {
 						min: 0,
-						step:
-							step ??
-							Math.min(
-								1,
-								((this.activeEntry?.range?.[1] ?? 1) -
-									(this.activeEntry?.range?.[0] ?? 0)) /
-									100,
-							),
+						step: 'any',
 						mode: 'box',
 						unit_of_measurement: unit,
 					},
@@ -1356,7 +1352,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 						${this.buildSelector('Step', 'step', {
 							number: {
 								min: 0,
-								step: step,
+								step: 'any',
 								mode: 'box',
 								unit_of_measurement: unit,
 							},
@@ -1572,6 +1568,144 @@ export class CustomFeaturesRowEditor extends LitElement {
 		`;
 	}
 
+	buildTextBoxGuiEditor() {
+		const actionsNoRepeat = Actions.concat();
+		actionsNoRepeat.splice(Actions.indexOf('repeat'), 1);
+
+		const context = this.getEntryContext(this.activeEntry as IEntry);
+		const rangeMin = this.renderTemplate(
+			this.activeEntry?.range?.[0] as number,
+			context,
+		);
+		const rangeMax = this.renderTemplate(
+			this.activeEntry?.range?.[0] as number,
+			context,
+		);
+		const step =
+			this.renderTemplate(this.activeEntry?.step as number, context) ??
+			STEP;
+		const unit = this.renderTemplate(
+			this.activeEntry?.unit_of_measurement as string,
+			context,
+		);
+
+		let mainOptions = html``;
+		const thumb = this.renderTemplate(
+			this.activeEntry?.thumb ?? '',
+			context,
+		) as TextBoxType;
+		switch (thumb) {
+			case 'number':
+				mainOptions = html`
+					${this.buildSelector('Min', 'range.0', {
+						number: {
+							max: rangeMax ?? undefined,
+							step: step,
+							mode: 'box',
+							unit_of_measurement: unit,
+						},
+					})}
+					${this.buildSelector('Max', 'range.1', {
+						number: {
+							min: rangeMin ?? undefined,
+							step: step,
+							mode: 'box',
+							unit_of_measurement: unit,
+						},
+					})}
+					${this.buildSelector('Step', 'step', {
+						number: {
+							min: 0,
+							step: 'any',
+							mode: 'box',
+							unit_of_measurement: unit,
+						},
+					})}
+				`;
+				break;
+			case 'text':
+			default:
+				mainOptions = html` ${this.buildSelector(
+					'Min Length',
+					'range.0',
+					{
+						number: {
+							min: 0,
+							max: rangeMax ?? undefined,
+							step: 1,
+							mode: 'box',
+						},
+					},
+				)}
+				${this.buildSelector('Max Length', 'range.1', {
+					number: {
+						min: 0,
+						step: 1,
+						mode: 'box',
+					},
+				})}
+				${this.buildSelector('Regex Pattern', 'pattern', {
+					text: {},
+				})}`;
+				break;
+		}
+
+		return html`
+			${this.buildMainFeatureOptions()}
+			${this.buildSelector(
+				'Box Type',
+				'thumb',
+				{
+					select: {
+						mode: 'list',
+						options: [
+							{
+								value: 'text',
+								label: 'Text',
+							},
+							{
+								value: 'number',
+								label: 'Number',
+							},
+						],
+					},
+				},
+				TEXTBOX_TYPE,
+			)}
+			<div class="form">
+				${mainOptions}
+				${this.buildSelector(
+					'Update after action delay',
+					'value_from_hass_delay',
+					{
+						number: {
+							min: 0,
+							step: 1,
+							mode: 'box',
+							unit_of_measurement: 'ms',
+						},
+					},
+					UPDATE_AFTER_ACTION_DELAY,
+				)}
+			</div>
+			${this.buildAppearancePanel(this.buildCommonAppearanceOptions())}
+			${this.buildInteractionsPanel(html`
+				${this.buildAlertBox()}
+				${this.buildActionOption(
+					'Behavior',
+					'tap_action',
+					{
+						ui_action: {
+							actions: actionsNoRepeat,
+							default_action: 'perform-action',
+						},
+					},
+					true,
+				)}
+			`)}
+		`;
+	}
+
 	buildEntryGuiEditor() {
 		let entryGuiEditor: TemplateResult<1>;
 		const type = this.config.entries[this.entryIndex].type;
@@ -1590,6 +1724,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 				break;
 			case 'toggle':
 				entryGuiEditor = this.buildToggleGuiEditor();
+				break;
+			case 'textbox':
+				entryGuiEditor = this.buildTextBoxGuiEditor();
 				break;
 			case 'button':
 			default:
@@ -1950,10 +2087,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const updatedConfig = structuredClone(config);
 		const updatedEntries: IEntry[] = [];
 		for (let entry of updatedConfig.entries ?? []) {
+			const context = this.getEntryContext(entry);
 			if (
 				this.renderTemplate(
 					(entry.autofill_entity_id ?? AUTOFILL) as unknown as string,
-					this.getEntryContext(entry),
+					context,
 				)
 			) {
 				// Feature entity ID
@@ -2078,31 +2216,24 @@ export class CustomFeaturesRowEditor extends LitElement {
 							);
 						}
 					// falls through
+					case 'textbox':
 					case 'slider': {
 						const [domain, _service] = (entryEntityId ?? '').split(
 							'.',
 						);
-
-						let rangeMin = entry.range?.[0];
-						let rangeMax = entry.range?.[1];
-						if (rangeMin == undefined) {
-							rangeMin =
-								this.hass.states[entryEntityId]?.attributes
-									?.min ?? RANGE_MIN;
-						}
-						if (rangeMax == undefined) {
-							rangeMax =
-								this.hass.states[entryEntityId]?.attributes
-									?.max ?? RANGE_MAX;
-						}
-						entry.range = [rangeMin as number, rangeMax as number];
-
 						if (!entry.tap_action) {
 							const tap_action = {} as IAction;
 							const data = tap_action.data ?? {};
-							1;
 							tap_action.action = 'perform-action';
 							switch (domain) {
+								case 'input_text':
+									tap_action.perform_action =
+										'inpu_text.set_value';
+									if (!data.value) {
+										data.value = '{{ value | string }}';
+										tap_action.data = data;
+									}
+									break;
 								case 'number':
 									tap_action.perform_action =
 										'number.set_value';
@@ -2129,6 +2260,29 @@ export class CustomFeaturesRowEditor extends LitElement {
 								tap_action.target = target;
 							}
 							entry.tap_action = tap_action;
+						}
+
+						let rangeMin = entry.range?.[0];
+						let rangeMax = entry.range?.[1];
+						if (rangeMin == undefined) {
+							rangeMin =
+								this.hass.states[entryEntityId]?.attributes
+									?.min ?? RANGE_MIN;
+						}
+						if (rangeMax == undefined) {
+							rangeMax =
+								this.hass.states[entryEntityId]?.attributes
+									?.max ?? RANGE_MAX;
+						}
+						entry.range = [rangeMin as number, rangeMax as number];
+
+						const thumb = this.renderTemplate(
+							this.activeEntry?.thumb ?? '',
+							context,
+						) as ThumbType;
+
+						if (thumb == 'text') {
+							break;
 						}
 
 						if (!entry.step) {

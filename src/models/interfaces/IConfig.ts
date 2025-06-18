@@ -11,6 +11,7 @@ export interface IEntry
 		ISliderOptions,
 		IDropdownSelectorOptions,
 		ISpinboxOptions,
+		ITextboxOptions,
 		IToggleOptions {
 	type?: TileFeatureType;
 
@@ -33,6 +34,7 @@ export const TileFeatureTypes = [
 	'selector',
 	'slider',
 	'spinbox',
+	'textbox',
 	'toggle',
 ] as const;
 export type TileFeatureType = (typeof TileFeatureTypes)[number];
@@ -54,7 +56,13 @@ export const ToggleThumbTypes = [
 ] as const;
 export type SliderThumbType = (typeof SliderThumbTypes)[number];
 export type ToggleThumbType = (typeof ToggleThumbTypes)[number];
-export const ThumbTypes = [...SliderThumbTypes, ...ToggleThumbTypes];
+export const TextBoxTypes = ['text', 'number'] as const;
+export type TextBoxType = (typeof TextBoxTypes)[number];
+export const ThumbTypes = [
+	...SliderThumbTypes,
+	...ToggleThumbTypes,
+	...TextBoxTypes,
+] as const;
 export type ThumbType = (typeof ThumbTypes)[number];
 
 export interface ISliderOptions {
@@ -69,6 +77,13 @@ export interface ISpinboxOptions {
 	debounce_time?: number;
 	increment?: IEntry;
 	decrement?: IEntry;
+}
+
+export interface ITextboxOptions {
+	thumb?: ThumbType;
+	range?: [number, number];
+	step?: number;
+	pattern?: string;
 }
 
 export const CheckedValues = ['true', 'yes', 'on', 'enable', 'enabled', '1'];
