@@ -1,4 +1,4 @@
-import { css, CSSResult, html } from 'lit';
+import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
 import { TextBoxType } from '../models/interfaces';
@@ -6,6 +6,7 @@ import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-textbox')
 export class CustomFeatureTextbox extends BaseCustomFeature {
+	tabindex: number = -1;
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
 
@@ -74,10 +75,10 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 				}
 
 				return html`
+					${this.buildBackground()}
 					<input
 						type="number"
 						part="number"
-						tabindex="-1"
 						min="${this.range[0]}"
 						max="${this.range[1]}"
 						step="${this.step}"
@@ -86,16 +87,16 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						.value="${this.value}"
 						@keydown=${this.onKeyDown}
 					/>
+					<div class="line-ripple"></div>
 				`;
 			case 'text':
 			default:
 				const pattern = this.renderTemplate(this.config.pattern ?? '');
-
 				return html`
+					${this.buildBackground()}
 					<input
 						type="text"
 						part="text"
-						tabindex="-1"
 						minlength="${this.range[0]}"
 						maxlength="${this.range[1]}"
 						pattern="${pattern}"
@@ -104,17 +105,135 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						.value="${this.value}"
 						@keydown=${this.onKeyDown}
 					/>
+					<div class="line-ripple"></div>
 				`;
 		}
+	}
+
+	firstUpdated(changedProperties: PropertyValues) {
+		super.firstUpdated(changedProperties);
+		this.removeAttribute('tabindex');
 	}
 
 	static get styles() {
 		return [
 			super.styles as CSSResult,
 			css`
+				:host {
+					border-radius: 0;
+					border-top-left-radius: var(--mdc-shape-small, 4px);
+					border-top-right-radius: var(--mdc-shape-small, 4px);
+					padding: var(--text-field-padding, 0px 16px);
+				}
+				:host(:focus-within) {
+					box-shadow: none;
+				}
+
+				.background {
+					background: var(
+						--background,
+						var(--color, var(--mdc-text-field-fill-color, #f5f5f5))
+					);
+					opacity: var(--background-opacity, 1);
+					pointer-events: none;
+					z-index: 0;
+				}
+				.background::before {
+					content: '';
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					bottom: 0;
+					background: var(--mdc-ripple-color, rgba(0, 0, 0, 0.87));
+					opacity: 0;
+				}
+				@media (hover: hover) {
+					:host(:hover) .background::before {
+						opacity: var(--mdc-ripple-hover-opacity, 0.04);
+					}
+				}
+
 				input {
+					font-family: var(
+						--mdc-typography-subtitle1-font-family,
+						var(--mdc-typography-font-family, Roboto, sans-serif)
+					);
+					font-size: var(--mdc-typography-subtitle1-font-size, 1rem);
+					font-weight: var(
+						--mdc-typography-subtitle1-font-weight,
+						400
+					);
+					letter-spacing: var(
+						--mdc-typography-subtitle1-letter-spacing,
+						0.009375em
+					);
+					text-decoration: var(
+						--mdc-typography-subtitle1-text-decoration,
+						inherit
+					);
+					text-transform: var(
+						--mdc-typography-subtitle1-text-transform,
+						inherit
+					);
+					color: var(--mdc-text-field-ink-color, rgba(0, 0, 0, 0.87));
+					caret-color: var(
+						--mdc-typography-subtitle1-text-transform,
+						inherit
+					);
+
 					height: 100%;
 					width: 100%;
+					background: transparent;
+					border: none;
+					z-index: 1;
+
+					-webkit-font-smoothing: antialiased;
+					-moz-osx-font-smoothing: grayscale;
+				}
+				input:focus-visible {
+					outline: none;
+				}
+
+				.line-ripple {
+					position: absolute;
+					bottom: 0;
+					width: 100%;
+				}
+				.line-ripple::before,
+				.line-ripple::after {
+					content: '';
+					display: block;
+					width: 100%;
+					position: absolute;
+					bottom: 0;
+				}
+				.line-ripple::before {
+					height: 1px;
+					background: var(
+						--mdc-text-field-idle-line-color,
+						rgba(0, 0, 0, 0.42)
+					);
+					z-index: 1;
+				}
+				@media (hover: hover) {
+					:host(:hover) .line-ripple::before {
+						background: var(--mdc-theme-primary, #6200ee);
+					}
+				}
+				.line-ripple::after {
+					height: 2px;
+					background: var(--mdc-theme-primary, #6200ee);
+					z-index: 2;
+					scale: 0 1;
+					opacity: 0;
+					transition:
+						scale 180ms cubic-bezier(0.4, 0, 0.2, 1),
+						opacity 180ms cubic-bezier(0.4, 0, 0.2, 1);
+				}
+				:host(:focus-within) .line-ripple::after {
+					scale: 1 1;
+					opacity: 1;
 				}
 			`,
 		];
