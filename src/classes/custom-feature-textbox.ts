@@ -1,4 +1,4 @@
-import { css, CSSResult, html, PropertyValues } from 'lit';
+import { css, CSSResult, html, PropertyValues, TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
 import { TextBoxType } from '../models/interfaces';
@@ -6,7 +6,6 @@ import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-textbox')
 export class CustomFeatureTextbox extends BaseCustomFeature {
-	tabindex: number = -1;
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
 
@@ -18,7 +17,11 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 		this.endAction();
 	}
 
-	async onChange(e: Event) {
+	onFocus(_e: FocusEvent) {
+		this.shadowRoot?.querySelector('input')?.focus();
+	}
+
+	onChange(e: Event) {
 		const input = e.target as HTMLInputElement;
 		if (input && this.precision) {
 			input.value = Number(input.value).toFixed(this.precision);
@@ -72,6 +75,7 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 			this.config.thumb ?? 'text',
 		) as TextBoxType;
 
+		let input: TemplateResult;
 		switch (thumb) {
 			case 'number':
 				if (this.config.step) {
@@ -90,59 +94,76 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 					this.precision = 0;
 				}
 
-				return html`
-					${this.buildBackground()}
-					${this.buildIcon(this.config.icon)}
-					<div class="label-input">
-						${this.buildLabel(this.config.label)}
-						<input
-							type="number"
-							part="number"
-							enterkeyhint="done"
-							min="${this.range[0]}"
-							max="${this.range[1]}"
-							step="${this.step}"
-							placeholder="${label}"
-							value="${this.value}"
-							.value="${this.value}"
-							@keydown=${this.onKeyDown}
-							@change=${this.onChange}
-						/>
-					</div>
-					<div class="line-ripple"></div>
+				input = html`
+					<input
+						type="number"
+						part="input"
+						tabindex="-1"
+						enterkeyhint="done"
+						inputmode="decimal"
+						min="${this.range[0]}"
+						max="${this.range[1]}"
+						step="${this.step}"
+						placeholder="${label}"
+						value="${this.value}"
+						.value="${this.value}"
+						@keydown=${this.onKeyDown}
+						@change=${this.onChange}
+					/>
 				`;
+				break;
 			case 'text':
 			default:
 				const pattern = this.renderTemplate(this.config.pattern ?? '');
-				return html`
-					${this.buildBackground()}
-					${this.buildIcon(this.config.icon)}
-					<div class="label-input">
-						${this.buildLabel(this.config.label)}
-						<input
-							type="text"
-							part="text"
-							enterkeyhint="done"
-							minlength="${this.range[0]}"
-							maxlength="${this.range[1]}"
-							pattern="${pattern}"
-							placeholder="${label}"
-							value="${this.value}"
-							.value="${this.value}"
-							@keydown=${this.onKeyDown}
-						/>
-					</div>
-					<div class="line-ripple"></div>
+				input = html`
+					<input
+						type="text"
+						part="input"
+						tabindex="-1"
+						enterkeyhint="done"
+						minlength="${this.range[0]}"
+						maxlength="${this.range[1]}"
+						pattern="${pattern}"
+						placeholder="${label}"
+						value="${this.value}"
+						.value="${this.value}"
+						@keydown=${this.onKeyDown}
+					/>
 				`;
+				break;
 		}
+
+		return html`
+			${this.buildBackground()} ${this.buildIcon(this.config.icon)}
+			<div class="label-input">
+				${this.buildLabel(this.config.label)} ${input}
+			</div>
+			<div class="line-ripple"></div>
+		`;
 	}
 
 	firstUpdated(changedProperties: PropertyValues) {
 		super.firstUpdated(changedProperties);
-		this.removeAttribute('tabindex');
 		this.addEventListener('pointerdown', this.onPointerDown);
 		this.addEventListener('pointermove', this.onPointerMove);
 		this.addEventListener('pointerup', this.onPointerUp);
+		this.addEventListener('focus', this.onFocus);
+	}
+
+	handleExternalClick = (e: MouseEvent) => {
+		if (typeof e.composedPath && !e.composedPath().includes(this)) {
+			this.shadowRoot?.querySelector('input')?.blur();
+		}
+	};
+
+	connectedCallback() {
+		super.connectedCallback();
+		document.body.addEventListener('click', this.handleExternalClick);
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		document.body.removeEventListener('click', this.handleExternalClick);
 	}
 
 	static get styles() {

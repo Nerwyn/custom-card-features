@@ -14,3 +14,4 @@ export const RANGE_MIN = 0;
 export const RANGE_MAX = 100;
 
 export const TEXTBOX_TYPE = 'text';
+export const NUMBER_REGEX = /^-?[0-9]\d*(\.\d+)?$/;
