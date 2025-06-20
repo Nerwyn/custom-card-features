@@ -614,6 +614,13 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					justify-content: flex-end;
 					overflow: visible;
 					border-radius: 0;
+
+					--md-sys-motion-expressive-spatial-fast: 350ms
+						cubic-bezier(0.42, 1.67, 0.21, 0.9);
+					--md-sys-motion-expressive-effects-fast: 150ms
+						cubic-bezier(0.31, 0.94, 0.34, 1);
+					--md-sys-motion-expressive-effects-default: 200ms
+						cubic-bezier(0.34, 0.8, 0.34, 1);
 				}
 				.md2-switch {
 					justify-content: flex-start;
@@ -707,9 +714,11 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					border: 2px solid var(--switch-unchecked-button-color);
 					opacity: 1;
 					transition:
-						opacity 90ms cubic-bezier(0.4, 0, 0.2, 1),
-						background-color 90ms cubic-bezier(0.4, 0, 0.2, 1),
-						border-color 90ms cubic-bezier(0.4, 0, 0.2, 1);
+						opacity var(--md-sys-motion-expressive-effects-default),
+						background-color
+							var(--md-sys-motion-expressive-effects-fast),
+						border-color
+							var(--md-sys-motion-expressive-effects-fast);
 				}
 				.md3-switch.on > .background {
 					background: var(--switch-checked-track-color);
@@ -722,9 +731,11 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					border-radius: 40px;
 					left: -4px;
 					transition:
-						translate 90ms cubic-bezier(0.4, 0, 0.2, 1),
-						background-color 90ms cubic-bezier(0.4, 0, 0.2, 1),
-						border-color 90ms cubic-bezier(0.4, 0, 0.2, 1);
+						translate var(--md-sys-motion-expressive-spatial-fast),
+						background-color
+							var(--md-sys-motion-expressive-effects-fast),
+						border-color
+							var(--md-sys-motion-expressive-effects-fast);
 				}
 				.md2-switch:has(.icon),
 				.md3-switch:has(.icon) {
@@ -752,7 +763,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					width: 16px;
 					border-radius: 28px;
 					background: var(--switch-unchecked-button-color);
-					transition: scale 0.2s cubic-bezier(0.2, 0, 0, 1);
+					transition: scale
+						var(--md-sys-motion-expressive-spatial-fast);
 				}
 				.md3-switch.off:has(.icon) > .thumb::before {
 					scale: 1.5;
@@ -811,7 +823,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 						--switch-unchecked-track-state-layer,
 						var(--primary-text-color)
 					);
-					transition: opacity 0.1s cubic-bezier(0.4, 0, 1, 1) 0s;
+					transition: opacity
+						var(--md-sys-motion-expressive-effects-fast);
 				}
 				.md3-switch.on:hover > .background::after {
 					background: var(--switch-checked-track-color);
