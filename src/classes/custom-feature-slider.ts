@@ -433,10 +433,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 
 				.md3-slider {
-					max-height: var(--md-slider-track-height);
-					border-radius: 8px;
+					max-height: 40px;
+					border-radius: 12px;
 
-					--md-slider-track-height: 24px;
+					--mdc-icon-size: 24px;
 				}
 				.md3-slider .background {
 					height: 100%;
@@ -454,9 +454,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						)
 					);
 				}
-				.md3-slider .thumb {
-					width: 0;
-				}
 				.md3-thumb {
 					background: var(
 						--ha-card-background,
@@ -464,13 +461,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					);
 					display: flex;
 					justify-content: center;
-					height: 44px;
-					width: 12px;
+					height: 52px;
+					width: 16px;
 					position: absolute;
 					translate: var(--thumb-translate);
-					transition:
-						var(--thumb-transition),
-						scale var(--md-sys-motion-expressive-spatial-fast);
+					transition: var(--thumb-transition);
 					pointer-events: none;
 				}
 				.md3-thumb::after {
@@ -483,6 +478,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						--color,
 						var(--switch-checked-track-color, var(--feature-color))
 					);
+					transition: scale
+						var(--md-sys-motion-expressive-spatial-fast);
+				}
+				:host(:focus-visible) .md3-thumb,
+				:host([pressed]) .md3-thumb::after {
+					scale: 0.5 1;
 				}
 				.md3-slider .thumb .active {
 					height: 100%;
@@ -492,12 +493,44 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					);
 					inset-inline-end: 0;
 				}
-				:host(:focus-visible) .md3-thumb,
-				:host([pressed]) .md3-thumb {
-					scale: 0.5 1;
-				}
 				:host(:focus-visible):has(.md3-slider) {
 					box-shadow: none;
+				}
+				.md3-slider .icon-label {
+					flex-direction: row;
+					justify-content: flex-start;
+					gap: 4px;
+					box-sizing: border-box;
+					padding: 0 4px;
+				}
+				.md3-slider .label {
+					width: fit-content;
+				}
+				.md3-slider ~ .tooltip {
+					background: var(--md-sys-color-inverse-surface, #2f3036);
+					color: var(--md-sys-color-inverse-on-surface, #f1f0f7);
+					padding: 12px 16px;
+					border-radius: 24px;
+					font-size: var(--md-sys-typescale-label-large-size, 14px);
+					font-weight: var(
+						--md-sys-typescale-label-large-weight,
+						400
+					);
+					line-height: var(
+						-md-sys-typescale-label-large-line-height,
+						20px
+					);
+					letter-spacing: var(
+						--md-sys-typescale-label-large-tracking,
+						0.5px
+					);
+					transform: var(
+						--tooltip-transform,
+						translate(
+							var(--thumb-offset),
+							calc(-0.5 * var(--feature-height, 40px) - 32px)
+						)
+					);
 				}
 
 				.tooltip {
