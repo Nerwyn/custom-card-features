@@ -137,6 +137,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			) || ((this.value as number) ?? this.range[0]) > this.range[0];
 	}
 
+	buildMD3Thumb() {
+		return this.thumbType == 'md3-slider'
+			? html`<div class="md3-thumb" part="md3-thumb"></div>`
+			: '';
+	}
+
 	buildTooltip() {
 		return html`<div class="tooltip" part="tooltip"></div>`;
 	}
@@ -219,10 +225,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			<div
 				class="container ${classMap({
 					off: !this.sliderOn,
-					'read-only':
-						this.renderTemplate(
-							this.config.tap_action?.action as string,
-						) == 'none',
 					[this.thumbType]: true,
 				})}"
 				part="container"
@@ -233,7 +235,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					${this.buildLabel(this.config.label)}
 				</div>
 			</div>
-			${this.buildTooltip()}${this.buildStyles(this.config.styles)}
+			${this.buildTooltip()}${this.buildMD3Thumb()}${this.buildStyles(
+				this.config.styles,
+			)}
 		`;
 	}
 
@@ -277,6 +281,16 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		) {
 			this.thumbWidth = pixels;
 			this.style.setProperty('--thumb-width', `${this.thumbWidth}px`);
+		}
+
+		// Set readonly if action is none
+		if (
+			this.renderTemplate(this.config.tap_action?.action as string) ==
+			'none'
+		) {
+			this.setAttribute('readonly', '');
+		} else {
+			this.removeAttribute('readonly');
 		}
 	}
 
@@ -367,7 +381,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					height: 100%;
 					width: 100vw;
 					position: absolute;
-					right: calc(var(--thumb-width) / 2);
+					inset-inline-end: calc(var(--thumb-width) / 2);
 					background: inherit;
 				}
 
@@ -381,7 +395,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					height: 22px;
 					width: 4px;
 					top: 25%;
-					right: 6px;
+					inset-inline-end: 6px;
 					border-radius: 4px;
 					background: #ffffff;
 				}
@@ -401,7 +415,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					width: 4px;
 					border-radius: 4px;
 					top: 25%;
-					right: 4px;
+					inset-inline-end: 4px;
 					background: #c6c6d0;
 				}
 				.line .thumb .active {
@@ -416,6 +430,74 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 				.round.container {
 					border-radius: var(--feature-height, 40px);
+				}
+
+				.md3-slider {
+					max-height: var(--md-slider-track-height);
+					border-radius: 8px;
+
+					--md-slider-track-height: 24px;
+				}
+				.md3-slider .background {
+					height: 100%;
+					background: var(
+						--background,
+						var(
+							--color,
+							var(
+								--switch-unchecked-track-color,
+								var(
+									--feature-color,
+									var(--state-inactive-color)
+								)
+							)
+						)
+					);
+				}
+				.md3-slider .thumb {
+					width: 0;
+				}
+				.md3-thumb {
+					background: var(
+						--ha-card-background,
+						var(--card-background-color, #fff)
+					);
+					display: flex;
+					justify-content: center;
+					height: 44px;
+					width: 12px;
+					position: absolute;
+					translate: var(--thumb-translate);
+					transition:
+						var(--thumb-transition),
+						scale var(--md-sys-motion-expressive-spatial-fast);
+					pointer-events: none;
+				}
+				.md3-thumb::after {
+					content: '';
+					position: absolute;
+					height: 100%;
+					width: 4px;
+					border-radius: 4px;
+					background: var(
+						--color,
+						var(--switch-checked-track-color, var(--feature-color))
+					);
+				}
+				.md3-slider .thumb .active {
+					height: 100%;
+					background: var(
+						--color,
+						var(--switch-checked-track-color, var(--feature-color))
+					);
+					inset-inline-end: 0;
+				}
+				:host(:focus-visible) .md3-thumb,
+				:host([pressed]) .md3-thumb {
+					scale: 0.5 1;
+				}
+				:host(:focus-visible):has(.md3-slider) {
+					box-shadow: none;
 				}
 
 				.tooltip {
@@ -470,12 +552,13 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				:host([pressed]) {
 					--thumb-transition: background 180ms ease-in-out;
 				}
+				:host(:focus-visible) .tooltip,
 				:host([pressed]) .tooltip {
 					transition: opacity 540ms ease-in-out 0s;
 					opacity: 1;
 				}
 
-				.read-only input {
+				:host([readonly]) input {
 					pointer-events: none;
 					cursor: default;
 				}

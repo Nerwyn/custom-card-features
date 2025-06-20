@@ -614,13 +614,6 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					justify-content: flex-end;
 					overflow: visible;
 					border-radius: 0;
-
-					--md-sys-motion-expressive-spatial-fast: 350ms
-						cubic-bezier(0.42, 1.67, 0.21, 0.9);
-					--md-sys-motion-expressive-effects-fast: 150ms
-						cubic-bezier(0.31, 0.94, 0.34, 1);
-					--md-sys-motion-expressive-effects-default: 200ms
-						cubic-bezier(0.34, 0.8, 0.34, 1);
 				}
 				.md2-switch {
 					justify-content: flex-start;

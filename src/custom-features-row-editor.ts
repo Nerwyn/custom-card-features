@@ -1123,6 +1123,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 									value: 'round',
 									label: 'Round',
 								},
+								{
+									value: 'md3-slider',
+									label: 'Material Design 3',
+								},
 							],
 							reorder: false,
 						},

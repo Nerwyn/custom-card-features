@@ -904,6 +904,9 @@ export class BaseCustomFeature extends LitElement {
 				overflow: hidden;
 				height: 100%;
 			}
+			:host(:focus-visible) .container {
+				box-shadow: none;
+			}
 
 			.background {
 				position: absolute;
