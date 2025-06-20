@@ -517,7 +517,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						400
 					);
 					line-height: var(
-						-md-sys-typescale-label-large-line-height,
+						--md-sys-typescale-label-large-line-height,
 						20px
 					);
 					letter-spacing: var(
