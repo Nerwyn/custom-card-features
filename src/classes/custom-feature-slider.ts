@@ -137,6 +137,31 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			) || ((this.value as number) ?? this.range[0]) > this.range[0];
 	}
 
+	buildTickmarks() {
+		if (
+			String(this.renderTemplate(this.config.tickmarks ?? 'false')) ==
+			'true'
+		) {
+			const values = [];
+			for (let i = this.range[0]; i <= this.range[1]; i += this.step) {
+				values.push(i);
+			}
+			return html`<div class="tickmarks">
+				${values.map(
+					(i) =>
+						html`<div
+							class="tickmark ${i >
+							parseFloat(this.value as string)
+								? 'in'
+								: ''}active"
+							value="${i}"
+						></div>`,
+				)}
+			</div>`;
+		}
+		return '';
+	}
+
 	buildMD3Thumb() {
 		return this.thumbType == 'md3-slider'
 			? html`<div class="md3-thumb" part="md3-thumb"></div>`
@@ -229,7 +254,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				})}"
 				part="container"
 			>
-				${this.buildBackground()}${this.buildSlider()}${this.buildThumb()}
+				${this.buildBackground()}${this.buildSlider()}
+				${this.buildThumb()}${this.buildTickmarks()}
 				<div class="icon-label">
 					${this.buildIcon(this.config.icon)}
 					${this.buildLabel(this.config.label)}
@@ -334,6 +360,28 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							var(--feature-color, var(--state-inactive-color))
 						)
 					);
+				}
+
+				.tickmarks {
+					position: absolute;
+					width: calc(100% - var(--thumb-width));
+					height: 100%;
+					pointer-events: none;
+					display: flex;
+					flex-direction: row;
+					justify-content: space-between;
+					align-items: center;
+				}
+				.tickmark {
+					height: 4px;
+					width: 4px;
+					border-radius: 50%;
+				}
+				.tickmark.inactive {
+					background: var(--primary-color);
+				}
+				.tickmark.active {
+					background: var(--primary-background-color);
 				}
 
 				input {
@@ -445,13 +493,26 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						var(
 							--color,
 							var(
-								--switch-unchecked-track-color,
+								--md-slider-inactive-track-color,
 								var(
 									--feature-color,
 									var(--state-inactive-color)
 								)
 							)
 						)
+					);
+					opacity: var(--background-opacity, 1);
+				}
+				.md3-slider .tickmark.inactive {
+					background: var(
+						--md-slider-with-tick-marks-inactive-container-color,
+						var(--primary-color)
+					);
+				}
+				.md3-slider .tickmark.active {
+					background: var(
+						--md-slider-with-tick-marks-active-container-color,
+						var(--primary-background-color)
 					);
 				}
 				.md3-thumb {
@@ -476,7 +537,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					border-radius: 4px;
 					background: var(
 						--color,
-						var(--switch-checked-track-color, var(--feature-color))
+						var(
+							--md-slider-active-track-color,
+							var(--feature-color)
+						)
 					);
 					transition: scale
 						var(--md-sys-motion-expressive-spatial-fast);
@@ -489,7 +553,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					height: 100%;
 					background: var(
 						--color,
-						var(--switch-checked-track-color, var(--feature-color))
+						var(
+							--md-slider-active-track-color,
+							var(--feature-color)
+						)
 					);
 					inset-inline-end: 0;
 				}

@@ -1100,39 +1100,49 @@ export class CustomFeaturesRowEditor extends LitElement {
 			</div>
 			${this.buildAppearancePanel(html`
 				${this.buildCommonAppearanceOptions()}
-				${this.buildSelector(
-					'Thumb type',
-					'thumb',
-					{
-						select: {
-							mode: 'dropdown',
-							options: [
-								{
-									value: 'default',
-									label: 'Default',
-								},
-								{
-									value: 'line',
-									label: 'Line',
-								},
-								{
-									value: 'flat',
-									label: 'Flat',
-								},
-								{
-									value: 'round',
-									label: 'Round',
-								},
-								{
-									value: 'md3-slider',
-									label: 'Material Design 3',
-								},
-							],
-							reorder: false,
+				<div class="form">
+					${this.buildSelector(
+						'Thumb type',
+						'thumb',
+						{
+							select: {
+								mode: 'dropdown',
+								options: [
+									{
+										value: 'default',
+										label: 'Default',
+									},
+									{
+										value: 'line',
+										label: 'Line',
+									},
+									{
+										value: 'flat',
+										label: 'Flat',
+									},
+									{
+										value: 'round',
+										label: 'Round',
+									},
+									{
+										value: 'md3-slider',
+										label: 'Material Design 3',
+									},
+								],
+								reorder: false,
+							},
 						},
-					},
-					'default',
-				)}
+						'default',
+					)}
+					${this.buildSelector(
+						'Tickmarks',
+						'tickmarks',
+						{
+							boolean: {},
+						},
+						false,
+					)}
+				</div>
 			`)}
 			${this.buildInteractionsPanel(html`
 				${this.buildAlertBox()}

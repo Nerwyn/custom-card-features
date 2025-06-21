@@ -75,6 +75,7 @@ export interface ISliderOptions {
 	range?: [number, number];
 	step?: number;
 	thumb?: ThumbType;
+	tickmarks?: boolean;
 }
 
 export interface ISpinboxOptions {
