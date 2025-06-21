@@ -164,7 +164,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 	buildMD3Thumb() {
 		return this.thumbType == 'md3-slider'
-			? html`<div class="md3-thumb" part="md3-thumb"></div>`
+			? html`<div class="md3-thumb" part="md3-thumb">
+					<div class="md3-thumb-active-track-corner"></div>
+					<div class="md3-thumb-line"></div>
+					<div class="md3-thumb-inactive-track-corner"></div>
+				</div>`
 			: '';
 	}
 
@@ -433,6 +437,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					background: inherit;
 				}
 
+				/* Default Slider */
 				.default .thumb {
 					border-radius: var(--thumb-border-radius, 8px);
 					background: var(--color, var(--feature-color));
@@ -448,10 +453,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					background: #ffffff;
 				}
 
+				/* Flat Slider */
 				.flat .thumb {
 					background: var(--color, var(--feature-color));
 				}
 
+				/* Line Slider */
 				.line .thumb {
 					border-radius: 8px;
 					background: #ffffff;
@@ -470,6 +477,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					display: none;
 				}
 
+				/* Round Slider */
 				.round .thumb {
 					aspect-ratio: 1 / 1;
 					border-radius: var(--feature-height, 40px);
@@ -480,6 +488,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					border-radius: var(--feature-height, 40px);
 				}
 
+				/* Material Design 3 Slider */
 				.md3-slider {
 					max-height: 40px;
 					border-radius: 12px;
@@ -522,6 +531,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					);
 					display: flex;
 					justify-content: center;
+					align-items: center;
 					height: 52px;
 					width: 16px;
 					position: absolute;
@@ -529,9 +539,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					transition: var(--thumb-transition);
 					pointer-events: none;
 				}
-				.md3-thumb::after {
+				.md3-thumb-line {
 					content: '';
-					position: absolute;
 					height: 100%;
 					width: 4px;
 					border-radius: 4px;
@@ -546,7 +555,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						var(--md-sys-motion-expressive-spatial-fast);
 				}
 				:host(:focus-visible) .md3-thumb,
-				:host([pressed]) .md3-thumb::after {
+				:host([pressed]) .md3-thumb-line {
 					scale: 0.5 1;
 				}
 				.md3-slider .thumb .active {
@@ -562,6 +571,39 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 				:host(:focus-visible):has(.md3-slider) {
 					box-shadow: none;
+				}
+				.md3-thumb-active-track-corner,
+				.md3-thumb-inactive-track-corner {
+					position: relative;
+					overflow: hidden;
+					height: 40px;
+					width: 4px;
+				}
+				.md3-thumb-active-track-corner {
+					inset-inline-start: -6px;
+					border-start-end-radius: 2px;
+					border-end-end-radius: 2px;
+				}
+				.md3-thumb-active-track-corner,
+				:host([dir='rtl']) .md3-thumb-inactive-track-corner {
+					box-shadow: 2px 0 0
+						var(
+							--ha-card-background,
+							var(--card-background-color, #fff)
+						);
+				}
+				.md3-thumb-inactive-track-corner {
+					inset-inline-end: -6px;
+					border-start-start-radius: 2px;
+					border-end-start-radius: 2px;
+				}
+				.md3-thumb-inactive-track-corner,
+				:host([dir='rtl']) .md3-thumb-active-track-corner {
+					box-shadow: -2px 0 0
+						var(
+							--ha-card-background,
+							var(--card-background-color, #fff)
+						);
 				}
 				.md3-slider .icon-label {
 					flex-direction: row;
