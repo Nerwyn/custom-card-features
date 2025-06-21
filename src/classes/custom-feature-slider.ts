@@ -570,8 +570,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					box-sizing: border-box;
 					padding: 0 4px;
 				}
+				.md3-slider .icon {
+					mix-blend-mode: difference;
+				}
 				.md3-slider .label {
 					width: fit-content;
+					mix-blend-mode: difference;
 				}
 				.md3-slider ~ .tooltip {
 					background: var(--md-sys-color-inverse-surface, #2f3036);

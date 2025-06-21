@@ -51,9 +51,11 @@ Since each selector option is a custom feature button, you can override it's def
 
 ## Sliders
 
+TODO update screenshot
+
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_tile.png" width="600"/>
 
-Sliders are similar to the sliders found in Home Assistant default card features, like those available for light brightness and temperature. By default the slider will look like a normal tile light brightness or cover position slider, but you can change this to a few of other thumb styles using the `Thumb Type` appearance option.
+Sliders are similar to the sliders found in Home Assistant default card features, like those available for light brightness and temperature. By default the slider will look like a normal tile light brightness or cover position slider, but you can change this to a few of other thumb styles using the `Thumb Type` appearance option. You can also add tickmarks which will appear at each step (just know that if you have a lot of steps they'll all blend together).
 
 Sliders can track either the state or attribute of an entity, meaning that when that entity's state or attribute changes so will the slider to match. By default it will track the `state` of an entity. To change this, set `Attribute` to the name of the attribute you want the slider to track. In order to pass the the slider's value to an action, set the value in the action data to `{{ value | float }}`.
 
@@ -70,6 +72,16 @@ Spinboxes allow you to create Home Assistant style number boxes with increment a
 Like sliders, the spinbox's action should use an action which sets a value similar to `number/input_number.set_value` or `climate.set_temperature` and the user should use `value` in a template to pass it to the action call. This way the user can keep incrementing or decrementing the value until they reach the desired value, and the action to update it in Home Assistant is only called once. You can make this features buttons repeat when held by setting the hold action to repeat. These should all be set in the `CENTER` tab of the spinbox configuration page.
 
 You can also override the default behavior of the increment and decrement buttons by changing the tab bar to `INCREMENT` or `DECREMENT` and modifying the actions there. Doing so will disable the normal increment/decrement and debounce button behavior and create a button feature instead. Spinbox button appearance and styles can also be modified more directly in the `INCREMENT` and `DECREMENT` tabs.
+
+## Textboxes
+
+TODO create screenshot and update description
+
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/textbox_tile.png" width="600"/>
+
+Textboxes allow you to create Home Assistant style text inputs, similar to those found when you add an input text entity to an entities card. You can provide it with an action, which will actuate when you press the `Enter` or `Tab` key. You can cancel your action by pressing `Escape`.
+
+You can choose between text and number mode. In number mode, you can also use the up and down arrow keys to increase and decrease the textbox value by a step amount of your choosing. Similar to sliders and spinboxes, it also supports setting a range.
 
 ## Toggles
 
@@ -376,6 +388,17 @@ Most features have additional custom CSS attributes which can be used to style t
     ></custom-feature-dropdown-option>
   </div>
 </custom-feature-dropdown>
+```
+
+## Textbox CSS Attributes
+
+TODO
+
+| Name | Description |
+| ---- | ----------- |
+
+```html
+
 ```
 
 ## Toggle CSS Attributes
