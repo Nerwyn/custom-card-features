@@ -1657,9 +1657,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 						step: 1,
 						mode: 'box',
 					},
-				})}
-				${this.buildSelector('Regex Pattern', 'pattern', {
-					text: {},
 				})}`;
 				break;
 		}

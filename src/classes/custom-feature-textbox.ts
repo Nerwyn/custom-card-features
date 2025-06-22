@@ -104,7 +104,6 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						min="${this.range[0]}"
 						max="${this.range[1]}"
 						step="${this.step}"
-						placeholder="${label}"
 						value="${this.value}"
 						.value="${this.value}"
 						@keydown=${this.onKeyDown}
@@ -114,7 +113,6 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 				break;
 			case 'text':
 			default:
-				const pattern = this.renderTemplate(this.config.pattern ?? '');
 				input = html`
 					<input
 						type="text"
@@ -123,8 +121,6 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						enterkeyhint="done"
 						minlength="${this.range[0]}"
 						maxlength="${this.range[1]}"
-						pattern="${pattern}"
-						placeholder="${label}"
 						value="${this.value}"
 						.value="${this.value}"
 						@keydown=${this.onKeyDown}

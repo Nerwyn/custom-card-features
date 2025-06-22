@@ -90,7 +90,6 @@ export interface ITextboxOptions {
 	thumb?: ThumbType;
 	range?: [number, number];
 	step?: number;
-	pattern?: string;
 }
 
 export const CheckedValues = ['true', 'yes', 'on', 'enable', 'enabled', '1'];
