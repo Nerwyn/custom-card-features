@@ -70,7 +70,6 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 			);
 		}
 
-		const label = this.renderTemplate(this.config.label ?? '');
 		const thumb = this.renderTemplate(
 			this.config.thumb ?? 'text',
 		) as TextBoxType;
@@ -104,8 +103,8 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						min="${this.range[0]}"
 						max="${this.range[1]}"
 						step="${this.step}"
-						value="${this.value}"
-						.value="${this.value}"
+						value="${this.value ?? ''}"
+						.value="${this.value ?? ''}"
 						@keydown=${this.onKeyDown}
 						@change=${this.onChange}
 					/>
@@ -121,8 +120,8 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						enterkeyhint="done"
 						minlength="${this.range[0]}"
 						maxlength="${this.range[1]}"
-						value="${this.value}"
-						.value="${this.value}"
+						value="${this.value ?? ''}"
+						.value="${this.value ?? ''}"
 						@keydown=${this.onKeyDown}
 					/>
 				`;
