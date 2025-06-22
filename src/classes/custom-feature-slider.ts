@@ -503,10 +503,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							--color,
 							var(
 								--md-slider-inactive-track-color,
-								var(
-									--feature-color,
-									var(--state-inactive-color)
-								)
+								rgba(from var(--primary-color) r g b / 20%)
 							)
 						)
 					);
@@ -548,7 +545,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						--color,
 						var(
 							--md-slider-active-track-color,
-							var(--feature-color)
+							var(--primary-color)
 						)
 					);
 					transition: scale
@@ -564,7 +561,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						--color,
 						var(
 							--md-slider-active-track-color,
-							var(--feature-color)
+							var(--primary-color)
 						)
 					);
 					inset-inline-end: 0;
