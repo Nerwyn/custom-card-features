@@ -605,9 +605,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				.md3-slider .icon-label {
 					flex-direction: row;
 					justify-content: flex-start;
-					gap: 4px;
+					gap: 8px;
 					box-sizing: border-box;
-					padding: 0 4px;
+					padding: 0 8px;
 				}
 				.md3-slider .icon {
 					mix-blend-mode: difference;

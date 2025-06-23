@@ -9,6 +9,8 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
 
+	shouldFire: boolean = true;
+
 	async onPointerUp(e: PointerEvent) {
 		super.onPointerUp(e);
 		if (!this.swiping) {
@@ -19,6 +21,17 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 
 	onFocus(_e: FocusEvent) {
 		this.shadowRoot?.querySelector('input')?.focus();
+	}
+
+	async onBlur(e: FocusEvent) {
+		const input = e.target as HTMLInputElement;
+		if (this.shouldFire) {
+			this.value = input.value;
+			await this.sendAction('tap_action');
+		}
+		input.value = String(this.value ?? '');
+		this.resetGetValueFromHass();
+		this.shouldFire = true;
 	}
 
 	onChange(e: Event) {
@@ -32,27 +45,15 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 		this.getValueFromHass = false;
 		const input = e.target as HTMLInputElement;
 
-		if (!e.repeat && input && ['Enter', 'Tab', 'Escape'].includes(e.key)) {
+		if (!e.repeat && input && ['Enter', 'Escape'].includes(e.key)) {
 			e.preventDefault();
 			e.stopImmediatePropagation();
-
-			switch (e.key) {
-				case 'Enter':
-				case 'Tab':
-					this.value = input.value;
-					this.fireHapticEvent('light');
-					await this.sendAction('tap_action');
-					this.resetGetValueFromHass();
-					input.blur();
-					break;
-				case 'Escape':
-				default:
-					input.value = String(this.value);
-					this.getValueFromHass = true;
-					break;
-			}
+			this.shouldFire = e.key == 'Enter';
+			input.blur();
 		}
 	}
+
+	async onKeyUp(_e: KeyboardEvent) {}
 
 	render() {
 		this.setValue();
@@ -107,6 +108,7 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						.value="${this.value ?? ''}"
 						@keydown=${this.onKeyDown}
 						@change=${this.onChange}
+						@blur=${this.onBlur}
 					/>
 				`;
 				break;
@@ -123,6 +125,7 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						value="${this.value ?? ''}"
 						.value="${this.value ?? ''}"
 						@keydown=${this.onKeyDown}
+						@blur=${this.onBlur}
 					/>
 				`;
 				break;
@@ -250,9 +253,16 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 						--mdc-typography-subtitle1-text-transform,
 						inherit
 					);
+					transform-origin: 0 -100%;
+					transition:
+						scale 150ms cubic-bezier(0.4, 0, 0.2, 1),
+						color 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				}
 				:host(:focus-within) .label {
 					color: var(--mdc-theme-primary, #6200ee);
+				}
+				:host(:not(:focus-within)) .label:has(~ input[value='']) {
+					scale: 1.4;
 				}
 
 				input {

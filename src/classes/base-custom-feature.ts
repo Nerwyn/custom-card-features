@@ -865,6 +865,8 @@ export class BaseCustomFeature extends LitElement {
 	}
 
 	updated(_changedProperties: PropertyValues) {
+		this.setAttribute('value', String(this.value ?? ''));
+
 		if (this.pressed) {
 			this.setAttribute('pressed', '');
 		} else {
