@@ -137,21 +137,19 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			) || ((this.value as number) ?? this.range[0]) > this.range[0];
 	}
 
-	buildTickmarks() {
+	buildTicks() {
 		if (
-			String(this.renderTemplate(this.config.tickmarks ?? 'false')) ==
-			'true'
+			String(this.renderTemplate(this.config.ticks ?? 'false')) == 'true'
 		) {
 			const values = [];
 			for (let i = this.range[0]; i <= this.range[1]; i += this.step) {
 				values.push(i);
 			}
-			return html`<div class="tickmarks">
+			return html`<div class="ticks">
 				${values.map(
 					(i) =>
 						html`<div
-							class="tickmark ${i >
-							parseFloat(this.value as string)
+							class="tick ${i > parseFloat(this.value as string)
 								? 'in'
 								: ''}active"
 							value="${i}"
@@ -259,7 +257,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				part="container"
 			>
 				${this.buildBackground()}${this.buildSlider()}
-				${this.buildThumb()}${this.buildTickmarks()}
+				${this.buildThumb()}${this.buildTicks()}
 				<div class="icon-label">
 					${this.buildIcon(this.config.icon)}
 					${this.buildLabel(this.config.label)}
@@ -366,7 +364,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					);
 				}
 
-				.tickmarks {
+				.ticks {
 					position: absolute;
 					width: calc(100% - var(--thumb-width));
 					height: 100%;
@@ -376,15 +374,15 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					justify-content: space-between;
 					align-items: center;
 				}
-				.tickmark {
+				.tick {
 					height: 4px;
 					width: 4px;
 					border-radius: 50%;
 				}
-				.tickmark.inactive {
+				.tick.inactive {
 					background: var(--primary-color);
 				}
-				.tickmark.active {
+				.tick.active {
 					background: var(--primary-background-color);
 				}
 
@@ -509,13 +507,13 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					);
 					opacity: var(--background-opacity, 1);
 				}
-				.md3-slider .tickmark.inactive {
+				.md3-slider .tick.inactive {
 					background: var(
 						--md-slider-with-tick-marks-inactive-container-color,
 						var(--primary-color)
 					);
 				}
-				.md3-slider .tickmark.active {
+				.md3-slider .tick.active {
 					background: var(
 						--md-slider-with-tick-marks-active-container-color,
 						var(--primary-background-color)

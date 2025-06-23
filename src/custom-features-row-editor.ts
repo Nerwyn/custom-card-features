@@ -1135,8 +1135,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 						'default',
 					)}
 					${this.buildSelector(
-						'Tickmarks',
-						'tickmarks',
+						'Ticks',
+						'ticks',
 						{
 							boolean: {},
 						},
