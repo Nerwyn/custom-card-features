@@ -234,9 +234,16 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 	}
 
 	async onKeyDown(e: KeyboardEvent) {
-		if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
+		if (
+			['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)
+		) {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+
 			const operator =
-				(e.key == 'ArrowLeft') != this.rtl ? 'decrement' : 'increment';
+				(e.key == 'ArrowLeft') != this.rtl || e.key == 'ArrowDown'
+					? 'decrement'
+					: 'increment';
 			const button = this.shadowRoot?.querySelector(
 				`custom-feature-button#${operator}`,
 			) as CustomFeatureButton;
@@ -262,9 +269,16 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 	}
 
 	async onKeyUp(e: KeyboardEvent) {
-		if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
+		if (
+			['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)
+		) {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+
 			const operator =
-				(e.key == 'ArrowLeft') != this.rtl ? 'decrement' : 'increment';
+				(e.key == 'ArrowLeft') != this.rtl || e.key == 'ArrowDown'
+					? 'decrement'
+					: 'increment';
 			const button = this.shadowRoot?.querySelector(
 				`custom-feature-button#${operator}`,
 			) as CustomFeatureButton;
