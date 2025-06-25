@@ -1662,7 +1662,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				'thumb',
 				{
 					select: {
-						mode: 'list',
+						mode: 'box',
 						options: [
 							{
 								value: 'text',
@@ -1691,6 +1691,24 @@ export class CustomFeaturesRowEditor extends LitElement {
 						},
 					},
 					UPDATE_AFTER_ACTION_DELAY,
+				)}
+			</div>
+			<div class="form">
+				${this.buildSelector(
+					'Autofill',
+					'autofill_entity_id',
+					{
+						boolean: {},
+					},
+					AUTOFILL,
+				)}
+				${this.buildSelector(
+					'Haptics',
+					'haptics',
+					{
+						boolean: {},
+					},
+					HAPTICS,
 				)}
 			</div>
 			${this.buildAppearancePanel(this.buildCommonAppearanceOptions())}
