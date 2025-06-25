@@ -94,41 +94,28 @@ export class CustomFeaturesRowEditor extends LitElement {
 		switch (this.activeEntryType) {
 			case 'option': {
 				const options = oldEntry.options ?? [];
-				const oldOption = options[this.optionIndex];
-				options[this.optionIndex] = {
-					...oldOption,
-					...entry,
-				};
-				updatedEntry = {
-					...oldEntry,
-					options: options,
-				};
+				(options[this.optionIndex] = entry),
+					(updatedEntry = {
+						...oldEntry,
+						options: options,
+					});
 				break;
 			}
 			case 'decrement':
 				updatedEntry = {
 					...oldEntry,
-					decrement: {
-						...oldEntry.decrement,
-						...entry,
-					},
+					decrement: entry,
 				};
 				break;
 			case 'increment':
 				updatedEntry = {
 					...oldEntry,
-					increment: {
-						...oldEntry.increment,
-						...entry,
-					},
+					increment: entry,
 				};
 				break;
 			case 'entry':
 			default:
-				updatedEntry = {
-					...oldEntry,
-					...entry,
-				};
+				updatedEntry = entry;
 		}
 		entries[this.entryIndex] = updatedEntry;
 		this.entriesChanged(entries);
@@ -335,7 +322,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const css = e.detail.value;
 		if (this.entryIndex > -1) {
 			if (css != this.activeEntry?.styles) {
-				this.entryChanged({ styles: css });
+				this.entryChanged({
+					...this.activeEntry,
+					styles: css,
+				});
 			}
 		} else {
 			if (css != this.config.styles) {
@@ -358,7 +348,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 				if (JSON.stringify(actionObj ?? {}).includes('null')) {
 					return;
 				}
-				this.entryChanged({ [actionType]: actionObj });
+				this.entryChanged({
+					...this.activeEntry,
+					[actionType]: actionObj,
+				});
 				this.errors = undefined;
 			} catch (e) {
 				this.errors = [(e as Error).message];
@@ -372,6 +365,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const evalString = e.detail.value;
 		if (this.activeEntry) {
 			this.entryChanged({
+				...this.activeEntry,
 				[actionType]: {
 					...this.activeEntry[actionType],
 					eval: evalString,
@@ -415,7 +409,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.yamlStringsCache = {};
 		const key = (e.target as HTMLElement).id;
 		let value = e.detail.value;
-		console.log(key, value);
 		if (key.endsWith('.confirmation.exemptions')) {
 			value = ((value as string[]) ?? []).map((v) => {
 				return {
