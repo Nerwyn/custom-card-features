@@ -13,7 +13,7 @@
 
 _Formerly called Service Card Tile Feature_
 
-Call any [action](https://www.home-assistant.io/dashboards/actions/) via card features. These custom features will let you create super customizable buttons, dropdowns, selectors, sliders, spinboxes, and toggles. [The Home Assistant developers gave us the ability to create custom features](https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card-feature), why is no one else taking advantage of it? And why isn't something like a generic button feature already in Home Assistant? I don't know but here it is.
+Call any [action](https://www.home-assistant.io/dashboards/actions/) via card features. These custom features will let you create super customizable buttons, dropdowns, inputboxes, selectors, sliders, spinboxes, and toggles. [The Home Assistant developers gave us the ability to create custom features](https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card-feature), why is no one else taking advantage of it? And why isn't something like a generic button feature already in Home Assistant? I don't know but here it is.
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/example_tile.png" width="600"/>
 
@@ -73,15 +73,15 @@ Like sliders, the spinbox's action should use an action which sets a value simil
 
 You can also override the default behavior of the increment and decrement buttons by changing the tab bar to `INCREMENT` or `DECREMENT` and modifying the actions there. Doing so will disable the normal increment/decrement and debounce button behavior and create a button feature instead. Spinbox button appearance and styles can also be modified more directly in the `INCREMENT` and `DECREMENT` tabs.
 
-## Textboxes
+## Inputboxes
 
 TODO create screenshot and update description
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/textbox_tile.png" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/inputbox_tile.png" width="600"/>
 
-Textboxes allow you to create Home Assistant style text inputs, similar to those found when you add an input text entity to an entities card. You can provide it with an action, which will actuate when you press the `Enter` or `Tab` key. You can cancel your action by pressing `Escape`.
+Inputboxes allow you to create Home Assistant style box inputs, similar to those found when you add an input text entity to an entities card. You can provide it with an action, which will actuate when you press the `Enter` or `Tab` key. You can cancel your action by pressing `Escape`.
 
-You can choose between text and number mode. In number mode, you can also use the up and down arrow keys to increase and decrease the textbox value by a step amount of your choosing. Similar to sliders and spinboxes, it also supports setting a range.
+You can choose between text and number mode. In number mode, you can also use the up and down arrow keys to increase and decrease the inputbox value by a step amount of your choosing. Similar to sliders and spinboxes, it also supports setting a range.
 
 ## Toggles
 
@@ -390,7 +390,7 @@ Most features have additional custom CSS attributes which can be used to style t
 </custom-feature-dropdown>
 ```
 
-## Textbox CSS Attributes
+## Inputbox CSS Attributes
 
 TODO
 
