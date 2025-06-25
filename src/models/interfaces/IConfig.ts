@@ -11,9 +11,9 @@ export interface IEntry
 		ISliderOptions,
 		IDropdownSelectorOptions,
 		ISpinboxOptions,
-		ITextboxOptions,
+		IInputboxOptions,
 		IToggleOptions {
-	type?: TileFeatureType;
+	type?: CardFeatureType;
 
 	entity_id?: string;
 	autofill_entity_id?: boolean;
@@ -28,16 +28,16 @@ export interface IEntry
 	haptics?: boolean;
 }
 
-export const TileFeatureTypes = [
+export const CardFeatureTypes = [
 	'button',
 	'dropdown',
 	'selector',
 	'slider',
 	'spinbox',
-	'textbox',
+	'inputbox',
 	'toggle',
 ] as const;
-export type TileFeatureType = (typeof TileFeatureTypes)[number];
+export type CardFeatureType = (typeof CardFeatureTypes)[number];
 
 export interface IOption extends IEntry {
 	option?: string;
@@ -62,12 +62,12 @@ export const ToggleThumbTypes = [
 ] as const;
 export type SliderThumbType = (typeof SliderThumbTypes)[number];
 export type ToggleThumbType = (typeof ToggleThumbTypes)[number];
-export const TextBoxTypes = ['text', 'number'] as const;
-export type TextBoxType = (typeof TextBoxTypes)[number];
+export const InputBoxTypes = ['text', 'number'] as const;
+export type InputBoxType = (typeof InputBoxTypes)[number];
 export const ThumbTypes = [
 	...SliderThumbTypes,
 	...ToggleThumbTypes,
-	...TextBoxTypes,
+	...InputBoxTypes,
 ] as const;
 export type ThumbType = (typeof ThumbTypes)[number];
 
@@ -86,7 +86,7 @@ export interface ISpinboxOptions {
 	decrement?: IEntry;
 }
 
-export interface ITextboxOptions {
+export interface IInputboxOptions {
 	thumb?: ThumbType;
 	range?: [number, number];
 	step?: number;

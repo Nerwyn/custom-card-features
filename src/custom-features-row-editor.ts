@@ -10,30 +10,30 @@ import {
 	DOUBLE_TAP_WINDOW,
 	HAPTICS,
 	HOLD_TIME,
+	INPUTBOX_TYPE,
 	RANGE_MAX,
 	RANGE_MIN,
 	REPEAT_DELAY,
 	STEP,
 	STEP_COUNT,
-	TEXTBOX_TYPE,
 	UPDATE_AFTER_ACTION_DELAY,
 } from './models/constants';
 import {
 	Actions,
 	ActionType,
 	ActionTypes,
+	CardFeatureType,
+	CardFeatureTypes,
 	CheckedValues,
 	HomeAssistant,
 	IAction,
 	IConfig,
 	IData,
 	IEntry,
+	InputBoxType,
 	IOption,
 	ITarget,
-	TextBoxType,
 	ThumbType,
-	TileFeatureType,
-	TileFeatureTypes,
 	UncheckedValues,
 } from './models/interfaces';
 import { deepGet, deepSet } from './utils';
@@ -253,7 +253,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const i = e.detail.index as number;
 		const entries = structuredClone(this.config.entries);
 		entries.push({
-			type: TileFeatureTypes[i],
+			type: CardFeatureTypes[i],
 		});
 		this.entriesChanged(entries);
 	}
@@ -415,6 +415,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.yamlStringsCache = {};
 		const key = (e.target as HTMLElement).id;
 		let value = e.detail.value;
+		console.log(key, value);
 		if (key.endsWith('.confirmation.exemptions')) {
 			value = ((value as string[]) ?? []).map((v) => {
 				return {
@@ -594,10 +595,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 						>
 							<ha-icon .icon=${'mdi:plus'} slot="icon"></ha-icon>
 						</ha-button>
-						${TileFeatureTypes.map(
-							(tileFeatureType) => html`
-								<ha-list-item .value=${tileFeatureType}>
-									${tileFeatureType}
+						${CardFeatureTypes.map(
+							(cardFeatureType) => html`
+								<ha-list-item .value=${cardFeatureType}>
+									${cardFeatureType}
 								</ha-list-item>
 							`,
 						)}
@@ -1582,7 +1583,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		`;
 	}
 
-	buildTextBoxGuiEditor() {
+	buildInputBoxGuiEditor() {
 		const actionsNoRepeat = Actions.concat();
 		actionsNoRepeat.splice(Actions.indexOf('repeat'), 1);
 
@@ -1607,7 +1608,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const thumb = this.renderTemplate(
 			this.activeEntry?.thumb ?? '',
 			context,
-		) as TextBoxType;
+		) as InputBoxType;
 		switch (thumb) {
 			case 'number':
 				mainOptions = html`
@@ -1681,7 +1682,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 						],
 					},
 				},
-				TEXTBOX_TYPE,
+				INPUTBOX_TYPE,
 			)}
 			<div class="form">
 				${mainOptions}
@@ -1736,8 +1737,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 			case 'toggle':
 				entryGuiEditor = this.buildToggleGuiEditor();
 				break;
-			case 'textbox':
-				entryGuiEditor = this.buildTextBoxGuiEditor();
+			case 'inputbox':
+				entryGuiEditor = this.buildInputBoxGuiEditor();
 				break;
 			case 'button':
 			default:
@@ -2119,7 +2120,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					this.renderTemplate(
 						entry.type as string,
 						this.getEntryContext(entry),
-					)
+					) as CardFeatureType
 				) {
 					case 'dropdown':
 					case 'selector': {
@@ -2227,7 +2228,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 							);
 						}
 					// falls through
-					case 'textbox':
+					case 'inputbox':
 					case 'slider': {
 						const [domain, _service] = (entryEntityId ?? '').split(
 							'.',
@@ -2330,7 +2331,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 						}
 						break;
 					case 'button':
-					case 'default':
+					default:
 						break;
 				}
 			}
@@ -2479,7 +2480,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 
 		// Set entry type to button if not present
-		entry.type = (entry.type ?? 'button').toLowerCase() as TileFeatureType;
+		entry.type = (entry.type ?? 'button').toLowerCase() as CardFeatureType;
 
 		// Move style keys to style object
 		let deprecatedStyleKeyPresent = false;

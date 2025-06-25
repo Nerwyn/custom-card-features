@@ -10,10 +10,10 @@ import { HomeAssistant } from './models/interfaces';
 
 import './classes/custom-feature-button';
 import './classes/custom-feature-dropdown';
+import './classes/custom-feature-inputbox';
 import './classes/custom-feature-selector';
 import './classes/custom-feature-slider';
 import './classes/custom-feature-spinbox';
-import './classes/custom-feature-textbox';
 import './classes/custom-feature-toggle';
 import { CustomFeaturesRowEditor } from './custom-features-row-editor';
 import { IConfig, IEntry } from './models/interfaces';
@@ -21,7 +21,7 @@ import { atLeastHaVersion } from './utils';
 import { buildStyles } from './utils/styles';
 
 console.info(
-	`%c CUSTOM-FEATURES-FOR-TILES-AND-MORE v${packageInfo.version}`,
+	`%c CUSTOM-CARD-FEATURES-FOR-TILES-AND-MORE v${packageInfo.version}`,
 	'color: white; font-weight: bold; background: cornflowerblue',
 );
 
@@ -133,9 +133,9 @@ class CustomFeaturesRow extends LitElement {
 						/>`,
 					);
 					break;
-				case 'textbox':
+				case 'inputbox':
 					row.push(
-						html`<custom-feature-textbox
+						html`<custom-feature-inputbox
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}

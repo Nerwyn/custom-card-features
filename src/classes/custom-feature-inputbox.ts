@@ -1,11 +1,11 @@
 import { css, CSSResult, html, PropertyValues, TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
-import { TextBoxType } from '../models/interfaces';
+import { InputBoxType } from '../models/interfaces';
 import { BaseCustomFeature } from './base-custom-feature';
 
-@customElement('custom-feature-textbox')
-export class CustomFeatureTextbox extends BaseCustomFeature {
+@customElement('custom-feature-inputbox')
+export class CustomFeatureInputbox extends BaseCustomFeature {
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
 
@@ -73,7 +73,7 @@ export class CustomFeatureTextbox extends BaseCustomFeature {
 
 		const thumb = this.renderTemplate(
 			this.config.thumb ?? 'text',
-		) as TextBoxType;
+		) as InputBoxType;
 
 		let input: TemplateResult;
 		switch (thumb) {
