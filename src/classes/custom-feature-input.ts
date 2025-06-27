@@ -42,7 +42,9 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	}
 
 	async onBlur(e: FocusEvent) {
-		const input = e.target as HTMLInputElement;
+		const input = this.shadowRoot?.querySelector(
+			'input',
+		) as HTMLInputElement;
 		if (this.shouldFire) {
 			this.value = input.value;
 			await this.sendAction('tap_action');
@@ -53,15 +55,37 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	}
 
 	onChange(e: Event) {
-		const input = e.target as HTMLInputElement;
-		if (this.thumb == 'number' && input && this.precision) {
-			input.value = Number(input.value).toFixed(this.precision);
+		const input = this.shadowRoot?.querySelector(
+			'input',
+		) as HTMLInputElement;
+
+		switch (this.thumb) {
+			case 'date':
+			case 'time':
+			case 'datetime-local':
+			case 'week':
+			case 'month':
+			case 'color':
+				this.shouldFire = true;
+				this.onBlur(new FocusEvent('blur', { ...e }));
+				break;
+			case 'number':
+				if (this.precision) {
+					input.value = Number(input.value).toFixed(this.precision);
+				}
+				break;
+			case 'text':
+			case 'password':
+			default:
+				break;
 		}
 	}
 
 	async onKeyDown(e: KeyboardEvent) {
 		this.getValueFromHass = false;
-		const input = e.target as HTMLInputElement;
+		const input = this.shadowRoot?.querySelector(
+			'input',
+		) as HTMLInputElement;
 
 		if (!e.repeat && input && ['Enter', 'Escape'].includes(e.key)) {
 			e.preventDefault();
@@ -194,10 +218,14 @@ export class CustomFeatureInput extends BaseCustomFeature {
 
 	firstUpdated(changedProperties: PropertyValues) {
 		super.firstUpdated(changedProperties);
+
 		this.addEventListener('pointerdown', this.onPointerDown);
 		this.addEventListener('pointermove', this.onPointerMove);
 		this.addEventListener('pointerup', this.onPointerUp);
 		this.addEventListener('focus', this.onFocus);
+
+		this.removeEventListener('touchstart', this.onTouchStart);
+		this.removeEventListener('touchend', this.onTouchEnd);
 	}
 
 	handleExternalClick = (e: MouseEvent) => {
