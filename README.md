@@ -279,7 +279,57 @@ Most features have additional custom CSS attributes which can be used to style t
 </custom-feature-button>
 ```
 
-## Input HTML
+#### Dropdown CSS Attributes and HTML
+
+| Name                                | Description                                            |
+| ----------------------------------- | ------------------------------------------------------ |
+| --mdc-menu-item-height              | Height of each dropdown option.                        |
+| --mdc-theme-text-icon-on-background | Color of dropdown option icon in list.                 |
+| --mdc-list-side-padding-left        | Left padding of option.                                |
+| --mdc-list-side-padding-right       | Right padding of option.                               |
+| --mdc-list-side-padding             | Side padding of option, lower priority than above two. |
+| --mdc-list-item-graphic-margin      | Gap between option icon and label.                     |
+
+```html
+<custom-feature-dropdown>
+  #shadow-root
+  <div class="container" part="container">
+    <div class="background" part="background"></div>
+    <div class="select" part="select">
+      <ha-icon class="icon" part="icon"></ha-icon>
+      <pre class="label" part="label"></pre>
+      <md-ripple part="ripple"></md-ripple>
+    </div>
+    <ha-icon class="down-arrow" part="down-arrow"></ha-icon>
+  </div>
+  <div class="dropdown" part="dropdown">
+    <custom-feature-dropdown-option
+      id="option_A"
+      class="selected option"
+      part="dropdown-option"
+    >
+      #shadow-root
+      <div class="background" part="background"></div>
+      <div class="content" part="dropdown-option-content">
+        <ha-icon class="icon" part="icon"></ha-icon>
+        <pre class="label" part="label"></pre>
+      </div>
+    </custom-feature-dropdown-option>
+    <custom-feature-dropdown-option
+      id="option_B"
+      class="option"
+      part="dropdown-option"
+    ></custom-feature-dropdown-option>
+    <custom-feature-dropdown-option
+      id="option_C"
+      class="option"
+      part="dropdown-option"
+    ></custom-feature-dropdown-option>
+  </div>
+</custom-feature-dropdown>
+```
+
+#### Input HTML
 
 ```html
 <custom-feature-input>
@@ -331,7 +381,7 @@ Most features have additional custom CSS attributes which can be used to style t
 </custom-feature-slider>
 ```
 
-## Selector CSS Attributes and HTML
+#### Selector CSS Attributes and HTML
 
 | Name            | Description                                       |
 | --------------- | ------------------------------------------------- |
@@ -360,57 +410,7 @@ Most features have additional custom CSS attributes which can be used to style t
 </custom-feature-selector>
 ```
 
-## Dropdown CSS Attributes and HTML
-
-| Name                                | Description                                            |
-| ----------------------------------- | ------------------------------------------------------ |
-| --mdc-menu-item-height              | Height of each dropdown option.                        |
-| --mdc-theme-text-icon-on-background | Color of dropdown option icon in list.                 |
-| --mdc-list-side-padding-left        | Left padding of option.                                |
-| --mdc-list-side-padding-right       | Right padding of option.                               |
-| --mdc-list-side-padding             | Side padding of option, lower priority than above two. |
-| --mdc-list-item-graphic-margin      | Gap between option icon and label.                     |
-
-```html
-<custom-feature-dropdown>
-  #shadow-root
-  <div class="container" part="container">
-    <div class="background" part="background"></div>
-    <div class="select" part="select">
-      <ha-icon class="icon" part="icon"></ha-icon>
-      <pre class="label" part="label"></pre>
-      <md-ripple part="ripple"></md-ripple>
-    </div>
-    <ha-icon class="down-arrow" part="down-arrow"></ha-icon>
-  </div>
-  <div class="dropdown" part="dropdown">
-    <custom-feature-dropdown-option
-      id="option_A"
-      class="selected option"
-      part="dropdown-option"
-    >
-      #shadow-root
-      <div class="background" part="background"></div>
-      <div class="content" part="dropdown-option-content">
-        <ha-icon class="icon" part="icon"></ha-icon>
-        <pre class="label" part="label"></pre>
-      </div>
-    </custom-feature-dropdown-option>
-    <custom-feature-dropdown-option
-      id="option_B"
-      class="option"
-      part="dropdown-option"
-    ></custom-feature-dropdown-option>
-    <custom-feature-dropdown-option
-      id="option_C"
-      class="option"
-      part="dropdown-option"
-    ></custom-feature-dropdown-option>
-  </div>
-</custom-feature-dropdown>
-```
-
-## Toggle CSS Attributes and HTML
+#### Toggle CSS Attributes and HTML
 
 | Name                                  | Description                                                                             |
 | ------------------------------------- | --------------------------------------------------------------------------------------- |
