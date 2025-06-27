@@ -1605,12 +1605,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 		switch (thumb) {
 			case 'date':
 				mainOptions = html`
-					${this.buildSelector('Start', 'range.0', {
-						date: {},
-					})}
-					${this.buildSelector('End', 'range.1', {
-						date: {},
-					})}
+					<div class="form">
+						${this.buildSelector('Start', 'range.0', {
+							date: {},
+						})}
+						${this.buildSelector('End', 'range.1', {
+							date: {},
+						})}
+					</div>
 				`;
 				break;
 			case 'time':
@@ -1635,84 +1637,88 @@ export class CustomFeaturesRowEditor extends LitElement {
 				break;
 			case 'week':
 				mainOptions = html`
-					${this.buildSelector('Start', 'range.0', {
-						text: {
-							type: 'week',
-						},
-					})}
-					${this.buildSelector('End', 'range.1', {
-						text: {
-							type: 'week',
-						},
-					})}
+					<div class="form">
+						${this.buildSelector('Start', 'range.0', {
+							text: {
+								type: 'week',
+							},
+						})}
+						${this.buildSelector('End', 'range.1', {
+							text: {
+								type: 'week',
+							},
+						})}
+					</div>
 				`;
 				break;
 			case 'month':
 				mainOptions = html`
-					${this.buildSelector('Start', 'range.0', {
-						text: {
-							type: 'month',
-						},
-					})}
-					${this.buildSelector('End', 'range.1', {
-						text: {
-							type: 'month',
-						},
-					})}
+					<div class="form">
+						${this.buildSelector('Start', 'range.0', {
+							text: {
+								type: 'month',
+							},
+						})}
+						${this.buildSelector('End', 'range.1', {
+							text: {
+								type: 'month',
+							},
+						})}
+					</div>
 				`;
 				break;
 			case 'color':
 				break;
 			case 'number':
 				mainOptions = html`
-					${this.buildSelector('Min', 'range.0', {
-						number: {
-							max: rangeMax ?? undefined,
-							step: step,
-							mode: 'box',
-							unit_of_measurement: unit,
-						},
-					})}
-					${this.buildSelector('Max', 'range.1', {
-						number: {
-							min: rangeMin ?? undefined,
-							step: step,
-							mode: 'box',
-							unit_of_measurement: unit,
-						},
-					})}
-					${this.buildSelector('Step', 'step', {
-						number: {
-							min: 0,
-							step: 'any',
-							mode: 'box',
-							unit_of_measurement: unit,
-						},
-					})}
+					<div class="form">
+						${this.buildSelector('Min', 'range.0', {
+							number: {
+								max: rangeMax ?? undefined,
+								step: step,
+								mode: 'box',
+								unit_of_measurement: unit,
+							},
+						})}
+						${this.buildSelector('Max', 'range.1', {
+							number: {
+								min: rangeMin ?? undefined,
+								step: step,
+								mode: 'box',
+								unit_of_measurement: unit,
+							},
+						})}
+						${this.buildSelector('Step', 'step', {
+							number: {
+								min: 0,
+								step: 'any',
+								mode: 'box',
+								unit_of_measurement: unit,
+							},
+						})}
+					</div>
 				`;
 				break;
 			case 'password':
 			case 'text':
 			default:
-				mainOptions = html`${this.buildSelector(
-					'Min Length',
-					'range.0',
-					{
+				mainOptions = html`<div class="form">
+					${this.buildSelector('Min Length', 'range.0', {
 						number: {
 							min: 0,
 							max: rangeMax ?? undefined,
 							step: 1,
 							mode: 'box',
 						},
-					},
-				)}
-				${this.buildSelector('Max Length', 'range.1', {
-					number: {
-						min: 0,
-						step: 1,
-						mode: 'box',
-					},
-				})}`;
+					})}
+					${this.buildSelector('Max Length', 'range.1', {
+						number: {
+							min: 0,
+							step: 1,
+							mode: 'box',
+						},
+					})}
+				</div>`;
 				break;
 		}
 
@@ -1766,22 +1772,20 @@ export class CustomFeaturesRowEditor extends LitElement {
 				},
 				INPUT_TYPE,
 			)}
-			<div class="form">
-				${mainOptions}
-				${this.buildSelector(
-					'Update after action delay',
-					'value_from_hass_delay',
-					{
-						number: {
-							min: 0,
-							step: 1,
-							mode: 'box',
-							unit_of_measurement: 'ms',
-						},
+			${mainOptions}
+			${this.buildSelector(
+				'Update after action delay',
+				'value_from_hass_delay',
+				{
+					number: {
+						min: 0,
+						step: 1,
+						mode: 'box',
+						unit_of_measurement: 'ms',
 					},
-					UPDATE_AFTER_ACTION_DELAY,
-				)}
-			</div>
+				},
+				UPDATE_AFTER_ACTION_DELAY,
+			)}
 			<div class="form">
 				${this.buildSelector(
 					'Autofill',
