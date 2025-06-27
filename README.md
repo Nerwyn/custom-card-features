@@ -51,8 +51,6 @@ Since each selector option is a custom feature button, you can override it's def
 
 ## Sliders
 
-TODO update screenshot
-
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_tile.png" width="600"/>
 
 Sliders are similar to the sliders found in Home Assistant default card features, like those available for light brightness and temperature. By default the slider will look like a normal tile light brightness or cover position slider, but you can change this to a few of other thumb styles using the `Thumb Type` appearance option. You can also add tickmarks which will appear at each step (just know that if you have a lot of steps they'll all blend together).
@@ -73,15 +71,13 @@ Like sliders, the spinbox's action should use an action which sets a value simil
 
 You can also override the default behavior of the increment and decrement buttons by changing the tab bar to `INCREMENT` or `DECREMENT` and modifying the actions there. Doing so will disable the normal increment/decrement and debounce button behavior and create a button feature instead. Spinbox button appearance and styles can also be modified more directly in the `INCREMENT` and `DECREMENT` tabs.
 
-## Inputboxes
-
-TODO create screenshot and update description
+## Inputs
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/inputbox_tile.png" width="600"/>
 
-Inputboxes allow you to create Home Assistant style box inputs, similar to those found when you add an input text entity to an entities card. You can provide it with an action, which will actuate when you press the `Enter` or `Tab` key. You can cancel your action by pressing `Escape`.
+Inputs allow you to create Home Assistant stylized and optimized [HTML input elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input). Visually they are similar to those found when you add an input text entity to an entities card. Technically they support most input types, although only a subset will be available through the configuration UI as most of the others are redundant.
 
-You can choose between text and number mode. In number mode, you can also use the up and down arrow keys to increase and decrease the inputbox value by a step amount of your choosing. Similar to sliders and spinboxes, it also supports setting a range.
+You can provide it with an action, which will actuate when you press the `Enter` or `Tab` key or when you complete using the browser dialog for the input type. You can cancel your action by pressing `Escape`. All input type can be given a range, with defaults being provided for each input type. Number inputs can also be provided a step.
 
 ## Toggles
 
@@ -390,18 +386,31 @@ Most features have additional custom CSS attributes which can be used to style t
 </custom-feature-dropdown>
 ```
 
-## Inputbox CSS Attributes
-
-TODO
-
-| Name | Description |
-| ---- | ----------- |
+## Input HTML
 
 ```html
-
+<custom-feature-input>
+  #shadow-root
+  <div class="background" part="background"></div>
+  <ha-icon class="icon" part="icon"></ha-icon>
+  <div class="label-input">
+    <pre class="label" part="label"></pre>
+    <input
+      part="input"
+      tabindex="-1"
+      enterkeyhint="done"
+      type="text"
+      min="0"
+      max="255"
+      step="1"
+      value
+    />
+  </div>
+  <div class="line-ripple" part="ripple"></div>
+</custom-feature-input>
 ```
 
-## Toggle CSS Attributes
+## Toggle CSS Attributes and HTML
 
 | Name                                  | Description                                                                             |
 | ------------------------------------- | --------------------------------------------------------------------------------------- |
