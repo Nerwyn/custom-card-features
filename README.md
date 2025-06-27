@@ -37,6 +37,14 @@ This feature works best with Home Assistant `select/input_select` entities. By s
 
 You can override the default behavior of each option by changing their action. The `Option` field will be the value to compare against the feature's value, whether that is it's entity's state or one of it's attributes. If they match and are not undefined, then the the option will be displayed in the dropdown window. You can use a template in the parent attribute field for more advanced matching.
 
+## Inputs
+
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/input_tile.png" width="600"/>
+
+Inputs allow you to create Home Assistant stylized and optimized [HTML input elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input). Visually they are similar to those found when you add an input text entity to an entities card. Technically they support most input types, although only a subset will be available through the configuration UI as most of the others are redundant.
+
+You can provide it with an action, which will actuate when you press the `Enter` or `Tab` key or when you complete using the browser dialog for the input type. You can cancel your action by pressing `Escape`. All input type can be given a range, with defaults being provided for each input type. Number inputs can also be provided a step.
+
 ## Selectors
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_tile.png" width="600"/>
@@ -70,14 +78,6 @@ Spinboxes allow you to create Home Assistant style number boxes with increment a
 Like sliders, the spinbox's action should use an action which sets a value similar to `number/input_number.set_value` or `climate.set_temperature` and the user should use `value` in a template to pass it to the action call. This way the user can keep incrementing or decrementing the value until they reach the desired value, and the action to update it in Home Assistant is only called once. You can make this features buttons repeat when held by setting the hold action to repeat. These should all be set in the `CENTER` tab of the spinbox configuration page.
 
 You can also override the default behavior of the increment and decrement buttons by changing the tab bar to `INCREMENT` or `DECREMENT` and modifying the actions there. Doing so will disable the normal increment/decrement and debounce button behavior and create a button feature instead. Spinbox button appearance and styles can also be modified more directly in the `INCREMENT` and `DECREMENT` tabs.
-
-## Inputs
-
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/input_tile.png" width="600"/>
-
-Inputs allow you to create Home Assistant stylized and optimized [HTML input elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input). Visually they are similar to those found when you add an input text entity to an entities card. Technically they support most input types, although only a subset will be available through the configuration UI as most of the others are redundant.
-
-You can provide it with an action, which will actuate when you press the `Enter` or `Tab` key or when you complete using the browser dialog for the input type. You can cancel your action by pressing `Escape`. All input type can be given a range, with defaults being provided for each input type. Number inputs can also be provided a step.
 
 ## Toggles
 
@@ -130,13 +130,13 @@ If you find that the autofilling of the entity ID in the action or feature value
 
 Haptics are disabled for features by default, but can be toggled on at the feature level.
 
-### Slider and Spinbox General Options
+### Inpt, Slider, and Spinbox General Options
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_spinbox_general_options.png" width="600"/>
 
-Sliders and spinboxes have some additional general options. Both can have range `Min` and `Max` values defined by the user, but default to 0 and 100. Both can also have a `Step` size defined, which defaults to 1.
+Inputs, sliders, and spinboxes have some additional general options. Both can have range `Min` and `Max` values defined by the user. These values default to 0 and 100 for sliders, spinboxes, and some input types. Sliders, spinboxes, and number type inputs can also have a `Step` size defined, which defaults to 1.
 
-Sliders and spinboxes will wait one second before updating their internal values from Home Assistant. This time can be changed by setting `Update after action delay`. Spinboxes will wait to fire their actions until a set amount of time after their buttons have stopped being pressed. This time defaults to one second and can be changed by setting `Debounce time`.
+Inputs, sliders, and spinboxes will wait one second before updating their internal values from Home Assistant. This time can be changed by setting `Update after action delay`. Spinboxes will wait to fire their actions until a set amount of time after their buttons have stopped being pressed. This time defaults to one second and can be changed by setting `Debounce time`.
 
 ### Dropdown and Selector General Options
 
@@ -279,6 +279,30 @@ Most features have additional custom CSS attributes which can be used to style t
 </custom-feature-button>
 ```
 
+## Input HTML
+
+```html
+<custom-feature-input>
+  #shadow-root
+  <div class="background" part="background"></div>
+  <ha-icon class="icon" part="icon"></ha-icon>
+  <div class="label-input">
+    <pre class="label" part="label"></pre>
+    <input
+      part="input"
+      tabindex="-1"
+      enterkeyhint="done"
+      type="text"
+      min="0"
+      max="255"
+      step="1"
+      value
+    />
+  </div>
+  <div class="line-ripple" part="ripple"></div>
+</custom-feature-input>
+```
+
 #### Slider CSS Attributes and HTML
 
 | Name                  | Description                                                                                                      |
@@ -384,30 +408,6 @@ Most features have additional custom CSS attributes which can be used to style t
     ></custom-feature-dropdown-option>
   </div>
 </custom-feature-dropdown>
-```
-
-## Input HTML
-
-```html
-<custom-feature-input>
-  #shadow-root
-  <div class="background" part="background"></div>
-  <ha-icon class="icon" part="icon"></ha-icon>
-  <div class="label-input">
-    <pre class="label" part="label"></pre>
-    <input
-      part="input"
-      tabindex="-1"
-      enterkeyhint="done"
-      type="text"
-      min="0"
-      max="255"
-      step="1"
-      value
-    />
-  </div>
-  <div class="line-ripple" part="ripple"></div>
-</custom-feature-input>
 ```
 
 ## Toggle CSS Attributes and HTML
