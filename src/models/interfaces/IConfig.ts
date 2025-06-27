@@ -11,7 +11,7 @@ export interface IEntry
 		ISliderOptions,
 		IDropdownSelectorOptions,
 		ISpinboxOptions,
-		IInputboxOptions,
+		IInputOptions,
 		IToggleOptions {
 	type?: CardFeatureType;
 
@@ -82,23 +82,23 @@ export const ThumbTypes = [
 export type ThumbType = (typeof ThumbTypes)[number];
 
 export interface ISliderOptions {
-	range?: [number, number];
+	range?: [number, number] | [string, string];
 	step?: number;
 	thumb?: ThumbType;
 	ticks?: boolean;
 }
 
 export interface ISpinboxOptions {
-	range?: [number, number];
+	range?: [number, number] | [string, string];
 	step?: number;
 	debounce_time?: number;
 	increment?: IEntry;
 	decrement?: IEntry;
 }
 
-export interface IInputboxOptions {
+export interface IInputOptions {
 	thumb?: ThumbType;
-	range?: [number, number];
+	range?: [number, number] | [string, string];
 	step?: number;
 }
 

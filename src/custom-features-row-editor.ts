@@ -1576,7 +1576,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		`;
 	}
 
-	buildInputBoxGuiEditor() {
+	buildInputGuiEditor() {
 		const actionsNoRepeat = Actions.concat();
 		actionsNoRepeat.splice(Actions.indexOf('repeat'), 1);
 
@@ -1842,7 +1842,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				entryGuiEditor = this.buildToggleGuiEditor();
 				break;
 			case 'input':
-				entryGuiEditor = this.buildInputBoxGuiEditor();
+				entryGuiEditor = this.buildInputGuiEditor();
 				break;
 			case 'button':
 			default:
