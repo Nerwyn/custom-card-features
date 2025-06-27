@@ -41,7 +41,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 		this.shadowRoot?.querySelector('input')?.focus();
 	}
 
-	async onBlur(e: FocusEvent) {
+	async onBlur(_e: FocusEvent) {
 		const input = this.shadowRoot?.querySelector(
 			'input',
 		) as HTMLInputElement;
