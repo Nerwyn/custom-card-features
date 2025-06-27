@@ -6,11 +6,11 @@ import { classMap } from 'lit/directives/class-map.js';
 
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { HassEntity } from 'home-assistant-js-websocket';
-import { HomeAssistant } from './models/interfaces';
+import { CardFeatureType, HomeAssistant } from './models/interfaces';
 
 import './classes/custom-feature-button';
 import './classes/custom-feature-dropdown';
-import './classes/custom-feature-inputbox';
+import './classes/custom-feature-input';
 import './classes/custom-feature-selector';
 import './classes/custom-feature-slider';
 import './classes/custom-feature-spinbox';
@@ -119,10 +119,9 @@ class CustomFeaturesRow extends LitElement {
 				context,
 			) as string;
 
-			const entryType = (
-				(this.renderTemplate(entry.type as string, context) ??
-					'button') as string
-			).toLowerCase();
+			const entryType = String(
+				this.renderTemplate(entry.type as string, context) ?? 'button',
+			).toLowerCase() as CardFeatureType;
 			switch (entryType) {
 				case 'toggle':
 					row.push(
@@ -133,9 +132,9 @@ class CustomFeaturesRow extends LitElement {
 						/>`,
 					);
 					break;
-				case 'inputbox':
+				case 'input':
 					row.push(
-						html`<custom-feature-inputbox
+						html`<custom-feature-input
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}

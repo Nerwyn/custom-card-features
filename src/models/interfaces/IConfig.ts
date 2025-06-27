@@ -34,7 +34,7 @@ export const CardFeatureTypes = [
 	'selector',
 	'slider',
 	'spinbox',
-	'inputbox',
+	'input',
 	'toggle',
 ] as const;
 export type CardFeatureType = (typeof CardFeatureTypes)[number];
@@ -62,12 +62,22 @@ export const ToggleThumbTypes = [
 ] as const;
 export type SliderThumbType = (typeof SliderThumbTypes)[number];
 export type ToggleThumbType = (typeof ToggleThumbTypes)[number];
-export const InputBoxTypes = ['text', 'number'] as const;
-export type InputBoxType = (typeof InputBoxTypes)[number];
+export const InputTypes = [
+	'text',
+	'number',
+	'date',
+	'time',
+	'datetime-local',
+	'week',
+	'month',
+	'password',
+	'color',
+] as const;
+export type InputType = (typeof InputTypes)[number];
 export const ThumbTypes = [
 	...SliderThumbTypes,
 	...ToggleThumbTypes,
-	...InputBoxTypes,
+	...InputTypes,
 ] as const;
 export type ThumbType = (typeof ThumbTypes)[number];
 

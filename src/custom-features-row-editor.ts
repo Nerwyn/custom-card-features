@@ -10,7 +10,7 @@ import {
 	DOUBLE_TAP_WINDOW,
 	HAPTICS,
 	HOLD_TIME,
-	INPUTBOX_TYPE,
+	INPUT_TYPE,
 	RANGE_MAX,
 	RANGE_MIN,
 	REPEAT_DELAY,
@@ -30,7 +30,7 @@ import {
 	IConfig,
 	IData,
 	IEntry,
-	InputBoxType,
+	InputType,
 	IOption,
 	ITarget,
 	ThumbType,
@@ -1601,8 +1601,68 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const thumb = this.renderTemplate(
 			this.activeEntry?.thumb ?? '',
 			context,
-		) as InputBoxType;
+		) as InputType;
 		switch (thumb) {
+			case 'date':
+				mainOptions = html`
+					${this.buildSelector('Start', 'range.0', {
+						date: {},
+					})}
+					${this.buildSelector('End', 'range.1', {
+						date: {},
+					})}
+				`;
+				break;
+			case 'time':
+				mainOptions = html`
+					${this.buildSelector('Start', 'range.0', {
+						time: {},
+					})}
+					${this.buildSelector('End', 'range.1', {
+						time: {},
+					})}
+				`;
+				break;
+			case 'datetime-local':
+				mainOptions = html`
+					${this.buildSelector('Start', 'range.0', {
+						datetime: {},
+					})}
+					${this.buildSelector('End', 'range.1', {
+						datetime: {},
+					})}
+				`;
+				break;
+			case 'week':
+				mainOptions = html`
+					${this.buildSelector('Start', 'range.0', {
+						text: {
+							type: 'week',
+						},
+					})}
+					${this.buildSelector('End', 'range.1', {
+						text: {
+							type: 'week',
+						},
+					})}
+				`;
+				break;
+			case 'month':
+				mainOptions = html`
+					${this.buildSelector('Start', 'range.0', {
+						text: {
+							type: 'month',
+						},
+					})}
+					${this.buildSelector('End', 'range.1', {
+						text: {
+							type: 'month',
+						},
+					})}
+				`;
+				break;
+			case 'color':
+				break;
 			case 'number':
 				mainOptions = html`
 					${this.buildSelector('Min', 'range.0', {
@@ -1631,9 +1691,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 					})}
 				`;
 				break;
+			case 'password':
 			case 'text':
 			default:
-				mainOptions = html` ${this.buildSelector(
+				mainOptions = html`${this.buildSelector(
 					'Min Length',
 					'range.0',
 					{
@@ -1658,11 +1719,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return html`
 			${this.buildMainFeatureOptions()}
 			${this.buildSelector(
-				'Box Type',
+				'Input Type',
 				'thumb',
 				{
 					select: {
-						mode: 'box',
+						mode: 'dropdown',
 						options: [
 							{
 								value: 'text',
@@ -1672,10 +1733,38 @@ export class CustomFeaturesRowEditor extends LitElement {
 								value: 'number',
 								label: 'Number',
 							},
+							{
+								value: 'date',
+								label: 'Date',
+							},
+							{
+								value: 'time',
+								label: 'Time',
+							},
+							{
+								value: 'datetime-local',
+								label: 'Date & Time',
+							},
+							{
+								value: 'week',
+								label: 'Week',
+							},
+							{
+								value: 'month',
+								label: 'Month',
+							},
+							{
+								value: 'password',
+								label: 'Password',
+							},
+							{
+								value: 'color',
+								label: 'Color',
+							},
 						],
 					},
 				},
-				INPUTBOX_TYPE,
+				INPUT_TYPE,
 			)}
 			<div class="form">
 				${mainOptions}
@@ -1748,7 +1837,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			case 'toggle':
 				entryGuiEditor = this.buildToggleGuiEditor();
 				break;
-			case 'inputbox':
+			case 'input':
 				entryGuiEditor = this.buildInputBoxGuiEditor();
 				break;
 			case 'button':
@@ -2239,7 +2328,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 							);
 						}
 					// falls through
-					case 'inputbox':
+					case 'input':
 					case 'slider': {
 						const [domain, _service] = (entryEntityId ?? '').split(
 							'.',
@@ -2304,7 +2393,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 							context,
 						) as ThumbType;
 
-						if (thumb == 'text') {
+						if (thumb != 'number') {
 							break;
 						}
 

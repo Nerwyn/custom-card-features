@@ -1,12 +1,30 @@
-import { css, CSSResult, html, PropertyValues, TemplateResult } from 'lit';
+import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
-import { InputBoxType } from '../models/interfaces';
+import {
+	COLOR_MAX,
+	COLOR_MIN,
+	DATE_MAX,
+	DATE_MIN,
+	DATETIME_MAX,
+	DATETIME_MIN,
+	MONTH_MAX,
+	MONTH_MIN,
+	RANGE_MAX,
+	RANGE_MIN,
+	STEP,
+	STEP_COUNT,
+	TIME_MAX,
+	TIME_MIN,
+	WEEK_MAX,
+	WEEK_MIN,
+} from '../models/constants';
+import { InputType } from '../models/interfaces';
 import { BaseCustomFeature } from './base-custom-feature';
 
-@customElement('custom-feature-inputbox')
-export class CustomFeatureInputbox extends BaseCustomFeature {
-	range: [number, number] = [RANGE_MIN, RANGE_MAX];
+@customElement('custom-feature-input')
+export class CustomFeatureInput extends BaseCustomFeature {
+	thumb: InputType = 'text';
+	range: [number, number] | [string, string] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
 
 	shouldFire: boolean = true;
@@ -36,7 +54,7 @@ export class CustomFeatureInputbox extends BaseCustomFeature {
 
 	onChange(e: Event) {
 		const input = e.target as HTMLInputElement;
-		if (input && this.precision) {
+		if (this.thumb == 'number' && input && this.precision) {
 			input.value = Number(input.value).toFixed(this.precision);
 		}
 	}
@@ -58,78 +76,112 @@ export class CustomFeatureInputbox extends BaseCustomFeature {
 	render() {
 		this.setValue();
 
-		if (this.config.range) {
-			this.range[0] = parseFloat(
-				(this.renderTemplate(
-					this.config.range[0] as unknown as string,
-				) as string) ?? RANGE_MIN,
-			);
-			this.range[1] = parseFloat(
-				(this.renderTemplate(
-					this.config.range[1] as unknown as string,
-				) as string) ?? RANGE_MAX,
-			);
-		}
-
-		const thumb = this.renderTemplate(
+		this.thumb = this.renderTemplate(
 			this.config.thumb ?? 'text',
-		) as InputBoxType;
+		) as InputType;
 
-		let input: TemplateResult;
-		switch (thumb) {
-			case 'number':
-				if (this.config.step) {
-					this.step = parseFloat(
-						this.renderTemplate(
-							this.config.step as unknown as string,
-						) as string,
-					);
-				} else {
-					this.step = (this.range[1] - this.range[0]) / STEP_COUNT;
-				}
-				const splitStep = this.step.toString().split('.');
-				if (splitStep.length > 1) {
-					this.precision = splitStep[1].length;
-				} else {
-					this.precision = 0;
-				}
-
-				input = html`
-					<input
-						type="number"
-						part="input"
-						tabindex="-1"
-						enterkeyhint="done"
-						inputmode="decimal"
-						min="${this.range[0]}"
-						max="${this.range[1]}"
-						step="${this.step}"
-						value="${this.value ?? ''}"
-						.value="${this.value ?? ''}"
-						@keydown=${this.onKeyDown}
-						@change=${this.onChange}
-						@blur=${this.onBlur}
-					/>
-				`;
+		let min: string | number;
+		let max: string | number;
+		switch (this.thumb) {
+			case 'date':
+				min = DATE_MIN;
+				max = DATE_MAX;
+				break;
+			case 'time':
+				min = TIME_MIN;
+				max = TIME_MAX;
+				break;
+			case 'datetime-local':
+				min = DATETIME_MIN;
+				max = DATETIME_MAX;
+				break;
+			case 'week':
+				min = WEEK_MIN;
+				max = WEEK_MAX;
+				break;
+			case 'month':
+				min = MONTH_MIN;
+				max = MONTH_MAX;
+				break;
+			case 'color':
+				min = COLOR_MIN;
+				max = COLOR_MAX;
 				break;
 			case 'text':
+			case 'password':
+			case 'number':
 			default:
-				input = html`
-					<input
-						type="text"
-						part="input"
-						tabindex="-1"
-						enterkeyhint="done"
-						minlength="${this.range[0]}"
-						maxlength="${this.range[1]}"
-						value="${this.value ?? ''}"
-						.value="${this.value ?? ''}"
-						@keydown=${this.onKeyDown}
-						@blur=${this.onBlur}
-					/>
-				`;
+				min = RANGE_MIN;
+				max = RANGE_MAX;
 				break;
 		}
+
+		if (this.config.range) {
+			const range = [
+				(this.renderTemplate(
+					this.config.range[0] as unknown as string,
+				) as string) ?? min,
+				(this.renderTemplate(
+					this.config.range[1] as unknown as string,
+				) as string) ?? max,
+			];
+			switch (this.thumb) {
+				case 'text':
+				case 'password':
+				case 'number':
+					this.range = [parseFloat(range[0]), parseFloat(range[1])];
+					break;
+				default:
+					this.range = range as [string, string];
+					break;
+			}
+		} else {
+			this.range = [min, max] as [number, number] | [string, string];
+		}
+
+		if (this.config.step) {
+			this.step = parseFloat(
+				this.renderTemplate(
+					this.config.step as unknown as string,
+				) as string,
+			);
+		} else {
+			switch (this.thumb) {
+				case 'text':
+				case 'password':
+				case 'number':
+					this.step =
+						((this.range[1] as number) -
+							(this.range[0] as number)) /
+						STEP_COUNT;
+					break;
+				default:
+					break;
+			}
+		}
+		const splitStep = this.step.toString().split('.');
+		if (splitStep.length > 1) {
+			this.precision = splitStep[1].length;
+		} else {
+			this.precision = 0;
+		}
+
+		const input = html`
+			<input
+				type="${this.thumb}"
+				part="input"
+				tabindex="-1"
+				enterkeyhint="done"
+				min="${this.range[0]}"
+				max="${this.range[1]}"
+				step="${this.step}"
+				value="${this.value ?? ''}"
+				.value="${this.value ?? ''}"
+				@keydown=${this.onKeyDown}
+				@change=${this.onChange}
+				@blur=${this.onBlur}
+			/>
+		`;
 
 		return html`
 			${this.buildBackground()} ${this.buildIcon(this.config.icon)}
@@ -253,7 +305,7 @@ export class CustomFeatureInputbox extends BaseCustomFeature {
 						--mdc-typography-subtitle1-text-transform,
 						inherit
 					);
-					transform-origin: 0 -100%;
+					transform-origin: 0 50%;
 					transition:
 						scale 150ms cubic-bezier(0.4, 0, 0.2, 1),
 						color 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -263,6 +315,10 @@ export class CustomFeatureInputbox extends BaseCustomFeature {
 				}
 				:host(:not(:focus-within)) .label:has(~ input[value='']) {
 					scale: 1.4;
+				}
+				:host(:not(:focus-within)) input[value=''] {
+					height: 0;
+					opacity: 0;
 				}
 
 				input {
@@ -292,11 +348,14 @@ export class CustomFeatureInputbox extends BaseCustomFeature {
 						--mdc-typography-subtitle1-text-transform,
 						inherit
 					);
-
+					height: 100%;
 					width: 100%;
 					background: transparent;
 					border: none;
 					z-index: 1;
+					transition:
+						height 150ms cubic-bezier(0.4, 0, 0.2, 1),
+						opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
 
 					-webkit-font-smoothing: antialiased;
 					-moz-osx-font-smoothing: grayscale;
