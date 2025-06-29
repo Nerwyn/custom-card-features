@@ -196,6 +196,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				part="input"
 				tabindex="-1"
 				enterkeyhint="done"
+				autocomplete="off"
 				min="${this.range[0]}"
 				max="${this.range[1]}"
 				step="${this.step}"
@@ -302,6 +303,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					justify-content: center;
 					height: 100%;
 					width: 100%;
+					min-width: 0;
 				}
 				.label {
 					justify-content: flex-start;
@@ -376,7 +378,9 @@ export class CustomFeatureInput extends BaseCustomFeature {
 						--mdc-typography-subtitle1-text-transform,
 						inherit
 					);
-					height: 100%;
+					max-height: calc(
+						var(--mdc-typography-subtitle1-font-size, 1rem) + 8px
+					);
 					width: 100%;
 					background: transparent;
 					border: none;
@@ -390,6 +394,23 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				}
 				input:focus-visible {
 					outline: none;
+				}
+				input[type='color'] {
+					appearance: none;
+					-webkit-appearance: none;
+					-moz-appearance: none;
+					padding: 0;
+				}
+				::-webkit-color-swatch-wrapper {
+					padding: 0;
+				}
+				::-webkit-color-swatch {
+					border: none;
+					border-radius: 4px;
+				}
+				::-moz-color-swatch {
+					border: none;
+					border-radius: 4px;
 				}
 
 				.line-ripple {
