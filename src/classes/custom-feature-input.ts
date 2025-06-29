@@ -400,6 +400,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					-webkit-appearance: none;
 					-moz-appearance: none;
 					padding: 0;
+					padding-bottom: 2px;
 				}
 				::-webkit-color-swatch-wrapper {
 					padding: 0;
