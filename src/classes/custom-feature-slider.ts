@@ -4,7 +4,6 @@ import { classMap } from 'lit/directives/class-map.js';
 
 import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
 import { SliderThumbType, SliderThumbTypes } from '../models/interfaces';
-import { getNumericPixels } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-slider')
@@ -15,8 +14,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
 
+	thumb?: HTMLElement;
 	thumbType: SliderThumbType = 'default';
-	thumbWidth: number = 0;
 
 	pressedTimeout?: ReturnType<typeof setTimeout>;
 
@@ -106,12 +105,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	setThumbOffset() {
-		const maxOffset = (this.clientWidth - this.thumbWidth) / 2;
-
+		const thumbWidth = this.thumb?.clientWidth ?? 12;
+		const maxOffset = (this.clientWidth - thumbWidth) / 2;
 		this.thumbOffset = Math.min(
 			Math.max(
 				Math.round(
-					((this.clientWidth - this.thumbWidth) /
+					((this.clientWidth - thumbWidth) /
 						(this.range[1] - this.range[0])) *
 						(((this.value as number) ?? this.range[0]) -
 							(this.range[0] + this.range[1]) / 2),
@@ -269,47 +268,14 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		`;
 	}
 
+	firstUpdated(changedProperties: PropertyValues) {
+		super.firstUpdated(changedProperties);
+
+		this.thumb = this.shadowRoot?.querySelector('.thumb') as HTMLElement;
+	}
+
 	updated(changedProperties: PropertyValues) {
 		super.updated(changedProperties);
-
-		// Ensure that both the input range and div thumbs are the same size
-		const thumb = this.shadowRoot?.querySelector('.thumb') as HTMLElement;
-		const style = getComputedStyle(thumb);
-		const userThumbWidth = style.getPropertyValue('--thumb-width');
-
-		if (userThumbWidth) {
-			const pixels = getNumericPixels(userThumbWidth);
-			if (!isNaN(pixels)) {
-				this.thumbWidth = pixels;
-			}
-			return;
-		}
-
-		let pixels: number;
-		switch (this.thumbType) {
-			case 'round': {
-				// Round thumbs should have the same height and width
-				pixels = thumb.clientHeight;
-				break;
-			}
-			case 'line':
-			case 'flat':
-			default:
-				// Other thumb types should use a fixed width
-				pixels = thumb.clientWidth;
-				break;
-		}
-
-		// Ensure that thumb width is valid, as it can return an invalid massive number at high dpi
-		if (
-			pixels &&
-			!isNaN(pixels) &&
-			pixels < document.body.clientHeight &&
-			pixels < document.body.clientWidth
-		) {
-			this.thumbWidth = pixels;
-			this.style.setProperty('--thumb-width', `${this.thumbWidth}px`);
-		}
 
 		// Set readonly if action is none
 		if (
@@ -323,13 +289,16 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	async onKeyDown(e: KeyboardEvent) {
-		const keys = ['ArrowLeft', 'ArrowRight'];
+		const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 		if (keys.includes(e.key)) {
 			e.preventDefault();
 			this.getValueFromHass = false;
 			this._value =
 				parseFloat((this.value ?? this.range[0]) as unknown as string) +
-				((e.key == 'ArrowLeft') != this.rtl ? -1 : 1) * this.step;
+				((e.key == 'ArrowLeft') != this.rtl || e.key == 'ArrowDown'
+					? -1
+					: 1) *
+					this.step;
 		}
 	}
 
@@ -366,7 +335,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 				.ticks {
 					position: absolute;
-					width: calc(100% - var(--thumb-width));
+					width: calc(100% - var(--thumb-width, 12px));
 					height: 100%;
 					pointer-events: none;
 					display: flex;
@@ -431,7 +400,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					height: 100%;
 					width: 100vw;
 					position: absolute;
-					inset-inline-end: calc(var(--thumb-width) / 2);
+					inset-inline-end: calc(var(--thumb-width, 12px) / 2);
 					background: inherit;
 				}
 
@@ -484,6 +453,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 				.round.container {
 					border-radius: var(--feature-height, 40px);
+
+					--thumb-width: var(--feature-height, 40px);
 				}
 
 				/* Material Design 3 Slider */
