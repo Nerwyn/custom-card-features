@@ -1001,6 +1001,7 @@ features:
           - 0
           - 100
         step: 1
+        thumb: default
       - type: slider
         thumb: line
         value_attribute: color_temp
@@ -1029,6 +1030,22 @@ features:
     styles: ''
   - type: custom:service-call
     entries:
+      - type: input
+        entity_id: light.chandelier
+        tap_action:
+          action: perform-action
+          target:
+            entity_id:
+              - light.chandelier
+          perform_action: light.turn_on
+          data:
+            brightness_pct: '{{ value | int }}'
+        range:
+          - 0
+          - 100
+        styles: ''
+        value_attribute: brightness
+        thumb: number
       - type: spinbox
         haptics: true
         icon: mdi:brightness-4
@@ -1081,6 +1098,8 @@ features:
         entity_id: light.chandelier
         styles: |-
           :host {
+            flex-basis: 500%;
+
             --light-color: rgb({{ state_attr(config.entity, "rgb_color") }});
             --on-color: {{ "var(--light-color)" if is_state(config.entity, "on") else "initial" }};
             --background: var(--on-color);
