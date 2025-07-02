@@ -138,6 +138,8 @@ Inputs, sliders, and spinboxes have some additional general options. Both can ha
 
 Inputs, sliders, and spinboxes will wait one second before updating their internal values from Home Assistant. This time can be changed by setting `Update after action delay`. Spinboxes will wait to fire their actions until a set amount of time after their buttons have stopped being pressed. This time defaults to one second and can be changed by setting `Debounce time`.
 
+Inputs also have an Input Type field, which can be used to choose between many of the HTML input element types that have been optimized for use with this feature.
+
 ### Dropdown and Selector General Options
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_dropdown_general_options.png" width="600"/>
@@ -203,7 +205,7 @@ type HassEntity {
 
 </details>
 
-### CSS Styles
+### CSS Styles and HTML
 
 The custom features row and each custom feature within it has a code box for entering [CSS](https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/CSS_basics) styles.
 
@@ -370,12 +372,50 @@ Most features have additional custom CSS attributes which can be used to style t
   #shadow-root
   <div class="container on" part="container">
     <div class="background" part="background"></div>
+    <input type="range" part="range" min="0" max="100" step="25" value="50" />
+    <div part="thumb" class="thumb default">
+      <div class="active"></div>
+    </div>
+    <div class="ticks">
+      <div class="tick active" value="0">
+      <div class="tick active" value="25">
+      <div class="tick active" value="50">
+      <div class="tick inactive" value="75">
+      <div class="tick inactive" value="100">
+    </div>
+    <div class="icon-label">
+      <ha-icon class="icon" part="icon"></ha-icon>
+      <pre class="label" part="label"></pre>
+    </div>
+  </div>
+  <div class="tooltip faded-out" part="tooltip">::after</div>
+</custom-feature-slider>
+
+<!-- Material Design 3 Slider -->
+<custom-feature-slider>
+  #shadow-root
+  <div class="container on" part="container">
+    <div class="background" part="background"></div>
     <input type="range" part="range" min="0" max="100" step="1" value="0" />
     <div part="thumb" class="thumb default">
       <div class="active"></div>
     </div>
-    <ha-icon class="icon" part="icon"></ha-icon>
-    <pre class="label" part="label"></pre>
+    <div class="ticks">
+      <div class="tick active" value="0">
+      <div class="tick active" value="25">
+      <div class="tick active" value="50">
+      <div class="tick inactive" value="75">
+      <div class="tick inactive" value="100">
+    </div>
+    <div class="icon-label">
+      <ha-icon class="icon" part="icon"></ha-icon>
+      <pre class="label" part="label"></pre>
+    </div>
+    <div class="md3-thumb">
+      <div class="md3-thumb-active-track-corner"></div>
+      <div class="md3-thumb-line"></div>
+      <div class="md3-thumb-inactive-track-corner"></div>
+    </div>
   </div>
   <div class="tooltip faded-out" part="tooltip">::after</div>
 </custom-feature-slider>
