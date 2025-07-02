@@ -31,10 +31,10 @@ export interface IEntry
 export const CardFeatureTypes = [
 	'button',
 	'dropdown',
+	'input',
 	'selector',
 	'slider',
 	'spinbox',
-	'input',
 	'toggle',
 ] as const;
 export type CardFeatureType = (typeof CardFeatureTypes)[number];

@@ -268,6 +268,18 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		`;
 	}
 
+	firstUpdated(changedProperties: PropertyValues) {
+		super.firstUpdated(changedProperties);
+
+		if (this.firefox && this.thumbType == 'md3-slider') {
+			// Firefox md3 slider transition fix
+			this.style.setProperty(
+				'--thumb-transition',
+				'var(--md-sys-motion-expressive-spatial-default)',
+			);
+		}
+	}
+
 	updated(changedProperties: PropertyValues) {
 		super.updated(changedProperties);
 
@@ -469,6 +481,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 
 				/* Material Design 3 Slider */
+				:host:has(.md3-slider) {
+					--thumb-transition: translate
+							var(--md-sys-motion-expressive-spatial-default),
+						background 180ms ease-in-out;
+				}
 				.md3-slider {
 					max-height: 40px;
 					border-radius: 12px;
@@ -531,7 +548,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						)
 					);
 					transition: scale
-						var(--md-sys-motion-expressive-spatial-fast);
+						var(--md-sys-motion-expressive-spatial-default);
 				}
 				:host(:focus-visible) .md3-thumb,
 				:host([pressed]) .md3-thumb-line {
@@ -590,8 +607,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					gap: 8px;
 					box-sizing: border-box;
 					padding: 0 8px;
-					transition: translate
-						var(--md-sys-motion-expressive-spatial-fast);
+					transition: var(--thumb-transition);
 					width: min-content;
 					position: absolute;
 					inset-inline-start: 0;
@@ -689,7 +705,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 
 				:host([pressed]) {
-					--thumb-transition: background 180ms ease-in-out;
+					--thumb-transition: background 180ms ease-in-out !important;
 				}
 				:host(:focus-visible) .tooltip,
 				:host([pressed]) .tooltip {
