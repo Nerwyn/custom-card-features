@@ -426,6 +426,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					inset-inline-end: calc(var(--thumb-width, 12px) / 2);
 					background: inherit;
 				}
+				:host([dir='rtl']) .thumb .active {
+					inset-inline-end: unset;
+					inset-inline-start: calc(var(--thumb-width, 12px) / 2);
+				}
 
 				/* Default Slider */
 				.default .thumb {
@@ -441,6 +445,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					inset-inline-end: 6px;
 					border-radius: 4px;
 					background: #ffffff;
+				}
+				:host([dir='rtl']) .default .thumb::after {
+					inset-inline-end: unset;
+					inset-inline-start: 6px;
 				}
 
 				/* Flat Slider */
@@ -618,6 +626,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				.md3-slider .icon-label.inactive {
 					inset-inline-start: unset;
 					translate: calc(50% + var(--thumb-offset)) 0;
+				}
+				:host([dir='rtl']) .icon-labe.inactive {
+					translate: calc(-50% + var(--thumb-offset)) 0;
 				}
 				.md3-slider .icon-label.active .icon,
 				.md3-slider .icon-label.active .label {
