@@ -14,7 +14,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
 
-	thumb?: HTMLElement;
 	thumbType: SliderThumbType = 'default';
 
 	pressedTimeout?: ReturnType<typeof setTimeout>;
@@ -105,7 +104,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	setThumbOffset() {
-		const thumbWidth = this.thumb?.clientWidth ?? 12;
+		const thumbWidth =
+			this.shadowRoot?.querySelector('.thumb')?.clientWidth ?? 12;
 		const maxOffset = (this.clientWidth - thumbWidth) / 2;
 		this.thumbOffset = Math.min(
 			Math.max(
@@ -268,12 +268,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		`;
 	}
 
-	firstUpdated(changedProperties: PropertyValues) {
-		super.firstUpdated(changedProperties);
-
-		this.thumb = this.shadowRoot?.querySelector('.thumb') as HTMLElement;
-	}
-
 	updated(changedProperties: PropertyValues) {
 		super.updated(changedProperties);
 
@@ -285,6 +279,23 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			this.setAttribute('readonly', '');
 		} else {
 			this.removeAttribute('readonly');
+		}
+
+		// md3-slider icon and label colors
+		if (this.thumbType == 'md3-slider') {
+			const iconlabel = this.shadowRoot?.querySelector(
+				'.icon-label',
+			) as HTMLElement;
+			if (iconlabel) {
+				const width = iconlabel.clientWidth ?? 0;
+				if (
+					Math.floor(this.clientWidth / 2 + this.thumbOffset) < width
+				) {
+					iconlabel.className = 'icon-label inactive';
+				} else {
+					iconlabel.className = 'icon-label active';
+				}
+			}
 		}
 	}
 
@@ -463,6 +474,14 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					border-radius: 12px;
 
 					--mdc-icon-size: 24px;
+					--on-active-track-color: var(
+						--md-slider-with-tick-marks-active-container-color,
+						var(--primary-background-color)
+					);
+					--on-inactive-track-color: var(
+						--md-slider-with-tick-marks-inactive-container-color,
+						var(--primary-color)
+					);
 				}
 				.md3-slider .background {
 					height: 100%;
@@ -478,17 +497,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					);
 					opacity: var(--background-opacity, 1);
 				}
-				.md3-slider .tick.inactive {
-					background: var(
-						--md-slider-with-tick-marks-inactive-container-color,
-						var(--primary-color)
-					);
-				}
 				.md3-slider .tick.active {
-					background: var(
-						--md-slider-with-tick-marks-active-container-color,
-						var(--primary-background-color)
-					);
+					background: var(--on-active-track-color);
+				}
+				.md3-slider .tick.inactive {
+					background: var(--on-inactive-track-color);
 				}
 				.md3-thumb {
 					background: var(
@@ -577,13 +590,26 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					gap: 8px;
 					box-sizing: border-box;
 					padding: 0 8px;
-				}
-				.md3-slider .icon {
-					mix-blend-mode: difference;
+					transition: translate
+						var(--md-sys-motion-expressive-spatial-fast);
+					width: min-content;
+					position: absolute;
+					inset-inline-start: 0;
 				}
 				.md3-slider .label {
-					width: fit-content;
-					mix-blend-mode: difference;
+					width: min-content;
+				}
+				.md3-slider .icon-label.inactive {
+					inset-inline-start: unset;
+					translate: calc(50% + var(--thumb-offset)) 0;
+				}
+				.md3-slider .icon-label.active .icon,
+				.md3-slider .icon-label.active .label {
+					color: var(--on-active-track-color);
+				}
+				.md3-slider .icon-label.inactive .icon,
+				.md3-slider .icon-label.inactive .label {
+					color: var(--on-inactive-track-color);
 				}
 				.md3-slider ~ .tooltip {
 					background: var(--md-sys-color-inverse-surface, #2f3036);
@@ -646,6 +672,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					flex-direction: column;
 					justify-content: center;
 					align-items: center;
+					pointer-events: none;
 				}
 
 				.off .background {
