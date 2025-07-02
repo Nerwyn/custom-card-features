@@ -350,6 +350,9 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					height: 0;
 					opacity: 0;
 				}
+				:host([dir='rtl']) .label {
+					transform-origin: 100% 50%;
+				}
 
 				input {
 					font-family: var(
