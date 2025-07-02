@@ -130,7 +130,7 @@ If you find that the autofilling of the entity ID in the action or feature value
 
 Haptics are disabled for features by default, but can be toggled on at the feature level.
 
-### Inpt, Slider, and Spinbox General Options
+### Input, Slider, and Spinbox General Options
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_spinbox_general_options.png" width="600"/>
 
