@@ -627,7 +627,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					inset-inline-start: unset;
 					translate: calc(50% + var(--thumb-offset)) 0;
 				}
-				:host([dir='rtl']) .icon-labe.inactive {
+				:host([dir='rtl']) .icon-label.inactive {
 					translate: calc(-50% + var(--thumb-offset)) 0;
 				}
 				.md3-slider .icon-label.active .icon,
