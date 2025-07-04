@@ -21,7 +21,7 @@ import { buildStyles } from '../utils/styles';
 export class BaseCustomFeature extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: IEntry;
-	@property() stateObj!: HassEntity;
+	@property() stateObj!: HassEntity & Record<'area_id', string>;
 
 	@property() shouldRenderRipple = true;
 	rippleEndTimer?: ReturnType<typeof setTimeout>;

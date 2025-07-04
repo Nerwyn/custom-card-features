@@ -28,7 +28,8 @@ console.info(
 class CustomFeaturesRow extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: IConfig;
-	@property() stateObj!: HassEntity;
+	@property() context?: Record<'entity_id' | 'area_id', string>;
+	@property() stateObj?: HassEntity & Record<'area_id', string>;
 
 	rtl: boolean = false;
 
@@ -91,9 +92,14 @@ class CustomFeaturesRow extends LitElement {
 	}
 
 	render() {
-		if (!this.config || !this.hass || !this.stateObj) {
+		if (!this.config || !this.hass) {
 			return null;
 		}
+
+		this.stateObj = {
+			...this.stateObj,
+			area_id: this.context?.area_id,
+		} as HassEntity & Record<'area_id', string>;
 
 		this.rtl = getComputedStyle(this).direction == 'rtl';
 		if (this.rtl) {
@@ -193,7 +199,7 @@ class CustomFeaturesRow extends LitElement {
 		const context = {
 			config: {
 				...this.config,
-				entity: this.stateObj.entity_id,
+				entity: this.stateObj?.entity_id,
 			},
 			stateObj: this.stateObj,
 		};
