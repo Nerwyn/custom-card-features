@@ -214,6 +214,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				${this.buildLabel(this.config.label)} ${input}
 			</div>
 			<div class="line-ripple" part="ripple"></div>
+			${this.buildStyles(this.config.styles)}
 		`;
 	}
 
