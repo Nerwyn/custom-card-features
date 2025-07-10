@@ -630,13 +630,17 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				:host([dir='rtl']) .icon-label.inactive {
 					translate: calc(-50% + var(--thumb-offset)) 0;
 				}
-				.md3-slider .icon-label.active .icon,
-				.md3-slider .icon-label.active .label {
-					color: var(--on-active-track-color);
+				.md3-slider .icon-label.active .icon {
+					color: var(--icon-color, var(--on-active-track-color));
 				}
-				.md3-slider .icon-label.inactive .icon,
+				.md3-slider .icon-label.active .label {
+					color: var(--label-color, var(--on-active-track-color));
+				}
+				.md3-slider .icon-label.inactive .icon {
+					color: var(--icon-color, var(--on-inactive-track-color));
+				}
 				.md3-slider .icon-label.inactive .label {
-					color: var(--on-inactive-track-color);
+					color: var(--label-color, var(--on-inactive-track-color));
 				}
 				.md3-slider ~ .tooltip {
 					background: var(--md-sys-color-inverse-surface, #2f3036);
