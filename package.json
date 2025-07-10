@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"build": "npx webpack && gzip -fk dist/custom-card-features.min.js",
+		"build": "npx rspack && gzip -fk dist/custom-card-features.min.js",
 		"prelint": "tsc --noemit",
 		"lint": "eslint --fix --config ./.eslintrc.config.cjs",
 		"build-css": "tcm src",
@@ -32,6 +32,8 @@
 		"lit": "latest"
 	},
 	"devDependencies": {
+		"@rspack/cli": "^1.4.5",
+		"@rspack/core": "^1.4.5",
 		"@types/js-yaml": "latest",
 		"@typescript-eslint/eslint-plugin": "latest",
 		"@typescript-eslint/parser": "latest",
@@ -45,8 +47,6 @@
 		"prettier": "latest",
 		"prettier-plugin-organize-imports": "latest",
 		"ts-loader": "latest",
-		"typescript": "latest",
-		"webpack": "latest",
-		"webpack-cli": "latest"
+		"typescript": "latest"
 	}
 }
