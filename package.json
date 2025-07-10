@@ -1,6 +1,6 @@
 {
 	"name": "custom-card-features",
-	"version": "4.5.3",
+	"version": "4.5.4",
 	"description": "Custom Features for Home Assistant Tile Card And More!",
 	"main": "./dist/custom-features-row.min.js",
 	"type": "module",
@@ -32,8 +32,8 @@
 		"lit": "latest"
 	},
 	"devDependencies": {
-		"@rspack/cli": "^1.4.5",
-		"@rspack/core": "^1.4.5",
+		"@rspack/cli": "latest",
+		"@rspack/core": "latest",
 		"@types/js-yaml": "latest",
 		"@typescript-eslint/eslint-plugin": "latest",
 		"@typescript-eslint/parser": "latest",

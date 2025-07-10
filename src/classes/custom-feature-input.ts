@@ -45,7 +45,10 @@ export class CustomFeatureInput extends BaseCustomFeature {
 		const input = this.shadowRoot?.querySelector(
 			'input',
 		) as HTMLInputElement;
-		if (this.shouldFire) {
+		if (
+			this.shouldFire &&
+			this.value?.toString() != input.value?.toString()
+		) {
 			this.value = input.value;
 			await this.sendAction('tap_action');
 		}
