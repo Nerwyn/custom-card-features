@@ -75,11 +75,19 @@ export class CustomFeaturesCard extends LitElement {
 
 	static get styles() {
 		return css`
+			:host {
+				--feature-height: 42px;
+				--feature-border-radius: 12px;
+				--feature-button-spacing: 12px;
+				--feature-color: var(--primary-color);
+			}
+
 			ha-card {
 				display: flex;
 				flex-direction: column;
 				padding: 12px 12px 0;
 			}
+
 			service-call {
 				margin-bottom: 12px;
 			}
