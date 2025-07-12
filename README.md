@@ -340,16 +340,19 @@ Most features have additional custom CSS attributes which can be used to style t
   <ha-icon class="icon" part="icon"></ha-icon>
   <div class="label-input">
     <pre class="label" part="label"></pre>
-    <input
-      part="input"
-      tabindex="-1"
-      enterkeyhint="done"
-      type="text"
-      min="0"
-      max="255"
-      step="1"
-      value
-    />
+    <div class="input-unit">
+      <input
+        part="input"
+        tabindex="-1"
+        enterkeyhint="done"
+        type="text"
+        min="0"
+        max="255"
+        step="1"
+        value
+      />
+      <span class="unit" part="unit">"#"</span>
+    </div>
   </div>
   <div class="line-ripple" part="ripple"></div>
 </custom-feature-input>
