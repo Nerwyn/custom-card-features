@@ -211,10 +211,17 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			/>
 		`;
 
+		const unit = this.unitOfMeasurement
+			? html`<span class="unit" part="unit"
+					>${this.unitOfMeasurement}</span
+				>`
+			: '';
+
 		return html`
 			${this.buildBackground()} ${this.buildIcon(this.config.icon)}
 			<div class="label-input">
-				${this.buildLabel(this.config.label)} ${input}
+				${this.buildLabel(this.config.label)}
+				<div class="input-unit">${input}${unit}</div>
 			</div>
 			<div class="line-ripple" part="ripple"></div>
 			${this.buildStyles(this.config.styles)}
@@ -347,10 +354,11 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				:host(:focus-within) .label {
 					color: var(--mdc-theme-primary, #6200ee);
 				}
-				:host(:not(:focus-within)) .label:has(~ input[value='']) {
+				:host(:not(:focus-within))
+					.label:has(~ .input-unit > input[value='']) {
 					scale: 1.4;
 				}
-				:host(:not(:focus-within)) input[value=''] {
+				:host(:not(:focus-within)) .input-unit:has(input[value='']) {
 					height: 0;
 					opacity: 0;
 				}
@@ -388,13 +396,10 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					max-height: calc(
 						var(--mdc-typography-subtitle1-font-size, 1rem) + 8px
 					);
+					min-width: 0;
 					width: 100%;
 					background: transparent;
 					border: none;
-					z-index: 1;
-					transition:
-						height 150ms cubic-bezier(0.4, 0, 0.2, 1),
-						opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
 
 					-webkit-font-smoothing: antialiased;
 					-moz-osx-font-smoothing: grayscale;
@@ -402,6 +407,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				input:focus-visible {
 					outline: none;
 				}
+
 				input[type='color'] {
 					appearance: none;
 					-webkit-appearance: none;
@@ -419,6 +425,30 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				::-moz-color-swatch {
 					border: none;
 					border-radius: 4px;
+				}
+
+				.input-unit {
+					display: flex;
+					flex-direction: row;
+					width: 100%;
+					z-index: 1;
+					transition:
+						height 150ms cubic-bezier(0.4, 0, 0.2, 1),
+						opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+				}
+				.unit {
+					color: var(--secondary-text-color);
+					min-width: 0;
+					padding-left: var(--text-field-suffix-padding-left, 12px);
+					padding-right: var(--text-field-suffix-padding-right, 0px);
+					padding-inline-start: var(
+						--text-field-suffix-padding-left,
+						12px
+					);
+					padding-inline-end: var(
+						--text-field-suffix-padding-right,
+						0px
+					);
 				}
 
 				.line-ripple {
