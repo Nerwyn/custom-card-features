@@ -22,7 +22,8 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 
 		const selector = [this.buildBackground()];
 		const options = this.config.options ?? [];
-		for (const option of options) {
+		for (const option0 of options) {
+			const option = structuredClone(option0);
 			option.haptics = option.haptics ?? this.config.haptics;
 			selector.push(
 				html`<custom-feature-button

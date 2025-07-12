@@ -8,13 +8,14 @@ import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { CardFeatureType, HomeAssistant } from './models/interfaces';
 
-import './classes/custom-feature-button';
 import './classes/custom-feature-dropdown';
 import './classes/custom-feature-input';
 import './classes/custom-feature-selector';
 import './classes/custom-feature-slider';
 import './classes/custom-feature-spinbox';
 import './classes/custom-feature-toggle';
+import './classes/custom-features-card';
+import { CustomFeaturesCard } from './classes/custom-features-card';
 import { CustomFeaturesRowEditor } from './custom-features-row-editor';
 import { IConfig, IEntry } from './models/interfaces';
 import { atLeastHaVersion } from './utils';
@@ -39,7 +40,7 @@ class CustomFeaturesRow extends LitElement {
 
 	static getStubConfig() {
 		return {
-			type: 'custom:service-call', // Use old type to not break old configs
+			type: 'custom:custom-features-row', // Use old type to not break old configs
 			entries: [],
 		};
 	}
@@ -246,18 +247,26 @@ class CustomFeaturesRow extends LitElement {
 	}
 }
 
+customElements.define('custom-features-row-editor', CustomFeaturesRowEditor);
+customElements.define('service-call', CustomFeaturesRow); // Original name to not break old configs
+window.customCardFeatures ||= [];
+window.customCardFeatures.push({
+	type: 'service-call',
+	name: 'Custom features row',
+	configurable: true,
+});
+
+customElements.define('custom-features-card', CustomFeaturesCard);
+window.customCards ||= [];
+window.customCards.push({
+	type: 'custom-features-card',
+	name: 'Custom features card',
+	description: 'Headless custom features card.',
+});
+
 if (!window.structuredClone) {
 	window.structuredClone = (obj) => JSON.parse(JSON.stringify(obj));
 }
 if (!window.performance) {
 	window.performance = window.Date as unknown as Performance;
 }
-
-customElements.define('custom-features-row-editor', CustomFeaturesRowEditor);
-customElements.define('service-call', CustomFeaturesRow); // Original name to not break old configs
-window.customCardFeatures = window.customCardFeatures || [];
-window.customCardFeatures.push({
-	type: 'service-call',
-	name: 'Custom features row',
-	configurable: true,
-});

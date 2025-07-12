@@ -97,7 +97,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 		const dropdownOptions = [];
 		const options = this.config.options ?? [];
 		let selectedOption: IEntry | undefined = undefined;
-		for (const option of options) {
+		for (const option0 of options) {
+			const option = structuredClone(option0);
 			const optionName = String(
 				this.renderTemplate(option.option as string),
 			);

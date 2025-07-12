@@ -122,7 +122,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 	}
 
 	buildButton(operator: 'increment' | 'decrement') {
-		const actions = this.config[operator] ?? {};
+		const actions = structuredClone(this.config[operator]) ?? {};
 		if (!actions.icon) {
 			actions.icon = operator == 'increment' ? 'mdi:plus' : 'mdi:minus';
 		}

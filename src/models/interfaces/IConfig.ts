@@ -1,5 +1,11 @@
 import { IActions } from './IActions';
 
+export interface ICustomFeatureCardConfig {
+	type: string;
+	styles?: string;
+	features: IConfig[];
+}
+
 export interface IConfig {
 	type: string;
 	styles?: string;
