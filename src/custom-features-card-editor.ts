@@ -14,9 +14,6 @@ export class CustomFeaturesCardEditor extends LitElement {
 
 	@state() rowIndex: number = -1;
 
-	yamlString?: string;
-	yamlStringsCache: Record<string, string> = {};
-
 	static get properties() {
 		return { hass: {}, config: {} };
 	}
@@ -79,8 +76,6 @@ export class CustomFeaturesCardEditor extends LitElement {
 	}
 
 	editRow(e: Event) {
-		this.yamlStringsCache = {};
-		this.yamlString = undefined;
 		const i = (
 			e.currentTarget as unknown as Event & Record<'index', number>
 		).index;
@@ -176,10 +171,52 @@ export class CustomFeaturesCardEditor extends LitElement {
 				@click=${this.addRow}
 				outlined
 				class="add-list-item"
-				.label="${'Add option'}"
+				.label="${'Add row'}"
 			>
 				<ha-icon .icon=${'mdi:plus'} slot="icon"></ha-icon>
 			</ha-button>
+		`;
+	}
+
+	handleStyleCodeChanged(e: Event) {
+		e.stopPropagation();
+		const css = e.detail.value;
+		if (css != this.config.styles) {
+			this.configChanged({
+				...this.config,
+				styles: css,
+			});
+		}
+	}
+
+	buildCodeEditor() {
+		return html`
+			<div class="yaml-editor">
+				CSS Styles
+				<ha-code-editor
+					mode="jinja2"
+					dir="ltr"
+					?autocomplete-entities="true"
+					?autocomplete-icons="false"
+					.hass=${this.hass}
+					.value=${this.config.styles ?? ''}
+					@value-changed=${this.handleStyleCodeChanged}
+					@keydown=${(e: KeyboardEvent) => e.stopPropagation()}
+				></ha-code-editor>
+			</div>
+		`;
+	}
+
+	handleBackButton() {
+		this.rowIndex = -1;
+		this.requestUpdate();
+	}
+
+	buildBackButton() {
+		return html`
+			<ha-icon-button class="back-icon" @click=${this.handleBackButton}>
+				<ha-icon .icon="${'mdi:chevron-left'}"></ha-icon>
+			</ha-icon-button>
 		`;
 	}
 
@@ -190,19 +227,30 @@ export class CustomFeaturesCardEditor extends LitElement {
 
 		let editor: TemplateResult<1>;
 		if (this.rowIndex == -1) {
-			editor = html`<div>
-				<div class="content">${this.buildRowsList()}</div>
-				${this.buildAddRowButton()}
+			editor = html`<div class="content">
+				<div>
+					<div class="content">${this.buildRowsList()}</div>
+					${this.buildAddRowButton()}
+				</div>
+				${this.buildCodeEditor()}
 			</div>`;
 		} else {
 			editor = html`<custom-features-row-editor
 				.hass=${this.hass}
 				.config=${this.config.features[this.rowIndex]}
+				.showExitButton="${true}"
 				@config-changed=${this.handleRowConfigChanged}
 			></custom-features-row-editor>`;
 		}
 
 		return editor;
+	}
+
+	firstUpdated() {
+		this.addEventListener('exit-row-editor', () => {
+			this.rowIndex = -1;
+			this.requestUpdate();
+		});
 	}
 
 	static get styles() {

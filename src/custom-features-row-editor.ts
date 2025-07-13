@@ -42,6 +42,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: IConfig;
 	@property() context?: Record<'entity_id', string>;
+	@property() showExitButton: boolean = false;
 
 	@state() entryIndex: number = -1;
 	@state() actionsTabIndex: number = 0;
@@ -421,6 +422,17 @@ export class CustomFeaturesRowEditor extends LitElement {
 		);
 	}
 
+	handleExitEditor(_e: Event) {
+		this.entryIndex = -1;
+		this.actionsTabIndex = 0;
+		this.optionIndex = -1;
+		this.spinboxTabIndex = 1;
+
+		this.dispatchEvent(
+			new Event('exit-row-editor', { bubbles: true, composed: true }),
+		);
+	}
+
 	buildEntryList(field: 'entry' | 'option' = 'entry') {
 		let entries: IEntry[] | IOption[];
 		let handlers: Record<string, (e: Event) => void>;
@@ -466,7 +478,18 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 		return html`
 			<div class="content">
-				<div class="entry-list-header">${listHeader}</div>
+				<div class="entry-list-header">
+					${field == 'entry' && this.showExitButton
+						? html`<div class="back-title">
+								<ha-icon-button-prev
+									.label=${this.hass.localize(
+										'ui.common.back',
+									)}
+									@click=${this.handleExitEditor}
+								></ha-icon-button-prev>
+							</div>`
+						: ''}${listHeader}
+				</div>
 				<ha-sortable
 					handle-selector=".handle"
 					@item-moved=${handlers.move}
@@ -2814,6 +2837,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 			}
 
 			.entry-list-header {
+				display: flex;
+				align-items: center;
 				font-size: 20px;
 				font-weight: 500;
 			}
