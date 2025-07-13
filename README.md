@@ -414,7 +414,7 @@ Most features have additional custom CSS attributes which can be used to style t
       <ha-icon class="icon" part="icon"></ha-icon>
       <pre class="label" part="label"></pre>
     </div>
-    <div class="md3-thumb">
+    <div class="md3-thumb" part="md3-thumb">
       <div class="md3-thumb-active-track-corner"></div>
       <div class="md3-thumb-line"></div>
       <div class="md3-thumb-inactive-track-corner"></div>
