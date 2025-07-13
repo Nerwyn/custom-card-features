@@ -14,8 +14,8 @@ import './classes/custom-feature-selector';
 import './classes/custom-feature-slider';
 import './classes/custom-feature-spinbox';
 import './classes/custom-feature-toggle';
-import './classes/custom-features-card';
-import { CustomFeaturesCard } from './classes/custom-features-card';
+import { CustomFeaturesCard } from './custom-features-card';
+import { CustomFeaturesCardEditor } from './custom-features-card-editor';
 import { CustomFeaturesRowEditor } from './custom-features-row-editor';
 import { IConfig, IEntry } from './models/interfaces';
 import { atLeastHaVersion } from './utils';
@@ -248,6 +248,7 @@ class CustomFeaturesRow extends LitElement {
 }
 
 customElements.define('custom-features-row-editor', CustomFeaturesRowEditor);
+customElements.define('custom-features-card-editor', CustomFeaturesCardEditor);
 customElements.define('service-call', CustomFeaturesRow); // Original name to not break old configs
 window.customCardFeatures ||= [];
 window.customCardFeatures.push({

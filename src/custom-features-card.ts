@@ -1,12 +1,18 @@
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { css, html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
-import { HomeAssistant, ICustomFeatureCardConfig } from '../models/interfaces';
-import { buildStyles } from '../utils/styles';
+import { HomeAssistant, ICustomFeatureCardConfig } from './models/interfaces';
+import { buildStyles } from './utils/styles';
+
+import './custom-features-card-editor';
 
 export class CustomFeaturesCard extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: ICustomFeatureCardConfig;
+
+	static getConfigElement() {
+		return document.createElement('custom-features-card-editor');
+	}
 
 	static getStubConfig() {
 		return {

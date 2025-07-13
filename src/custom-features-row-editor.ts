@@ -41,7 +41,7 @@ import { deepGet, deepSet } from './utils';
 export class CustomFeaturesRowEditor extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: IConfig;
-	@property() context!: Record<'entity_id', string>;
+	@property() context?: Record<'entity_id', string>;
 
 	@state() entryIndex: number = -1;
 	@state() actionsTabIndex: number = 0;
@@ -2018,7 +2018,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		context = {
 			render: (str2: string) => this.renderTemplate(str2, context),
 			stateObj: {
-				entity_id: this.context.entity_id,
+				entity_id: this.context?.entity_id,
 			},
 			...context,
 		};
@@ -2213,7 +2213,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				// Feature entity ID
 				entry = this.populateMissingEntityId(
 					entry,
-					this.context.entity_id,
+					this.context?.entity_id ?? '',
 				);
 				const entryEntityId = this.renderTemplate(
 					entry.entity_id as string,
