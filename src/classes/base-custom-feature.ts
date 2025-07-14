@@ -134,6 +134,9 @@ export class BaseCustomFeature extends LitElement {
 				case 'perform-action':
 					this.callService(action);
 					break;
+				case 'fire-dom-event':
+					this.fireDomEvent(action);
+					break;
 				case 'eval':
 					this.eval(action);
 					break;
