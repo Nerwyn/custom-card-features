@@ -40,7 +40,7 @@ class CustomFeaturesRow extends LitElement {
 
 	static getStubConfig() {
 		return {
-			type: 'custom:custom-features-row', // Use old type to not break old configs
+			type: 'custom:service-call', // Use old type to not break old configs
 			entries: [],
 		};
 	}
@@ -198,10 +198,7 @@ class CustomFeaturesRow extends LitElement {
 		}
 
 		const context = {
-			config: {
-				...this.config,
-				entity: this.stateObj?.entity_id,
-			},
+			config: { ...this.config, entity: this.stateObj?.entity_id },
 			stateObj: this.stateObj,
 		};
 
@@ -248,7 +245,6 @@ class CustomFeaturesRow extends LitElement {
 }
 
 customElements.define('custom-features-row-editor', CustomFeaturesRowEditor);
-customElements.define('custom-features-card-editor', CustomFeaturesCardEditor);
 customElements.define('service-call', CustomFeaturesRow); // Original name to not break old configs
 window.customCardFeatures ||= [];
 window.customCardFeatures.push({
@@ -257,12 +253,13 @@ window.customCardFeatures.push({
 	configurable: true,
 });
 
+customElements.define('custom-features-card-editor', CustomFeaturesCardEditor);
 customElements.define('custom-features-card', CustomFeaturesCard);
 window.customCards ||= [];
 window.customCards.push({
 	type: 'custom-features-card',
 	name: 'Custom features card',
-	description: 'Headless custom features card.',
+	description: 'Headless container/stack for custom features rows.',
 });
 
 if (!window.structuredClone) {

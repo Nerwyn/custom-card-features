@@ -27,18 +27,13 @@ export class CustomFeaturesCardEditor extends LitElement {
 			bubbles: true,
 			composed: true,
 		});
-		event.detail = {
-			config: config,
-		};
+		event.detail = { config };
 		this.dispatchEvent(event);
 		this.requestUpdate();
 	}
 
 	rowsChanged(features: IConfig[]) {
-		this.configChanged({
-			...this.config,
-			features,
-		});
+		this.configChanged({ ...this.config, features });
 	}
 
 	handleRowConfigChanged(e: Event) {
@@ -50,10 +45,7 @@ export class CustomFeaturesCardEditor extends LitElement {
 
 	addRow(_e: Event) {
 		const features = structuredClone(this.config.features);
-		features.push({
-			type: 'custom:service-call',
-			entries: [],
-		});
+		features.push({ type: 'custom:service-call', entries: [] });
 		this.rowsChanged(features);
 	}
 
@@ -182,10 +174,7 @@ export class CustomFeaturesCardEditor extends LitElement {
 		e.stopPropagation();
 		const css = e.detail.value;
 		if (css != this.config.styles) {
-			this.configChanged({
-				...this.config,
-				styles: css,
-			});
+			this.configChanged({ ...this.config, styles: css });
 		}
 	}
 
@@ -204,19 +193,6 @@ export class CustomFeaturesCardEditor extends LitElement {
 					@keydown=${(e: KeyboardEvent) => e.stopPropagation()}
 				></ha-code-editor>
 			</div>
-		`;
-	}
-
-	handleBackButton() {
-		this.rowIndex = -1;
-		this.requestUpdate();
-	}
-
-	buildBackButton() {
-		return html`
-			<ha-icon-button class="back-icon" @click=${this.handleBackButton}>
-				<ha-icon .icon="${'mdi:chevron-left'}"></ha-icon>
-			</ha-icon-button>
 		`;
 	}
 
