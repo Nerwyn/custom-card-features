@@ -1655,9 +1655,9 @@ layout_options:
 
 ## Example 5
 
-Using a selector to display different features.
+Using a selector to display different features in a custom features card.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_show_tile.png" width="1200"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_show_card.png" width="1200"/>
 
 <details>
 
@@ -1678,20 +1678,21 @@ features:
               }
             entity_id: input_select.select_test
             tap_action:
-              action: perform-action
-              perform_action: input_select.select_option
+              action: call-service
+              service: input_select.select_option
               data:
                 option: A
               target:
                 entity_id: input_select.select_test
             type: button
             value_attribute: state
+            haptics: false
           - option: B
             icon: mdi:alpha-{{ config.option | lower }}
             entity_id: input_select.select_test
             tap_action:
-              action: perform-action
-              perform_action: input_select.select_option
+              action: call-service
+              service: input_select.select_option
               data:
                 option: B
               target:
@@ -1707,12 +1708,13 @@ features:
             icon: mdi:alpha-{{ config.option | lower }}
             entity_id: input_select.select_test
             tap_action:
-              action: perform-action
-              perform_action: input_select.select_option
+              action: call-service
+              service: input_select.select_option
               data:
                 option: C
               target:
                 entity_id: input_select.select_test
+              confirmation: true
             type: button
             value_attribute: state
             styles: |-
@@ -1722,7 +1724,11 @@ features:
               }
         entity_id: input_select.select_test
         value_attribute: state
-        styles: ''
+        styles: ""
+        autofill_entity_id: true
+        haptics: true
+        value_from_hass_delay: 1000
+    styles: ""
   - type: custom:service-call
     entries:
       - type: button
@@ -1738,42 +1744,37 @@ features:
           repeat_delay: 10
         entity_id: input_number.slider_test
         value_attribute: state
-        styles: |-
-          {% if not  is_state("input_select.select_test", "A")  %}
-          :host {
-            display: none;
-          }
-          {% endif %}
-          :host {
-            --feature-height: 64px;
-          }
+        styles: ""
       - type: slider
         thumb: round
         entity_id: input_number.slider_test
         label: |
           Input Number
           {{ value }}{{ unit }}
-        unit_of_measurement: '#'
+        unit_of_measurement: "#"
         icon: mdi:numeric
         styles: |-
           :host {
             flex-basis: 600%;
-            border-radius: 40px;
             --tooltip-label: "The number is {{ value }}";
             --label-color: var(--disabled-color);
-            --feature-height: 64px;
           }
           .icon {
-            color: var(--accent-color);
+            color: var(--disabled-color);
             padding: 8px;
             flex: auto;
             position: absolute;
-            transform: translateX(var(--thumb-offset));
+            translate: var(--thumb-translate);
+            transition: var(--thumb-transition);
             --mdc-icon-size: 24px;
           }
-          {% if not  is_state("input_select.select_test", "A")  %}
-          :host {
-            display: none;
+
+          {% if value == config.range[0] %}
+          .thumb {
+            visibility: hidden;
+          }
+          .icon {
+            visibility: hidden;
           }
           {% endif %}
         range:
@@ -1785,7 +1786,7 @@ features:
             entity_id:
               - input_number.slider_test
           data:
-            value: '{{ value | int }}'
+            value: "{{ value | int }}"
           confirmation: false
           perform_action: input_number.set_value
         autofill_entity_id: true
@@ -1793,7 +1794,7 @@ features:
         value_attribute: state
       - type: button
         icon: mdi:arrow-up-bold
-        action: perform-action
+        action: call-service
         haptics: true
         hold_action:
           action: repeat
@@ -1805,16 +1806,21 @@ features:
             entity_id:
               - input_number.slider_test
           perform_action: input_number.increment
+          data: {}
         value_attribute: state
-        styles: |-
-          {% if not  is_state("input_select.select_test", "A")  %}
-          :host {
-            display: none;
-          }
-          {% endif %}
-          :host {
-            --feature-height: 64px;
-          }
+        styles: ""
+    styles: |-
+      :host {
+        --feature-height: 64px;
+      }
+
+      {% if not is_state("input_select.select_test", "A")  %}
+      :host {
+        display: none;
+      }
+      {% endif %}
+  - type: custom:service-call
+    entries:
       - type: button
         icon: mdi:youtube
         tap_action:
@@ -1825,12 +1831,7 @@ features:
           url_path: play.spotify.com
         entity_id: input_select.select_test
         value_attribute: state
-        styles: |-
-          {% if not  is_state("input_select.select_test", "B")  %}
-          :host {
-            display: none;
-          }
-          {% endif %}
+        styles: ""
       - type: button
         icon: mdi:view-dashboard
         tap_action:
@@ -1841,12 +1842,7 @@ features:
           navigation_path: /lovelace-extra/0
         entity_id: input_select.select_test
         value_attribute: state
-        styles: |-
-          {% if not  is_state("input_select.select_test", "B")  %}
-          :host {
-            display: none;
-          }
-          {% endif %}
+        styles: ""
       - type: button
         icon: mdi:view-compact
         tap_action:
@@ -1854,57 +1850,69 @@ features:
           navigation_path: /lovelace-extra/subview
         entity_id: input_select.select_test
         value_attribute: state
-        styles: |-
-          {% if not  is_state("input_select.select_test", "B")  %}
-          :host {
-            display: none;
-          }
-          {% endif %}
+        styles: ""
+    styles: |-
+      {% if not is_state("input_select.select_test", "B")  %}
+      :host {
+        display: none;
+      }
+      {% endif %}
+  - type: custom:service-call
+    entries:
       - type: button
         icon: mdi:assistant
         tap_action:
           action: assist
           pipeline_id: last_used
-        label: ''
+        label: ""
         entity_id: input_select.select_test
         value_attribute: state
-        styles: |-
-          {% if not  is_state("input_select.select_test", "C")  %}
-          :host {
-            display: none;
-          }
-          {% endif %}
+        styles: ""
         double_tap_action:
           action: navigate
-          navigation_path: '?conversation=1'
+          navigation_path: "?conversation=1"
       - type: button
         tap_action:
-          action: more-info
-          target:
-            entity_id: sensor.fordpass_elveh
-        entity_id: sensor.fordpass_elveh
+          action: eval
+          confirmation:
+            text: This is a test of a Home Assistant confirmation with custom text
+          eval: >-
+            console.log("This was made using an exec call with a
+            confirmation.");
         value_attribute: state
         styles: |-
-          :host {
-            background-image: url('http://homeassistant.local:8123/local/ford_mme.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 1;
+          .icon {
+            color: var(--red-color);
           }
-          {% if not  is_state("input_select.select_test", "C")  %}
-          :host {
-            display: none;
+        icon: mdi:language-javascript
+        entity_id: input_select.select_test
+      - type: button
+        tap_action:
+          action: eval
+          confirmation: false
+          eval: >-
+            console.log("This was made using an exec call with no
+            confirmation.");
+        value_attribute: state
+        styles: |-
+          .icon {
+            color: var(--yellow-color);
           }
-          {% endif %}
-    styles: ''
+        icon: mdi:language-javascript
+        entity_id: input_select.select_test
+    styles: |-
+      {% if not  is_state("input_select.select_test", "C")  %}
+      :host {
+        display: none;
+      }
+      {% endif %}
   - type: custom:service-call
     entries:
       - type: spinbox
         tap_action:
           action: perform-action
           data:
-            value: '{{ value | float }}'
+            value: "{{ value | float }}"
           target:
             entity_id: input_number.slider_test
           perform_action: input_number.set_value
@@ -1912,7 +1920,7 @@ features:
           - -128
           - 128
         step: 0.5
-        label: '{{ value }}'
+        label: "{{ value }}"
         hold_action:
           action: repeat
           repeat_delay: 50
@@ -1921,28 +1929,24 @@ features:
           entity_id: input_number.slider_test
           type: button
           value_attribute: state
-          styles: ''
+          styles: ""
         entity_id: input_number.slider_test
         increment:
           entity_id: input_number.slider_test
           type: button
           value_attribute: state
-          styles: ''
+          styles: ""
+          haptics: true
         value_attribute: state
-        styles: |-
-          {% if not is_state("input_select.select_test", "A")  %}
-          :host {
-            display: none;
-          }
-          {% endif %}
-type: tile
-entity: input_select.select_test
-show_entity_picture: false
-vertical: false
-color: primary
-layout_options:
-  grid_columns: 4
-  grid_rows: 4
+        styles: ""
+        haptics: false
+    styles: |-
+      {% if not is_state("input_select.select_test", "A")  %}
+      :host {
+        display: none;
+      }
+      {% endif %}
+type: custom:custom-features-card
 ```
 
 </details>
