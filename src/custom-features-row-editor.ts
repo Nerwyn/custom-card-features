@@ -68,8 +68,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.config = config;
 	}
 
-	configChanged(config: IConfig) {
-		config = this.autofillDefaultFields(config);
+	configChanged(config: IConfig, autofill: boolean = true) {
+		if (autofill) {
+			config = this.autofillDefaultFields(config);
+		}
 		const event = new Event('config-changed', {
 			bubbles: true,
 			composed: true,
@@ -95,11 +97,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 		switch (this.activeEntryType) {
 			case 'option': {
 				const options = oldEntry.options ?? [];
-				(options[this.optionIndex] = entry),
-					(updatedEntry = {
-						...oldEntry,
-						options: options,
-					});
+				options[this.optionIndex] = entry;
+				updatedEntry = {
+					...oldEntry,
+					options: options,
+				};
 				break;
 			}
 			case 'decrement':
@@ -435,7 +437,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	buildEntryList(field: 'entry' | 'option' = 'entry') {
 		let entries: IEntry[] | IOption[];
-		let handlers: Record<string, (e: Event) => void>;
+		let handlers: Record<
+			'move' | 'copy' | 'edit' | 'remove',
+			(e: Event) => void
+		>;
 		let listHeader: string;
 		switch (field) {
 			case 'option':
@@ -2773,6 +2778,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 			.feature-list-item-label {
 				display: flex;
 				flex-direction: column;
+			}
+			.primary,
+			.secondary {
+				text-wrap: nowrap;
 			}
 			.secondary {
 				font-size: 12px;

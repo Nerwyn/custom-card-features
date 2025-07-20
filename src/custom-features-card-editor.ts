@@ -1,15 +1,19 @@
-import { css, html, LitElement, TemplateResult } from 'lit';
+import { html, TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import {
+	CardFeatureType,
 	HomeAssistant,
 	IConfig,
 	ICustomFeatureCardConfig,
+	IEntry,
 } from './models/interfaces';
 
 import './custom-features-row-editor';
+import { CustomFeaturesRowEditor } from './custom-features-row-editor';
 
-export class CustomFeaturesCardEditor extends LitElement {
+export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 	@property() hass!: HomeAssistant;
+	// @ts-ignore
 	@property() config!: ICustomFeatureCardConfig;
 
 	@state() rowIndex: number = -1;
@@ -18,18 +22,9 @@ export class CustomFeaturesCardEditor extends LitElement {
 		return { hass: {}, config: {} };
 	}
 
-	setConfig(config: ICustomFeatureCardConfig) {
-		this.config = config;
-	}
-
+	// @ts-ignore
 	configChanged(config: ICustomFeatureCardConfig) {
-		const event = new Event('config-changed', {
-			bubbles: true,
-			composed: true,
-		});
-		event.detail = { config };
-		this.dispatchEvent(event);
-		this.requestUpdate();
+		super.configChanged(config as unknown as IConfig, false);
 	}
 
 	rowsChanged(features: IConfig[]) {
@@ -94,13 +89,16 @@ export class CustomFeaturesCardEditor extends LitElement {
 
 		return html`
 			<div class="content">
-				<div class="feature-list-header">Custom Features Rows</div>
+				<div class="entry-list-header">Custom Features Rows</div>
 				<ha-sortable
 					handle-selector=".handle"
 					@item-moved=${handlers.move}
 				>
 					<div class="features">
 						${features.map((row, i) => {
+							const entries = row.entries.length
+								? row.entries
+								: [{ type: 'Empty' as CardFeatureType }];
 							return html`
 								<div class="feature-list-item">
 									<div class="handle">
@@ -108,19 +106,52 @@ export class CustomFeaturesCardEditor extends LitElement {
 											.icon="${'mdi:drag'}"
 										></ha-icon>
 									</div>
-									<div class="feature-list-item-content">
-										<div class="feature-list-item-label">
-											<span class="primary"
-												>${row.entries
-													.map(
-														(feature) =>
-															feature.type ??
-															'button',
-													)
-													.join(' ⸱ ')}</span
+									${entries.map((entry: IEntry) => {
+										const context =
+											this.getEntryContext(entry);
+										const icon = this.renderTemplate(
+											entry.icon as string,
+											context,
+										);
+										const label = this.renderTemplate(
+											entry.label as string,
+											context,
+										);
+										const entryType = this.renderTemplate(
+											entry.type as string,
+											context,
+										);
+										return html`<div
+											class="feature-list-item-content"
+										>
+											${icon
+												? html`<ha-icon
+														.icon="${icon}"
+													></ha-icon>`
+												: ''}
+											<div
+												class="feature-list-item-label"
 											>
-										</div>
-									</div>
+												<span class="primary"
+													>${entryType ??
+													'button'}${label
+														? ` ⸱ ${label}`
+														: ''}</span
+												>
+												${context.config.entity
+													? html`<span
+															class="secondary"
+															>${context.config
+																.entity_id}${context
+																.config
+																.attribute
+																? ` ⸱ ${context.config.attribute}`
+																: ''}</span
+														>`
+													: ''}
+											</div>
+										</div>`;
+									})}
 									<ha-icon-button
 										class="copy-icon"
 										.index=${i}
@@ -170,32 +201,6 @@ export class CustomFeaturesCardEditor extends LitElement {
 		`;
 	}
 
-	handleStyleCodeChanged(e: Event) {
-		e.stopPropagation();
-		const css = e.detail.value;
-		if (css != this.config.styles) {
-			this.configChanged({ ...this.config, styles: css });
-		}
-	}
-
-	buildCodeEditor() {
-		return html`
-			<div class="yaml-editor">
-				CSS Styles
-				<ha-code-editor
-					mode="jinja2"
-					dir="ltr"
-					?autocomplete-entities="true"
-					?autocomplete-icons="false"
-					.hass=${this.hass}
-					.value=${this.config.styles ?? ''}
-					@value-changed=${this.handleStyleCodeChanged}
-					@keydown=${(e: KeyboardEvent) => e.stopPropagation()}
-				></ha-code-editor>
-			</div>
-		`;
-	}
-
 	render() {
 		if (!this.hass || !this.config) {
 			return html``;
@@ -208,7 +213,7 @@ export class CustomFeaturesCardEditor extends LitElement {
 					<div class="content">${this.buildRowsList()}</div>
 					${this.buildAddRowButton()}
 				</div>
-				${this.buildCodeEditor()}
+				${this.buildCodeEditor('jinja2')}
 			</div>`;
 		} else {
 			editor = html`<custom-features-row-editor
@@ -227,87 +232,5 @@ export class CustomFeaturesCardEditor extends LitElement {
 			this.rowIndex = -1;
 			this.requestUpdate();
 		});
-	}
-
-	static get styles() {
-		return css`
-			:host {
-				display: flex;
-				flex-direction: column;
-				-webkit-tap-highlight-color: transparent;
-				-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-			}
-
-			.content {
-				padding: 12px;
-				display: inline-flex;
-				flex-direction: column;
-				gap: 24px;
-				box-sizing: border-box;
-				width: 100%;
-			}
-
-			.feature-list-header {
-				font-size: 20px;
-				font-weight: 500;
-			}
-
-			.feature-list-item {
-				display: flex;
-				align-items: center;
-				pointer-events: none;
-			}
-
-			.handle {
-				display: flex;
-				align-items: center;
-				cursor: move;
-				cursor: grab;
-				padding-right: 8px;
-				padding-inline-end: 8px;
-				padding-inline-start: initial;
-				direction: var(--direction);
-				pointer-events: all;
-			}
-
-			.feature-list-item-content {
-				height: 60px;
-				font-size: 16px;
-				display: flex;
-				align-items: center;
-				justify-content: flex-start;
-				flex-grow: 1;
-				gap: 8px;
-				overflow: hidden;
-			}
-			.feature-list-item-label {
-				display: flex;
-				flex-direction: column;
-			}
-			.secondary {
-				font-size: 12px;
-				color: var(--secondary-text-color);
-			}
-
-			.copy-icon,
-			.edit-icon,
-			.remove-icon {
-				color: var(--secondary-text-color);
-				pointer-events: all;
-				--mdc-icon-button-size: 36px;
-			}
-
-			ha-icon {
-				display: flex;
-				color: var(--secondary-text-color);
-			}
-			.add-list-item {
-				margin: 0 18px 12px;
-			}
-			ha-button {
-				width: fit-content;
-				--mdc-icon-size: 100%;
-			}
-		`;
 	}
 }
