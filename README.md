@@ -17,7 +17,7 @@ Call any [action](https://www.home-assistant.io/dashboards/actions/) via card fe
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/example_tile.png" width="600"/>
 
-This project also includes a custom card - custom features card. Think of it like a vertical stack for custom features rows. It doesn't have it's own entity or actions, but can be used to create custom features rows without anything else in the card.
+This project also includes a custom card - custom features card. Think of it like a vertical stack for custom features rows. It doesn't have its own entity or actions, but can be used to create custom features rows without anything else in the card.
 
 # Feature Types
 
