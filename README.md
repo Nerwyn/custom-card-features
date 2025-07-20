@@ -17,6 +17,8 @@ Call any [action](https://www.home-assistant.io/dashboards/actions/) via card fe
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/example_tile.png" width="600"/>
 
+This project also includes a custom card - custom features card. Think of it like a vertical stack for custom features rows. It doesn't have it's own entity or actions, but can be used to create custom features rows without anything else in the card.
+
 # Feature Types
 
 ## Buttons
@@ -1724,11 +1726,11 @@ features:
               }
         entity_id: input_select.select_test
         value_attribute: state
-        styles: ""
+        styles: ''
         autofill_entity_id: true
         haptics: true
         value_from_hass_delay: 1000
-    styles: ""
+    styles: ''
   - type: custom:service-call
     entries:
       - type: button
@@ -1744,14 +1746,14 @@ features:
           repeat_delay: 10
         entity_id: input_number.slider_test
         value_attribute: state
-        styles: ""
+        styles: ''
       - type: slider
         thumb: round
         entity_id: input_number.slider_test
         label: |
           Input Number
           {{ value }}{{ unit }}
-        unit_of_measurement: "#"
+        unit_of_measurement: '#'
         icon: mdi:numeric
         styles: |-
           :host {
@@ -1786,7 +1788,7 @@ features:
             entity_id:
               - input_number.slider_test
           data:
-            value: "{{ value | int }}"
+            value: '{{ value | int }}'
           confirmation: false
           perform_action: input_number.set_value
         autofill_entity_id: true
@@ -1808,7 +1810,7 @@ features:
           perform_action: input_number.increment
           data: {}
         value_attribute: state
-        styles: ""
+        styles: ''
     styles: |-
       :host {
         --feature-height: 64px;
@@ -1831,7 +1833,7 @@ features:
           url_path: play.spotify.com
         entity_id: input_select.select_test
         value_attribute: state
-        styles: ""
+        styles: ''
       - type: button
         icon: mdi:view-dashboard
         tap_action:
@@ -1842,7 +1844,7 @@ features:
           navigation_path: /lovelace-extra/0
         entity_id: input_select.select_test
         value_attribute: state
-        styles: ""
+        styles: ''
       - type: button
         icon: mdi:view-compact
         tap_action:
@@ -1850,7 +1852,7 @@ features:
           navigation_path: /lovelace-extra/subview
         entity_id: input_select.select_test
         value_attribute: state
-        styles: ""
+        styles: ''
     styles: |-
       {% if not is_state("input_select.select_test", "B")  %}
       :host {
@@ -1864,13 +1866,13 @@ features:
         tap_action:
           action: assist
           pipeline_id: last_used
-        label: ""
+        label: ''
         entity_id: input_select.select_test
         value_attribute: state
-        styles: ""
+        styles: ''
         double_tap_action:
           action: navigate
-          navigation_path: "?conversation=1"
+          navigation_path: '?conversation=1'
       - type: button
         tap_action:
           action: eval
@@ -1912,7 +1914,7 @@ features:
         tap_action:
           action: perform-action
           data:
-            value: "{{ value | float }}"
+            value: '{{ value | float }}'
           target:
             entity_id: input_number.slider_test
           perform_action: input_number.set_value
@@ -1920,7 +1922,7 @@ features:
           - -128
           - 128
         step: 0.5
-        label: "{{ value }}"
+        label: '{{ value }}'
         hold_action:
           action: repeat
           repeat_delay: 50
@@ -1929,16 +1931,16 @@ features:
           entity_id: input_number.slider_test
           type: button
           value_attribute: state
-          styles: ""
+          styles: ''
         entity_id: input_number.slider_test
         increment:
           entity_id: input_number.slider_test
           type: button
           value_attribute: state
-          styles: ""
+          styles: ''
           haptics: true
         value_attribute: state
-        styles: ""
+        styles: ''
         haptics: false
     styles: |-
       {% if not is_state("input_select.select_test", "A")  %}
