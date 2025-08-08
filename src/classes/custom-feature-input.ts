@@ -263,10 +263,14 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				:host {
 					flex-direction: row;
 					gap: 12px;
-					border-radius: 0;
-					border-top-left-radius: var(--mdc-shape-small, 4px);
-					border-top-right-radius: var(--mdc-shape-small, 4px);
+					border-radius: var(
+						--md-sys-shape-corner-extra-small-top,
+						var(--input-border-radius)
+					);
 					padding: var(--text-field-padding, 0px 16px);
+
+					--input-border-radius: var(--mdc-shape-small, 4px)
+						var(--mdc-shape-small, 4px) 0 0;
 				}
 				:host(:focus-within) {
 					box-shadow: none;
