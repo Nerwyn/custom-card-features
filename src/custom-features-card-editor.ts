@@ -190,14 +190,10 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 
 	buildAddRowButton() {
 		return html`
-			<ha-button
-				@click=${this.addRow}
-				outlined
-				class="add-list-item"
-				.label="${'Add row'}"
+			<ha-button @click=${this.addRow} class="add-list-item">
+				<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon>Add
+				row</ha-button
 			>
-				<ha-icon .icon=${'mdi:plus'} slot="icon"></ha-icon>
-			</ha-button>
 		`;
 	}
 

@@ -591,31 +591,23 @@ export class CustomFeaturesRowEditor extends LitElement {
 		switch (field) {
 			case 'option':
 				return html`
-					<ha-button
-						@click=${this.addOption}
-						outlined
-						class="add-list-item"
-						.label="${'Add option'}"
+					<ha-button @click=${this.addOption} class="add-list-item">
+						<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon>Add
+						option</ha-button
 					>
-						<ha-icon .icon=${'mdi:plus'} slot="icon"></ha-icon>
-					</ha-button>
 				`;
 			case 'entry':
 			default:
 				return html`
 					<ha-button-menu
-						fixed
 						class="add-list-item"
 						@action=${this.addEntry}
 						@closed=${(e: Event) => e.stopPropagation()}
 					>
-						<ha-button
-							slot="trigger"
-							outlined
-							.label="${'Add custom feature'}"
+						<ha-button slot="trigger">
+							<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon
+							>Add custom feature</ha-button
 						>
-							<ha-icon .icon=${'mdi:plus'} slot="icon"></ha-icon>
-						</ha-button>
 						${CardFeatureTypes.map(
 							(cardFeatureType) => html`
 								<ha-list-item .value=${cardFeatureType}>
@@ -2021,13 +2013,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 							${this.buildEntryList()}${this.buildAddEntryButton()}
 						</div>
 						${this.buildCodeEditor('jinja2')}
-						<ha-button
-							@click=${this.handleUpdateDeprecatedConfig}
-							outlined
-							.label="${'Update old config'}"
+						<ha-button @click=${this.handleUpdateDeprecatedConfig}>
+							<ha-icon .icon=${'mdi:cog'} slot="start"></ha-icon
+							>Update old config</ha-button
 						>
-							<ha-icon .icon=${'mdi:cog'} slot="icon"></ha-icon>
-						</ha-button>
 						${this.buildErrorPanel()}
 					</div>
 				`;
@@ -2739,6 +2728,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 			ha-button {
 				width: fit-content;
 				--mdc-icon-size: 100%;
+			}
+			ha-button::part(label) {
+				text-transform: capitalize;
 			}
 			ha-list-item {
 				text-transform: capitalize;
