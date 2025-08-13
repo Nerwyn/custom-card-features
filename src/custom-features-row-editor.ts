@@ -2727,7 +2727,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			}
 			ha-button {
 				width: fit-content;
-				--mdc-icon-size: 100%;
+				--mdc-icon-size: 24px;
 			}
 			ha-button::part(label) {
 				text-transform: capitalize;
