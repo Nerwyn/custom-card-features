@@ -19,6 +19,7 @@ import {
 	WEEK_MIN,
 } from '../models/constants';
 import { InputType } from '../models/interfaces';
+import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-input')
@@ -101,8 +102,6 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	async onKeyUp(_e: KeyboardEvent) {}
 
 	render() {
-		this.setValue();
-
 		this.thumb = this.renderTemplate(
 			this.config.thumb ?? 'text',
 		) as InputType;
@@ -218,13 +217,13 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			: '';
 
 		return html`
-			${this.buildBackground()} ${this.buildIcon(this.config.icon)}
+			${this.buildBackground()} ${this.buildIcon(this.icon)}
 			<div class="label-input">
-				${this.buildLabel(this.config.label)}
+				${this.buildLabel(this.label)}
 				<div class="input-unit">${input}${unit}</div>
 			</div>
 			<div class="line-ripple" part="ripple"></div>
-			${this.buildStyles(this.config.styles)}
+			${buildStyles(this.styles)}
 		`;
 	}
 

@@ -6,6 +6,7 @@ import {
 	HOLD_TIME,
 	REPEAT_DELAY,
 } from '../models/constants';
+import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-button')
@@ -208,8 +209,6 @@ export class CustomFeatureButton extends BaseCustomFeature {
 	}
 
 	render() {
-		this.setValue();
-
 		const button = html`<button
 			class=${`${this.className} background`}
 			part="button"
@@ -224,11 +223,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 			${this.buildRipple()}
 		</button>`;
 
-		return html`${button}${this.buildIcon(
-			this.config.icon,
-		)}${this.buildLabel(this.config.label)}${this.buildStyles(
-			this.config.styles,
-		)}`;
+		return html`${button}${this.buildIcon(this.icon)}
+		${this.buildLabel(this.label)}${buildStyles(this.styles)}`;
 	}
 
 	static get styles() {

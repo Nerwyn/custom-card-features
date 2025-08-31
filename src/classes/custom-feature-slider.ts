@@ -4,6 +4,7 @@ import { classMap } from 'lit/directives/class-map.js';
 
 import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
 import { SliderThumbType, SliderThumbTypes } from '../models/interfaces';
+import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-slider')
@@ -202,8 +203,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	render() {
-		this.setValue();
-
 		if (this.config.range) {
 			this.range[0] = parseFloat(
 				(this.renderTemplate(
@@ -258,13 +257,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				${this.buildBackground()}${this.buildSlider()}
 				${this.buildThumb()}${this.buildTicks()}
 				<div class="icon-label">
-					${this.buildIcon(this.config.icon)}
-					${this.buildLabel(this.config.label)}
+					${this.buildIcon(this.icon)} ${this.buildLabel(this.label)}
 				</div>
 			</div>
-			${this.buildTooltip()}${this.buildMD3Thumb()}${this.buildStyles(
-				this.config.styles,
-			)}
+			${this.buildTooltip()}${this.buildMD3Thumb()}
+			${buildStyles(this.styles)}
 		`;
 	}
 
@@ -342,7 +339,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					overflow: visible;
 
 					--thumb-translate: var(--thumb-offset) 0;
-					--thumb-transition: translate 180ms ease-in-out,
+					--thumb-transition:
+						translate 180ms ease-in-out,
 						background 180ms ease-in-out;
 				}
 
@@ -490,7 +488,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 				/* Material Design 3 Slider */
 				:host:has(.md3-slider) {
-					--thumb-transition: translate
+					--thumb-transition:
+						translate
 							var(--md-sys-motion-expressive-spatial-default),
 						background 180ms ease-in-out;
 				}
@@ -685,7 +684,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						translate(
 							var(--thumb-offset),
 							calc(
-								-0.5 * var(--feature-height, 40px) - 0.4em - 10px
+								-0.5 * var(--feature-height, 40px) - 0.4em -
+									10px
 							)
 						)
 					);

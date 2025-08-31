@@ -15,7 +15,6 @@ import { UPDATE_AFTER_ACTION_DELAY } from '../models/constants';
 import { ActionType, IAction, IActions, IEntry } from '../models/interfaces';
 import { MdRipple } from '../models/interfaces/MdRipple';
 import { deepGet, deepSet, getDeepKeys } from '../utils';
-import { buildStyles } from '../utils/styles';
 
 @customElement('base-custom-feature')
 export class BaseCustomFeature extends LitElement {
@@ -32,6 +31,10 @@ export class BaseCustomFeature extends LitElement {
 	getValueFromHass: boolean = true;
 	getValueFromHassTimer?: ReturnType<typeof setTimeout>;
 	valueUpdateInterval?: ReturnType<typeof setInterval>;
+
+	icon: string = '';
+	label: string = '';
+	styles: string = '';
 
 	unitOfMeasurement: string = '';
 	precision?: number;
@@ -725,21 +728,15 @@ export class BaseCustomFeature extends LitElement {
 			this.requestUpdate();
 		}, valueFromHassDelay);
 	}
-	buildIcon(icon?: string, context?: object) {
-		const rendered = this.renderTemplate(icon as string, context);
-		return rendered
-			? html`<ha-icon
-					class="icon"
-					part="icon"
-					.icon=${rendered}
-				></ha-icon>`
+	buildIcon(icon?: string) {
+		return icon
+			? html`<ha-icon class="icon" part="icon" .icon=${icon}></ha-icon>`
 			: '';
 	}
 
-	buildLabel(label?: string, context?: object) {
-		const rendered = this.renderTemplate(label as string, context);
-		return rendered
-			? html`<pre class="label" part="label">${rendered}</pre>`
+	buildLabel(label?: string) {
+		return label
+			? html`<pre class="label" part="label">${label}</pre>`
 			: '';
 	}
 
@@ -751,15 +748,6 @@ export class BaseCustomFeature extends LitElement {
 		return this.shouldRenderRipple
 			? html`<md-ripple part="ripple"></md-ripple>`
 			: '';
-	}
-
-	buildStyles(styles?: string, context?: object) {
-		const rendered = this.renderTemplate(
-			styles as string,
-			context,
-		) as string;
-
-		return buildStyles(rendered);
 	}
 
 	onPointerDown(e: PointerEvent) {
@@ -852,6 +840,54 @@ export class BaseCustomFeature extends LitElement {
 				}),
 			);
 		}
+	}
+
+	shouldUpdate(changedProperties: PropertyValues) {
+		if (
+			changedProperties.has('hass') ||
+			changedProperties.has('stateObj') ||
+			changedProperties.has('value')
+		) {
+			const value = changedProperties.get('value') || this.value;
+			this.setValue();
+
+			const icon = this.renderTemplate(
+				this.config.icon as string,
+			) as string;
+
+			const label = this.renderTemplate(
+				this.config.label as string,
+			) as string;
+
+			const styles = this.renderTemplate(
+				this.config.styles as string,
+			) as string;
+
+			if (
+				value != this.value ||
+				icon != this.icon ||
+				label != this.label ||
+				styles != this.styles
+			) {
+				this.icon = icon;
+				this.label = label;
+				this.styles = styles;
+				return true;
+			}
+		}
+
+		if (changedProperties.has('config')) {
+			return (
+				JSON.stringify(this.config) !=
+				JSON.stringify(changedProperties.get('config'))
+			);
+		}
+
+		return (
+			changedProperties.size == 0 || // Explicitly request update
+			changedProperties.has('value') ||
+			changedProperties.has('pressed')
+		);
 	}
 
 	firstUpdated(_changedProperties: PropertyValues) {

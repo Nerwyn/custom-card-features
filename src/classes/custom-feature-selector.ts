@@ -1,6 +1,7 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
+import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 import './custom-feature-button';
 
@@ -18,8 +19,6 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 	}
 
 	render() {
-		this.setValue();
-
 		const selector = [this.buildBackground()];
 		const options = this.config.options ?? [];
 		for (const option0 of options) {
@@ -45,7 +44,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 			);
 		}
 
-		return html`${selector}${this.buildStyles(this.config.styles)}`;
+		return html`${selector}${buildStyles(this.styles)}`;
 	}
 
 	async onKeyDown(_e: KeyboardEvent) {
@@ -106,6 +105,22 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 		if (this.firefox) {
 			this.style.removeProperty('box-shadow');
 		}
+	}
+
+	shouldUpdate(changedProperties: PropertyValues) {
+		const should = super.shouldUpdate(changedProperties);
+		if (should) {
+			return true;
+		}
+
+		// Update child hass objects if not updating
+		const children = (this.shadowRoot?.querySelectorAll('.option') ??
+			[]) as BaseCustomFeature[];
+		for (const child of children) {
+			child.hass = this.hass;
+		}
+
+		return false;
 	}
 
 	firstUpdated(changedProperties: PropertyValues) {

@@ -2,11 +2,16 @@ import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
 import { IEntry, IOption } from '../models/interfaces';
+import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-dropdown')
 export class CustomFeatureDropdown extends BaseCustomFeature {
 	@state() open: boolean = false;
+
+	selectedIcon: string = '';
+	selectedLabel: string = '';
+	selectedStyles: string = '';
 
 	onPointerUp(e: PointerEvent) {
 		super.onPointerUp(e);
@@ -46,8 +51,6 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 	}
 
 	render() {
-		this.setValue();
-
 		// Dropdown position and height
 		if (this.open) {
 			// Calculate dropdown height without vertical scroll
@@ -144,9 +147,9 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				${selectedOption
 					? html`${this.buildIcon(
 							selectedOption.icon,
-						)}${this.buildLabel(
-							selectedOption.label,
-						)}${this.buildStyles(selectedOption.styles)}`
+						)}${this.buildLabel(selectedOption.label)}${buildStyles(
+							selectedOption.styles,
+						)}`
 					: ''}
 				${this.buildRipple()}
 			</div>
@@ -157,9 +160,65 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 			></ha-icon>
 		</div>`;
 
-		return html`${select}${dropdown}${this.buildStyles(
-			this.config.styles,
-		)}`;
+		return html`${select}${dropdown}${buildStyles(this.styles)}`;
+	}
+
+	shouldUpdate(changedProperties: PropertyValues) {
+		const should = super.shouldUpdate(changedProperties);
+		if (
+			changedProperties.has('hass') ||
+			changedProperties.has('stateObj') ||
+			changedProperties.has('value')
+		) {
+			let selectedOption: IEntry | undefined = undefined;
+			for (const option of this.config.options ?? []) {
+				const optionName = String(
+					this.renderTemplate(option.option as string),
+				);
+				if (String(this.value) == optionName) {
+					selectedOption = option;
+					break;
+				}
+			}
+
+			if (selectedOption) {
+				const selectedIcon = this.renderTemplate(
+					this.config.icon as string,
+				) as string;
+
+				const selectedLabel = this.renderTemplate(
+					this.config.label as string,
+				) as string;
+
+				const selectedStyles = this.renderTemplate(
+					this.config.styles as string,
+				) as string;
+
+				if (
+					selectedIcon != this.icon ||
+					selectedLabel != this.label ||
+					selectedStyles != this.styles
+				) {
+					this.selectedIcon = selectedIcon;
+					this.selectedLabel = selectedLabel;
+					this.selectedStyles = selectedStyles;
+					return true;
+				}
+			}
+		}
+
+		if (should) {
+			return true;
+		}
+
+		// Update child hass objects if not updating
+		const children = (this.shadowRoot?.querySelectorAll('.option') ??
+			[]) as BaseCustomFeature[];
+		for (const child of children) {
+			child.hass = this.hass;
+		}
+
+		return false;
 	}
 
 	updated(changedProperties: PropertyValues) {
@@ -356,8 +415,6 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 	}
 
 	render() {
-		this.setValue();
-
 		return html`${this.buildBackground()}
 			<div
 				class="content"
@@ -369,11 +426,10 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 				@pointerleave=${this.onPointerLeave}
 				@contextmenu=${this.onContextMenu}
 			>
-				${this.buildIcon(this.config.icon)}${this.buildLabel(
-					this.config.label,
-				)}${this.buildRipple()}
+				${this.buildIcon(this.icon)}${this.buildLabel(this.label)}
+				${this.buildRipple()}
 			</div>
-			${this.buildStyles(this.config.styles)}`;
+			${buildStyles(this.styles)}`;
 	}
 
 	async onKeyDown(e: KeyboardEvent) {

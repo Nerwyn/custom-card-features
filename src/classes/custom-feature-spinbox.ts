@@ -2,6 +2,7 @@ import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import { DEBOUNCE_TIME } from '../models/constants';
+import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 import './custom-feature-button';
 import { CustomFeatureButton } from './custom-feature-button';
@@ -147,6 +148,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 		) {
 			return html`
 				<custom-feature-button
+					class="operator"
 					id=${operator}
 					part="${operator}"
 					.hass=${this.hass}
@@ -176,15 +178,11 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 		}
 	}
 
-	buildLabel(label?: string, context?: object) {
-		return this.value != undefined
-			? super.buildLabel(label, context)
-			: html``;
+	buildLabel(label?: string) {
+		return this.value != undefined ? super.buildLabel(label) : html``;
 	}
 
 	render() {
-		this.setValue();
-
 		if (this.config.range) {
 			this.range = [
 				parseFloat(
@@ -224,12 +222,8 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 
 		return html`
 			${this.buildBackground()}${this.buildButton('decrement')}
-			${this.buildIcon(this.config.icon)}${this.buildLabel(
-				this.config.label,
-			)}
-			${this.buildButton('increment')}${this.buildStyles(
-				this.config.styles,
-			)}
+			${this.buildIcon(this.icon)}${this.buildLabel(this.label)}
+			${this.buildButton('increment')}${buildStyles(this.styles)}
 		`;
 	}
 
@@ -291,6 +285,22 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 				);
 			}
 		}
+	}
+
+	shouldUpdate(changedProperties: PropertyValues) {
+		const should = super.shouldUpdate(changedProperties);
+		if (should) {
+			return true;
+		}
+
+		// Update child hass objects if not updating
+		const children = (this.shadowRoot?.querySelectorAll('.operator') ??
+			[]) as BaseCustomFeature[];
+		for (const child of children) {
+			child.hass = this.hass;
+		}
+
+		return false;
 	}
 
 	firstUpdated(changedProperties: PropertyValues) {
@@ -357,16 +367,11 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 					font-size: 14px;
 					font-weight: 500;
 					opacity: 0.77;
-					position: absolute;
-
-					--mdc-icon-size: 16px;
-				}
-
-				.operator {
 					width: fit-content;
 					padding: 0 10px;
 					cursor: pointer;
 
+					--mdc-icon-size: 16px;
 					--background-opacity: 0;
 				}
 
@@ -396,10 +401,8 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 export class OperatorButton extends BaseCustomFeature {
 	render() {
 		return html`
-			${this.buildBackground()}${this.buildIcon(
-				this.config.icon,
-			)}${super.buildLabel(this.config.label)}
-			${this.buildStyles(this.config.styles)}
+			${this.buildBackground()}${this.buildIcon(this.icon)}
+			${this.buildLabel(this.label)}${buildStyles(this.styles)}
 		`;
 	}
 }

@@ -1,17 +1,11 @@
-import {
-	css,
-	CSSResult,
-	html,
-	PropertyValueMap,
-	PropertyValues,
-	TemplateResult,
-} from 'lit';
+import { css, CSSResult, html, PropertyValues, TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import {
 	CheckedValues,
 	ToggleThumbType,
 	UncheckedValues,
 } from '../models/interfaces';
+import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-toggle')
@@ -20,6 +14,9 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 	@state() checked: boolean = false;
 	direction?: 'left' | 'right';
 	thumbType: ToggleThumbType = 'default';
+
+	checkedIcon: string = '';
+	uncheckedIcon: string = '';
 
 	async onPointerUp(e: PointerEvent) {
 		super.onPointerUp(e);
@@ -152,9 +149,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		this.removeAttribute('tabindex');
 		return html`
 			<div class="icon-label">
-				${this.buildIcon(this.config.icon)}${this.buildLabel(
-					this.config.label,
-				)}
+				${this.buildIcon(this.icon)}${this.buildLabel(this.label)}
 			</div>
 			<div
 				class="container md3-switch ${this.checked ? 'on' : 'off'}"
@@ -170,7 +165,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				${this.buildBackground()}
 				<div class="thumb" part="thumb">
 					${this.buildIcon(
-						this.config[`${this.checked ? '' : 'un'}checked_icon`],
+						this.checked ? this.checkedIcon : this.uncheckedIcon,
 					)}
 				</div>
 			</div>
@@ -181,9 +176,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		this.removeAttribute('tabindex');
 		return html`
 			<div class="icon-label">
-				${this.buildIcon(this.config.icon)}${this.buildLabel(
-					this.config.label,
-				)}
+				${this.buildIcon(this.icon)}${this.buildLabel(this.label)}
 			</div>
 			<div
 				class="container md2-switch ${this.checked ? 'on' : 'off'}"
@@ -199,7 +192,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				${this.buildBackground()}
 				<div class="thumb" part="thumb">
 					${this.buildIcon(
-						this.config[`${this.checked ? '' : 'un'}checked_icon`],
+						this.checked ? this.checkedIcon : this.uncheckedIcon,
 					)}${this.buildRipple()}
 				</div>
 			</div>
@@ -221,15 +214,13 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 			>
 				<div class="checkbox" tabindex="0">
 					${this.buildIcon(
-						this.config[`${this.checked ? '' : 'un'}checked_icon`],
+						this.checked ? this.checkedIcon : this.uncheckedIcon,
 					)}
 				</div>
 				${this.buildRipple()}
 			</div>
 			<div class="icon-label">
-				${this.buildIcon(this.config.icon)}${this.buildLabel(
-					this.config.label,
-				)}
+				${this.buildIcon(this.icon)}${this.buildLabel(this.label)}
 			</div>
 		`;
 	}
@@ -275,13 +266,10 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				@contextmenu=${this.onContextMenu}
 			>
 				${this.buildBackground()}
-				${this.buildIcon(this.config.checked_icon) || html`<div></div>`}
-				${this.buildIcon(this.config.unchecked_icon) ||
-				html`<div></div>`}
+				${this.buildIcon(this.checkedIcon) || html`<div></div>`}
+				${this.buildIcon(this.uncheckedIcon) || html`<div></div>`}
 				<div class="thumb" part="thumb">
-					${this.buildIcon(this.config.icon)}${this.buildLabel(
-						this.config.label,
-					)}
+					${this.buildIcon(this.icon)}${this.buildLabel(this.label)}
 				</div>
 			</div>
 			<style>
@@ -291,8 +279,6 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 	}
 
 	render() {
-		this.setValue();
-
 		this.thumbType = this.renderTemplate(
 			this.config.thumb ?? 'default',
 		) as ToggleThumbType;
@@ -313,7 +299,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				break;
 		}
 
-		return html`${toggle}${this.buildStyles(this.config.styles)}`;
+		return html`${toggle}${buildStyles(this.styles)}`;
 	}
 
 	firstUpdated(changedProperties: PropertyValues) {
@@ -401,13 +387,32 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		}
 	}
 
-	shouldUpdate(
-		changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>,
-	) {
+	shouldUpdate(changedProperties: PropertyValues) {
+		const should = super.shouldUpdate(changedProperties);
+
+		if (changedProperties.has('hass')) {
+			const checkedIcon = this.renderTemplate(
+				this.config.checked_icon as string,
+			) as string;
+
+			const uncheckedIcon = this.renderTemplate(
+				this.config.unchecked_icon as string,
+			) as string;
+
+			if (
+				checkedIcon != this.checkedIcon ||
+				uncheckedIcon != this.uncheckedIcon
+			) {
+				this.checkedIcon = checkedIcon;
+				this.uncheckedIcon = uncheckedIcon;
+				return true;
+			}
+		}
+
 		return (
-			(changedProperties.has('deltaX') &&
-				/deltaX|initialX|currentX/.test(this.config.styles ?? '')) ||
-			super.shouldUpdate(changedProperties)
+			changedProperties.has('deltaX') ||
+			/deltaX|initialX|currentX/.test(this.config.styles ?? '') ||
+			should
 		);
 	}
 
