@@ -11,6 +11,10 @@ import { BaseCustomFeature } from './base-custom-feature';
 export class CustomFeatureSlider extends BaseCustomFeature {
 	@state() thumbOffset: number = 0;
 	@state() sliderOn: boolean = true;
+	@state() width: number = this.clientWidth;
+	resizeObserver: ResizeObserver = new ResizeObserver(() => {
+		this.width = this.clientWidth;
+	});
 
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
@@ -107,11 +111,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	setThumbOffset() {
 		const thumbWidth =
 			this.shadowRoot?.querySelector('.thumb')?.clientWidth ?? 12;
-		const maxOffset = (this.clientWidth - thumbWidth) / 2;
+		const maxOffset = (this.width - thumbWidth) / 2;
 		this.thumbOffset = Math.min(
 			Math.max(
 				Math.round(
-					((this.clientWidth - thumbWidth) /
+					((this.width - thumbWidth) /
 						(this.range[1] - this.range[0])) *
 						(((this.value as number) ?? this.range[0]) -
 							(this.range[0] + this.range[1]) / 2),
@@ -265,6 +269,15 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		`;
 	}
 
+	shouldUpdate(changedProperties: PropertyValues): boolean {
+		return (
+			super.shouldUpdate(changedProperties) ||
+			changedProperties.has('thumbOffset') ||
+			changedProperties.has('sliderOn') ||
+			changedProperties.has('width')
+		);
+	}
+
 	firstUpdated(changedProperties: PropertyValues) {
 		super.firstUpdated(changedProperties);
 
@@ -297,15 +310,23 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			) as HTMLElement;
 			if (iconlabel) {
 				const width = iconlabel.clientWidth ?? 0;
-				if (
-					Math.floor(this.clientWidth / 2 + this.thumbOffset) < width
-				) {
+				if (Math.floor(this.width / 2 + this.thumbOffset) < width) {
 					iconlabel.className = 'icon-label inactive';
 				} else {
 					iconlabel.className = 'icon-label active';
 				}
 			}
 		}
+	}
+
+	connectedCallback() {
+		super.connectedCallback();
+		this.resizeObserver.observe(this);
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.resizeObserver.disconnect();
 	}
 
 	async onKeyDown(e: KeyboardEvent) {

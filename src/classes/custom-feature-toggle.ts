@@ -10,8 +10,13 @@ import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-toggle')
 export class CustomFeatureToggle extends BaseCustomFeature {
-	@state() thumbWidth: number = 0;
 	@state() checked: boolean = false;
+	@state() thumbWidth: number = (this.clientWidth || 0) / 2;
+	@state() width: number = this.clientWidth;
+	resizeObserver: ResizeObserver = new ResizeObserver(() => {
+		this.width = this.clientWidth;
+	});
+
 	direction?: 'left' | 'right';
 	thumbType: ToggleThumbType = 'default';
 
@@ -30,7 +35,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 						),
 					) == 'true'
 				) {
-					const swipeSensitivity = this.clientWidth - this.thumbWidth;
+					const swipeSensitivity = this.width - this.thumbWidth;
 					if (
 						Math.abs((this.currentX ?? 0) - (this.initialX ?? 0)) <
 						swipeSensitivity
@@ -232,7 +237,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 			) == 'true';
 		let fullSwipeStyles = '';
 		if (fullSwipe) {
-			const maxTranslate = 100 * (this.clientWidth / this.thumbWidth - 1);
+			const maxTranslate = 100 * (this.width / this.thumbWidth - 1);
 			if (!this.swiping && this.initialX && this.initialY) {
 				fullSwipeStyles = `
 					.thumb {
@@ -300,6 +305,38 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		}
 
 		return html`${toggle}${buildStyles(this.styles)}`;
+	}
+
+	shouldUpdate(changedProperties: PropertyValues) {
+		const should = super.shouldUpdate(changedProperties);
+
+		if (changedProperties.has('hass')) {
+			const checkedIcon = this.renderTemplate(
+				this.config.checked_icon as string,
+			) as string;
+
+			const uncheckedIcon = this.renderTemplate(
+				this.config.unchecked_icon as string,
+			) as string;
+
+			if (
+				checkedIcon != this.checkedIcon ||
+				uncheckedIcon != this.uncheckedIcon
+			) {
+				this.checkedIcon = checkedIcon;
+				this.uncheckedIcon = uncheckedIcon;
+				return true;
+			}
+		}
+
+		return (
+			changedProperties.has('checked') ||
+			changedProperties.has('thumbWidth') ||
+			changedProperties.has('width') ||
+			changedProperties.has('deltaX') ||
+			/deltaX|initialX|currentX/.test(this.config.styles ?? '') ||
+			should
+		);
 	}
 
 	firstUpdated(changedProperties: PropertyValues) {
@@ -387,33 +424,14 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		}
 	}
 
-	shouldUpdate(changedProperties: PropertyValues) {
-		const should = super.shouldUpdate(changedProperties);
+	connectedCallback() {
+		super.connectedCallback();
+		this.resizeObserver.observe(this);
+	}
 
-		if (changedProperties.has('hass')) {
-			const checkedIcon = this.renderTemplate(
-				this.config.checked_icon as string,
-			) as string;
-
-			const uncheckedIcon = this.renderTemplate(
-				this.config.unchecked_icon as string,
-			) as string;
-
-			if (
-				checkedIcon != this.checkedIcon ||
-				uncheckedIcon != this.uncheckedIcon
-			) {
-				this.checkedIcon = checkedIcon;
-				this.uncheckedIcon = uncheckedIcon;
-				return true;
-			}
-		}
-
-		return (
-			changedProperties.has('deltaX') ||
-			/deltaX|initialX|currentX/.test(this.config.styles ?? '') ||
-			should
-		);
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.resizeObserver.disconnect();
 	}
 
 	static get styles(): CSSResult | CSSResult[] {
