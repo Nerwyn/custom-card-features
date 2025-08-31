@@ -1,14 +1,17 @@
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 import { HomeAssistant, ICustomFeatureCardConfig } from './models/interfaces';
 import { buildStyles } from './utils/styles';
 
 import './custom-features-card-editor';
+import { CustomFeaturesRow } from './custom-features-row';
 
 export class CustomFeaturesCard extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: ICustomFeatureCardConfig;
+
+	styles: string = '';
 
 	static getConfigElement() {
 		return document.createElement('custom-features-card-editor');
@@ -57,15 +60,6 @@ export class CustomFeaturesCard extends LitElement {
 		}
 	}
 
-	buildStyles(styles?: string, context?: object) {
-		const rendered = this.renderTemplate(
-			styles as string,
-			context,
-		) as string;
-
-		return buildStyles(rendered);
-	}
-
 	render() {
 		return html`<ha-card
 				>${this.config.features.map(
@@ -76,7 +70,36 @@ export class CustomFeaturesCard extends LitElement {
 						></service-call>`,
 				)}</ha-card
 			>
-			${this.buildStyles(this.config.styles)}`;
+			${buildStyles(this.styles)}`;
+	}
+
+	shouldUpdate(changedProperties: PropertyValues) {
+		if (changedProperties.has('hass')) {
+			const styles = this.renderTemplate(
+				this.config.styles as string,
+			) as string;
+
+			if (styles != this.styles) {
+				this.styles = styles;
+				return true;
+			}
+		}
+
+		if (changedProperties.has('config')) {
+			return (
+				JSON.stringify(this.config) !=
+				JSON.stringify(changedProperties.get('config'))
+			);
+		}
+
+		// Update child hass objects if not updating
+		const children =
+			this.shadowRoot?.querySelectorAll('service-call') ?? [];
+		for (const child of children) {
+			(child as CustomFeaturesRow).hass = this.hass;
+		}
+
+		return false;
 	}
 
 	static get styles() {

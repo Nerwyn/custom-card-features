@@ -27,7 +27,7 @@ console.info(
 	'color: white; font-weight: bold; background: cornflowerblue',
 );
 
-class CustomFeaturesRow extends LitElement {
+export class CustomFeaturesRow extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: IConfig;
 	@property() context?: Record<'entity_id' | 'area_id', string>;
