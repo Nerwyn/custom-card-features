@@ -1,6 +1,6 @@
 import packageInfo from '../package.json';
 
-import { LitElement, TemplateResult, css, html } from 'lit';
+import { LitElement, PropertyValues, TemplateResult, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
@@ -8,6 +8,7 @@ import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { CardFeatureType, HomeAssistant } from './models/interfaces';
 
+import { BaseCustomFeature } from './classes/base-custom-feature';
 import './classes/custom-feature-dropdown';
 import './classes/custom-feature-input';
 import './classes/custom-feature-selector';
@@ -31,6 +32,9 @@ class CustomFeaturesRow extends LitElement {
 	@property() config!: IConfig;
 	@property() context?: Record<'entity_id' | 'area_id', string>;
 	@property() stateObj?: HassEntity & Record<'area_id', string>;
+
+	styles: string = '';
+	entryTypes: CardFeatureType[] = [];
 
 	rtl: boolean = false;
 
@@ -83,15 +87,6 @@ class CustomFeaturesRow extends LitElement {
 		}
 	}
 
-	buildStyles(styles?: string, context?: object) {
-		const rendered = this.renderTemplate(
-			styles as string,
-			context,
-		) as string;
-
-		return buildStyles(rendered);
-	}
-
 	render() {
 		if (!this.config || !this.hass) {
 			return null;
@@ -108,28 +103,8 @@ class CustomFeaturesRow extends LitElement {
 		}
 
 		const row: TemplateResult[] = [];
-		for (const entry of this.config.entries) {
-			const context = {
-				config: {
-					...entry,
-					entity: '',
-					attribute: '',
-					stateObj: this.stateObj,
-				},
-			};
-			context.config.entity = this.renderTemplate(
-				entry.entity_id ?? '',
-				context,
-			) as string;
-			context.config.attribute = this.renderTemplate(
-				entry.value_attribute ?? 'state',
-				context,
-			) as string;
-
-			const entryType = String(
-				this.renderTemplate(entry.type as string, context) ?? 'button',
-			).toLowerCase() as CardFeatureType;
-			switch (entryType) {
+		for (const [i, entry] of this.config.entries.entries()) {
+			switch (this.entryTypes[i]) {
 				case 'toggle':
 					row.push(
 						html`<custom-feature-toggle
@@ -197,11 +172,6 @@ class CustomFeaturesRow extends LitElement {
 			}
 		}
 
-		const context = {
-			config: { ...this.config, entity: this.stateObj?.entity_id },
-			stateObj: this.stateObj,
-		};
-
 		const version = this.hass.config.version;
 		return html`<div
 				class="row ${classMap({
@@ -210,7 +180,79 @@ class CustomFeaturesRow extends LitElement {
 			>
 				${row}
 			</div>
-			${this.buildStyles(this.config.styles, context)}`;
+			${buildStyles(this.styles)}`;
+	}
+
+	shouldUpdate(changedProperties: PropertyValues) {
+		if (
+			changedProperties.has('hass') ||
+			changedProperties.has('context') ||
+			changedProperties.has('stateObj')
+		) {
+			const context = {
+				config: { ...this.config, entity: this.stateObj?.entity_id },
+				stateObj: this.stateObj,
+			};
+			const styles = this.renderTemplate(
+				this.config.styles as string,
+				context,
+			) as string;
+
+			const entryTypes: CardFeatureType[] = [];
+			for (const entry of this.config.entries) {
+				const context = {
+					config: {
+						...entry,
+						entity: '',
+						attribute: '',
+						stateObj: this.stateObj,
+					},
+				};
+				context.config.entity = this.renderTemplate(
+					entry.entity_id ?? '',
+					context,
+				) as string;
+				context.config.attribute = this.renderTemplate(
+					entry.value_attribute ?? 'state',
+					context,
+				) as string;
+
+				entryTypes.push(
+					String(
+						this.renderTemplate(entry.type as string, context) ??
+							'button',
+					).toLowerCase() as CardFeatureType,
+				);
+			}
+
+			if (
+				styles != this.styles ||
+				entryTypes.toString() != this.entryTypes.toString()
+			) {
+				this.styles = styles;
+				this.entryTypes = entryTypes;
+				return true;
+			}
+		}
+
+		if (changedProperties.has('config')) {
+			return (
+				JSON.stringify(this.config) !=
+				JSON.stringify(changedProperties.get('config'))
+			);
+		}
+
+		// Update child hass objects if not updating
+		const children = (this.shadowRoot?.querySelector('.row') as HTMLElement)
+			.children;
+		for (const child of children) {
+			(child as BaseCustomFeature).hass = this.hass;
+			if (this.stateObj) {
+				(child as BaseCustomFeature).stateObj = this.stateObj;
+			}
+		}
+
+		return false;
 	}
 
 	static get styles() {
