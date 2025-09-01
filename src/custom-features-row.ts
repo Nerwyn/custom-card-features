@@ -89,17 +89,7 @@ export class CustomFeaturesRow extends LitElement {
 
 	render() {
 		if (!this.config || !this.hass) {
-			return null;
-		}
-
-		this.stateObj = {
-			...this.stateObj,
-			area_id: this.context?.area_id,
-		} as HassEntity & Record<'area_id', string>;
-
-		this.rtl = getComputedStyle(this).direction == 'rtl';
-		if (this.rtl) {
-			this.setAttribute('dir', 'rtl');
+			return html``;
 		}
 
 		const row: TemplateResult[] = [];
@@ -181,6 +171,18 @@ export class CustomFeaturesRow extends LitElement {
 				${row}
 			</div>
 			${buildStyles(this.styles)}`;
+	}
+
+	willUpdate() {
+		this.stateObj = {
+			...this.stateObj,
+			area_id: this.context?.area_id,
+		} as HassEntity & Record<'area_id', string>;
+
+		this.rtl = getComputedStyle(this).direction == 'rtl';
+		if (this.rtl) {
+			this.setAttribute('dir', 'rtl');
+		}
 	}
 
 	shouldUpdate(changedProperties: PropertyValues) {
