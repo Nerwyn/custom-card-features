@@ -320,9 +320,12 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					),
 				) == 'true';
 
-			const thumbType = this.renderTemplate(
+			let thumbType = this.renderTemplate(
 				this.config.thumb as string,
 			) as ToggleThumbType;
+			thumbType = ToggleThumbTypes.includes(thumbType)
+				? thumbType
+				: 'default';
 
 			if (
 				checkedIcon != this.checkedIcon ||
@@ -335,9 +338,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				this.uncheckedIcon = uncheckedIcon;
 				this.fullSwipe = fullSwipe;
 				this.swipeOnly = swipeOnly;
-				this.thumbType = ToggleThumbTypes.includes(thumbType)
-					? thumbType
-					: 'default';
+				this.thumbType = thumbType;
 				return true;
 			}
 		}

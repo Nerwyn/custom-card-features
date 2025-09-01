@@ -28,6 +28,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			Math.min(Number(value) ?? this.range[0], this.range[1]),
 			this.range[0],
 		);
+		if (isNaN(value)) {
+			value = this.range[0];
+		}
 		if (!this.precision) {
 			value = Math.trunc(value as number);
 		}
@@ -237,17 +240,19 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			changedProperties.has('stateObj') ||
 			changedProperties.has('value')
 		) {
-			const min = parseFloat(
-				(this.renderTemplate(
-					this.config.range?.[0] as unknown as string,
-				) as string) ?? RANGE_MIN,
-			);
+			const min =
+				parseFloat(
+					this.renderTemplate(
+						this.config.range?.[0] as unknown as string,
+					) as string,
+				) || RANGE_MIN;
 
-			const max = parseFloat(
-				(this.renderTemplate(
-					this.config.range?.[1] as unknown as string,
-				) as string) ?? RANGE_MAX,
-			);
+			const max =
+				parseFloat(
+					this.renderTemplate(
+						this.config.range?.[1] as unknown as string,
+					) as string,
+				) || RANGE_MAX;
 
 			let step = Number(
 				this.renderTemplate(this.config.step as unknown as string),
@@ -262,9 +267,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				precision = splitStep[1].length;
 			}
 
-			const thumbType = this.renderTemplate(
+			let thumbType = this.renderTemplate(
 				this.config.thumb as string,
 			) as SliderThumbType;
+			thumbType = SliderThumbTypes.includes(thumbType)
+				? thumbType
+				: 'default';
 
 			const ticks =
 				String(this.renderTemplate(this.config.ticks ?? 'false')) ==
@@ -281,9 +289,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				this.range = [min, max];
 				this.step = step;
 				this.precision = precision;
-				this.thumbType = SliderThumbTypes.includes(thumbType)
-					? thumbType
-					: 'default';
+				this.thumbType = thumbType;
 				this.ticks = ticks;
 				return true;
 			}

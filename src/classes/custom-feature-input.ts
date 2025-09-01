@@ -159,37 +159,35 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			) as string;
 			switch (this.thumb) {
 				case 'date':
-					min ??= DATE_MIN;
-					max ??= DATE_MAX;
+					min ||= DATE_MIN;
+					max ||= DATE_MAX;
 					break;
 				case 'time':
-					min ??= TIME_MIN;
-					max ??= TIME_MAX;
+					min ||= TIME_MIN;
+					max ||= TIME_MAX;
 					break;
 				case 'datetime-local':
-					min ??= DATETIME_MIN;
-					max ??= DATETIME_MAX;
+					min ||= DATETIME_MIN;
+					max ||= DATETIME_MAX;
 					break;
 				case 'week':
-					min ??= WEEK_MIN;
-					max ??= WEEK_MAX;
+					min ||= WEEK_MIN;
+					max ||= WEEK_MAX;
 					break;
 				case 'month':
-					min ??= MONTH_MIN;
-					max ??= MONTH_MAX;
+					min ||= MONTH_MIN;
+					max ||= MONTH_MAX;
 					break;
 				case 'color':
-					min ??= COLOR_MIN;
-					max ??= COLOR_MAX;
+					min ||= COLOR_MIN;
+					max ||= COLOR_MAX;
 					break;
 				case 'text':
 				case 'password':
 				case 'number':
 				default:
-					min ??= RANGE_MIN;
-					max ??= RANGE_MAX;
-					min = parseFloat(min as string);
-					max = parseFloat(max as string);
+					min = parseFloat(min) || RANGE_MIN;
+					max = parseFloat(max) || RANGE_MAX;
 					break;
 			}
 
@@ -200,12 +198,11 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			);
 			if (!step || isNaN(step) || step <= 0) {
 				switch (this.thumb) {
-					case 'text':
-					case 'password':
 					case 'number':
 						step = ((max as number) - (min as number)) / STEP_COUNT;
 						break;
 					default:
+						step = STEP;
 						break;
 				}
 			}
@@ -225,6 +222,8 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			) {
 				this.thumb = thumb;
 				this.range = [min, max] as [number, number] | [string, string];
+				this.step = step;
+				this.precision = precision;
 				return true;
 			}
 		}

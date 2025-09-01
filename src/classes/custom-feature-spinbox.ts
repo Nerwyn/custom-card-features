@@ -263,17 +263,19 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 			changedProperties.has('stateObj') ||
 			changedProperties.has('value')
 		) {
-			const min = parseFloat(
-				(this.renderTemplate(
-					this.config.range?.[0] as unknown as string,
-				) as string) ?? RANGE_MIN,
-			);
+			const min =
+				parseFloat(
+					this.renderTemplate(
+						this.config.range?.[0] as unknown as string,
+					) as string,
+				) || RANGE_MIN;
 
-			const max = parseFloat(
-				(this.renderTemplate(
-					this.config.range?.[1] as unknown as string,
-				) as string) ?? RANGE_MAX,
-			);
+			const max =
+				parseFloat(
+					this.renderTemplate(
+						this.config.range?.[1] as unknown as string,
+					) as string,
+				) || RANGE_MAX;
 
 			let step = Number(
 				this.renderTemplate(this.config.step as unknown as string),
