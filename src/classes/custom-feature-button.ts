@@ -209,22 +209,21 @@ export class CustomFeatureButton extends BaseCustomFeature {
 	}
 
 	render() {
-		const button = html`<button
-			class=${`${this.className} background`}
-			part="button"
-			tabindex="-1"
-			@pointerdown=${this.onPointerDown}
-			@pointerup=${this.onPointerUp}
-			@pointermove=${this.onPointerMove}
-			@pointercancel=${this.onPointerCancel}
-			@pointerleave=${this.onPointerLeave}
-			@contextmenu=${this.onContextMenu}
-		>
-			${this.buildRipple()}
-		</button>`;
-
-		return html`${button}${this.buildIcon(this.icon)}
-		${this.buildLabel(this.label)}${buildStyles(this.styles)}`;
+		return html`<button
+				class=${`${this.className} background`}
+				part="button"
+				tabindex="-1"
+				@pointerdown=${this.onPointerDown}
+				@pointerup=${this.onPointerUp}
+				@pointermove=${this.onPointerMove}
+				@pointercancel=${this.onPointerCancel}
+				@pointerleave=${this.onPointerLeave}
+				@contextmenu=${this.onContextMenu}
+			>
+				${this.buildRipple()}
+			</button>
+			${this.buildIcon(this.icon)}
+			${this.buildLabel(this.label)}${buildStyles(this.styles)}`;
 	}
 
 	static get styles() {

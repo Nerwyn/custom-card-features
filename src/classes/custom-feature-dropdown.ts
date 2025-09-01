@@ -51,52 +51,6 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 	}
 
 	render() {
-		// Dropdown position and height
-		if (this.open) {
-			// Calculate dropdown height without vertical scroll
-			let optionHeight = parseInt(
-				this.style
-					.getPropertyValue('--mdc-menu-item-height')
-					.replace(/D/g, ''),
-			);
-			optionHeight = isNaN(optionHeight) ? 48 : optionHeight;
-			const dropdownHeight0 =
-				optionHeight * (this.config.options?.length ?? 0) + 16;
-
-			// Determine dropdown direction
-			const rect = this.getBoundingClientRect();
-			const edgeOffset = 32;
-			let down = true;
-			if (
-				// If dropdown is too large
-				dropdownHeight0 >
-					window.innerHeight - edgeOffset - rect.bottom &&
-				// If dropdown is on lower half of window
-				rect.top + rect.bottom > window.innerHeight
-			) {
-				down = false;
-			}
-
-			const dropdownElement = this.shadowRoot?.querySelector(
-				'.dropdown',
-			) as HTMLElement;
-			dropdownElement.style.setProperty(
-				'max-height',
-				`${(down ? window.innerHeight - rect.bottom : rect.top) - edgeOffset - 16}px`,
-			);
-			this.rtl
-				? dropdownElement.style.setProperty(
-						'right',
-						`${window.innerWidth - rect.right}px`,
-					)
-				: dropdownElement.style.setProperty('left', `${rect.left}px`);
-			dropdownElement.style.setProperty(
-				down ? 'top' : 'bottom',
-				`${down ? rect.bottom : window.innerHeight - rect.top}px`,
-			);
-			dropdownElement.style.removeProperty(down ? 'bottom' : 'top');
-		}
-
 		const dropdownOptions = [];
 		const options = this.config.options ?? [];
 		let selectedOption: IEntry | undefined = undefined;
@@ -123,6 +77,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				/>
 			`);
 		}
+
 		const dropdown = html`<div
 			class="dropdown ${this.open ? '' : 'collapsed'}"
 			part="dropdown"
@@ -207,7 +162,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 			}
 		}
 
-		if (should) {
+		if (should || changedProperties.has('open')) {
 			return true;
 		}
 
@@ -245,6 +200,55 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				} else {
 					optionElements[i].removeAttribute('tabindex');
 				}
+			}
+
+			// Open dropdown position and height
+			if (this.open) {
+				// Calculate dropdown height without vertical scroll
+				let optionHeight = parseInt(
+					this.style
+						.getPropertyValue('--mdc-menu-item-height')
+						.replace(/D/g, ''),
+				);
+				optionHeight = isNaN(optionHeight) ? 48 : optionHeight;
+				const dropdownHeight0 =
+					optionHeight * (this.config.options?.length ?? 0) + 16;
+
+				// Determine dropdown direction
+				const rect = this.getBoundingClientRect();
+				const edgeOffset = 32;
+				let down = true;
+				if (
+					// If dropdown is too large
+					dropdownHeight0 >
+						window.innerHeight - edgeOffset - rect.bottom &&
+					// If dropdown is on lower half of window
+					rect.top + rect.bottom > window.innerHeight
+				) {
+					down = false;
+				}
+
+				const dropdownElement = this.shadowRoot?.querySelector(
+					'.dropdown',
+				) as HTMLElement;
+				dropdownElement.style.setProperty(
+					'max-height',
+					`${(down ? window.innerHeight - rect.bottom : rect.top) - edgeOffset - 16}px`,
+				);
+				this.rtl
+					? dropdownElement.style.setProperty(
+							'right',
+							`${window.innerWidth - rect.right}px`,
+						)
+					: dropdownElement.style.setProperty(
+							'left',
+							`${rect.left}px`,
+						);
+				dropdownElement.style.setProperty(
+					down ? 'top' : 'bottom',
+					`${down ? rect.bottom : window.innerHeight - rect.top}px`,
+				);
+				dropdownElement.style.removeProperty(down ? 'bottom' : 'top');
 			}
 		}
 	}

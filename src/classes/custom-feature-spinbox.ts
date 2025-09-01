@@ -1,7 +1,12 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-import { DEBOUNCE_TIME } from '../models/constants';
+import {
+	DEBOUNCE_TIME,
+	RANGE_MAX,
+	RANGE_MIN,
+	STEP_COUNT,
+} from '../models/constants';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 import './custom-feature-button';
@@ -183,43 +188,6 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 	}
 
 	render() {
-		if (this.config.range) {
-			this.range = [
-				parseFloat(
-					this.renderTemplate(
-						this.config.range[0] as unknown as string,
-					) as string,
-				),
-				parseFloat(
-					this.renderTemplate(
-						this.config.range[1] as unknown as string,
-					) as string,
-				),
-			];
-		}
-
-		if (this.config.step) {
-			this.step = parseFloat(
-				this.renderTemplate(
-					this.config.step as unknown as string,
-				) as string,
-			);
-		}
-		const splitStep = this.step.toString().split('.');
-		if (splitStep.length > 1) {
-			this.precision = splitStep[1].length;
-		} else {
-			this.precision = 0;
-		}
-
-		if (this.config.debounce_time) {
-			this.debounceTime = parseFloat(
-				this.renderTemplate(
-					this.config.debounce_time as unknown as string,
-				) as string,
-			);
-		}
-
 		return html`
 			${this.buildBackground()}${this.buildButton('decrement')}
 			${this.buildIcon(this.icon)}${this.buildLabel(this.label)}
@@ -289,6 +257,58 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 
 	shouldUpdate(changedProperties: PropertyValues) {
 		const should = super.shouldUpdate(changedProperties);
+
+		if (
+			changedProperties.has('hass') ||
+			changedProperties.has('stateObj') ||
+			changedProperties.has('value')
+		) {
+			const min = parseFloat(
+				(this.renderTemplate(
+					this.config.range?.[0] as unknown as string,
+				) as string) ?? RANGE_MIN,
+			);
+
+			const max = parseFloat(
+				(this.renderTemplate(
+					this.config.range?.[1] as unknown as string,
+				) as string) ?? RANGE_MAX,
+			);
+
+			let step = Number(
+				this.renderTemplate(this.config.step as unknown as string),
+			);
+			if (!step || isNaN(step) || step <= 0) {
+				step = (max - min) / STEP_COUNT;
+			}
+
+			const splitStep = step.toString().split('.');
+			let precision = 0;
+			if (splitStep.length > 1) {
+				precision = splitStep[1].length;
+			}
+
+			const debounceTime = parseFloat(
+				(this.renderTemplate(
+					this.config.debounce_time as unknown as string,
+				) as string) ?? DEBOUNCE_TIME,
+			);
+
+			if (
+				min != this.range[0] ||
+				max != this.range[1] ||
+				step != this.step ||
+				precision != this.precision ||
+				debounceTime != this.debounceTime
+			) {
+				this.range = [min, max];
+				this.step = step;
+				this.precision = precision;
+				this.debounceTime = debounceTime;
+				return true;
+			}
+		}
+
 		if (should) {
 			return true;
 		}

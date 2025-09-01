@@ -18,8 +18,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
-
 	thumbType: SliderThumbType = 'default';
+	ticks: boolean = false;
 
 	pressedTimeout?: ReturnType<typeof setTimeout>;
 
@@ -142,9 +142,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	buildTicks() {
-		if (
-			String(this.renderTemplate(this.config.ticks ?? 'false')) == 'true'
-		) {
+		if (this.ticks) {
 			const values = [];
 			for (let i = this.range[0]; i <= this.range[1]; i += this.step) {
 				values.push(i);
@@ -207,49 +205,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	render() {
-		if (this.config.range) {
-			this.range[0] = parseFloat(
-				(this.renderTemplate(
-					this.config.range[0] as unknown as string,
-				) as string) ?? RANGE_MIN,
-			);
-			this.range[1] = parseFloat(
-				(this.renderTemplate(
-					this.config.range[1] as unknown as string,
-				) as string) ?? RANGE_MAX,
-			);
-		}
-
-		if (this.config.step) {
-			this.step = parseFloat(
-				this.renderTemplate(
-					this.config.step as unknown as string,
-				) as string,
-			);
-		} else {
-			this.step = (this.range[1] - this.range[0]) / STEP_COUNT;
-		}
-		const splitStep = this.step.toString().split('.');
-		if (splitStep.length > 1) {
-			this.precision = splitStep[1].length;
-		} else {
-			this.precision = 0;
-		}
-
-		let thumbType = this.renderTemplate(
-			this.config.thumb as string,
-		) as SliderThumbType;
-		this.thumbType = SliderThumbTypes.includes(thumbType)
-			? thumbType
-			: 'default';
-		this.setSliderState();
-		this.setThumbOffset();
-
-		this.style.setProperty(
-			'--tooltip-label',
-			`'${this.renderTemplate('{{ value }}{{ unit }}')}'`,
-		);
-
 		return html`
 			<div
 				class="container ${classMap({
@@ -269,9 +224,73 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		`;
 	}
 
+	willUpdate() {
+		this.setSliderState();
+		this.setThumbOffset();
+	}
+
 	shouldUpdate(changedProperties: PropertyValues): boolean {
+		const should = super.shouldUpdate(changedProperties);
+
+		if (
+			changedProperties.has('hass') ||
+			changedProperties.has('stateObj') ||
+			changedProperties.has('value')
+		) {
+			const min = parseFloat(
+				(this.renderTemplate(
+					this.config.range?.[0] as unknown as string,
+				) as string) ?? RANGE_MIN,
+			);
+
+			const max = parseFloat(
+				(this.renderTemplate(
+					this.config.range?.[1] as unknown as string,
+				) as string) ?? RANGE_MAX,
+			);
+
+			let step = Number(
+				this.renderTemplate(this.config.step as unknown as string),
+			);
+			if (!step || isNaN(step) || step <= 0) {
+				step = (max - min) / STEP_COUNT;
+			}
+
+			const splitStep = step.toString().split('.');
+			let precision = 0;
+			if (splitStep.length > 1) {
+				precision = splitStep[1].length;
+			}
+
+			const thumbType = this.renderTemplate(
+				this.config.thumb as string,
+			) as SliderThumbType;
+
+			const ticks =
+				String(this.renderTemplate(this.config.ticks ?? 'false')) ==
+				'true';
+
+			if (
+				min != this.range[0] ||
+				max != this.range[1] ||
+				step != this.step ||
+				precision != this.precision ||
+				thumbType != this.thumbType ||
+				ticks != this.ticks
+			) {
+				this.range = [min, max];
+				this.step = step;
+				this.precision = precision;
+				this.thumbType = SliderThumbTypes.includes(thumbType)
+					? thumbType
+					: 'default';
+				this.ticks = ticks;
+				return true;
+			}
+		}
+
 		return (
-			super.shouldUpdate(changedProperties) ||
+			should ||
 			changedProperties.has('thumbOffset') ||
 			changedProperties.has('sliderOn') ||
 			changedProperties.has('width')
@@ -292,6 +311,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 	updated(changedProperties: PropertyValues) {
 		super.updated(changedProperties);
+
+		this.style.setProperty(
+			'--tooltip-label',
+			`'${this.renderTemplate('{{ value }}{{ unit }}')}'`,
+		);
 
 		// Set readonly if action is none
 		if (

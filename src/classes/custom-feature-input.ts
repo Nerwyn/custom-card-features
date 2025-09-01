@@ -102,96 +102,6 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	async onKeyUp(_e: KeyboardEvent) {}
 
 	render() {
-		this.thumb = this.renderTemplate(
-			this.config.thumb ?? 'text',
-		) as InputType;
-
-		let min: string | number;
-		let max: string | number;
-		switch (this.thumb) {
-			case 'date':
-				min = DATE_MIN;
-				max = DATE_MAX;
-				break;
-			case 'time':
-				min = TIME_MIN;
-				max = TIME_MAX;
-				break;
-			case 'datetime-local':
-				min = DATETIME_MIN;
-				max = DATETIME_MAX;
-				break;
-			case 'week':
-				min = WEEK_MIN;
-				max = WEEK_MAX;
-				break;
-			case 'month':
-				min = MONTH_MIN;
-				max = MONTH_MAX;
-				break;
-			case 'color':
-				min = COLOR_MIN;
-				max = COLOR_MAX;
-				break;
-			case 'text':
-			case 'password':
-			case 'number':
-			default:
-				min = RANGE_MIN;
-				max = RANGE_MAX;
-				break;
-		}
-
-		if (this.config.range) {
-			const range = [
-				(this.renderTemplate(
-					this.config.range[0] as unknown as string,
-				) as string) ?? min,
-				(this.renderTemplate(
-					this.config.range[1] as unknown as string,
-				) as string) ?? max,
-			];
-			switch (this.thumb) {
-				case 'text':
-				case 'password':
-				case 'number':
-					this.range = [parseFloat(range[0]), parseFloat(range[1])];
-					break;
-				default:
-					this.range = range as [string, string];
-					break;
-			}
-		} else {
-			this.range = [min, max] as [number, number] | [string, string];
-		}
-
-		if (this.config.step) {
-			this.step = parseFloat(
-				this.renderTemplate(
-					this.config.step as unknown as string,
-				) as string,
-			);
-		} else {
-			switch (this.thumb) {
-				case 'text':
-				case 'password':
-				case 'number':
-					this.step =
-						((this.range[1] as number) -
-							(this.range[0] as number)) /
-						STEP_COUNT;
-					break;
-				default:
-					break;
-			}
-		}
-		const splitStep = this.step.toString().split('.');
-		if (splitStep.length > 1) {
-			this.precision = splitStep[1].length;
-		} else {
-			this.precision = 0;
-		}
-
 		const input = html`
 			<input
 				type="${this.thumb}"
@@ -200,7 +110,9 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				enterkeyhint="done"
 				autocomplete="off"
 				min="${this.range[0]}"
+				minlength="${this.range[0]}"
 				max="${this.range[1]}"
+				maxlength="${this.range[1]}"
 				step="${this.step}"
 				value="${this.value ?? ''}"
 				.value="${this.value ?? ''}"
@@ -225,6 +137,99 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			<div class="line-ripple" part="ripple"></div>
 			${buildStyles(this.styles)}
 		`;
+	}
+
+	shouldUpdate(changedProperties: PropertyValues) {
+		const should = super.shouldUpdate(changedProperties);
+
+		if (
+			changedProperties.has('hass') ||
+			changedProperties.has('stateObj') ||
+			changedProperties.has('value')
+		) {
+			const thumb = this.renderTemplate(
+				this.config.thumb ?? 'text',
+			) as InputType;
+
+			let min: string | number = this.renderTemplate(
+				this.config.range?.[0] as unknown as string,
+			) as string;
+			let max: string | number = this.renderTemplate(
+				this.config.range?.[1] as unknown as string,
+			) as string;
+			switch (this.thumb) {
+				case 'date':
+					min ??= DATE_MIN;
+					max ??= DATE_MAX;
+					break;
+				case 'time':
+					min ??= TIME_MIN;
+					max ??= TIME_MAX;
+					break;
+				case 'datetime-local':
+					min ??= DATETIME_MIN;
+					max ??= DATETIME_MAX;
+					break;
+				case 'week':
+					min ??= WEEK_MIN;
+					max ??= WEEK_MAX;
+					break;
+				case 'month':
+					min ??= MONTH_MIN;
+					max ??= MONTH_MAX;
+					break;
+				case 'color':
+					min ??= COLOR_MIN;
+					max ??= COLOR_MAX;
+					break;
+				case 'text':
+				case 'password':
+				case 'number':
+				default:
+					min ??= RANGE_MIN;
+					max ??= RANGE_MAX;
+					min = parseFloat(min as string);
+					max = parseFloat(max as string);
+					break;
+			}
+
+			let step = parseFloat(
+				this.renderTemplate(
+					this.config.step as unknown as string,
+				) as string,
+			);
+			if (!step || isNaN(step) || step <= 0) {
+				switch (this.thumb) {
+					case 'text':
+					case 'password':
+					case 'number':
+						step = ((max as number) - (min as number)) / STEP_COUNT;
+						break;
+					default:
+						break;
+				}
+			}
+
+			const splitStep = this.step.toString().split('.');
+			let precision = 0;
+			if (splitStep.length > 1) {
+				precision = splitStep[1].length;
+			}
+
+			if (
+				thumb != this.thumb ||
+				min != this.range[0] ||
+				max != this.range[1] ||
+				step != this.step ||
+				precision != this.precision
+			) {
+				this.thumb = thumb;
+				this.range = [min, max] as [number, number] | [string, string];
+				return true;
+			}
+		}
+
+		return should;
 	}
 
 	firstUpdated(changedProperties: PropertyValues) {

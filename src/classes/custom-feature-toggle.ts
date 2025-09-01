@@ -3,6 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 import {
 	CheckedValues,
 	ToggleThumbType,
+	ToggleThumbTypes,
 	UncheckedValues,
 } from '../models/interfaces';
 import { buildStyles } from '../utils/styles';
@@ -19,6 +20,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 
 	direction?: 'left' | 'right';
 	thumbType: ToggleThumbType = 'default';
+	fullSwipe: boolean = false;
+	swipeOnly: boolean = false;
 
 	checkedIcon: string = '';
 	uncheckedIcon: string = '';
@@ -28,13 +31,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		if (!this.swiping && this.initialX && this.initialY) {
 			if (this.direction) {
 				// Reject non-full width swipes if enabled
-				if (
-					String(
-						this.renderTemplate(
-							String(this.config.full_swipe ?? false),
-						),
-					) == 'true'
-				) {
+				if (this.fullSwipe) {
 					const swipeSensitivity = this.width - this.thumbWidth;
 					if (
 						Math.abs((this.currentX ?? 0) - (this.initialX ?? 0)) <
@@ -53,13 +50,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					this.resetGetValueFromHass();
 					return;
 				}
-			} else if (
-				String(
-					this.renderTemplate(
-						String(this.config.swipe_only ?? false),
-					),
-				) == 'true'
-			) {
+			} else if (this.swipeOnly) {
 				this.endAction();
 				this.resetGetValueFromHass();
 				return;
@@ -231,12 +222,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 	}
 
 	buildDefaultToggle() {
-		const fullSwipe =
-			String(
-				this.renderTemplate(String(this.config.full_swipe ?? false)),
-			) == 'true';
 		let fullSwipeStyles = '';
-		if (fullSwipe) {
+		if (this.fullSwipe) {
 			const maxTranslate = 100 * (this.width / this.thumbWidth - 1);
 			if (!this.swiping && this.initialX && this.initialY) {
 				fullSwipeStyles = `
@@ -258,10 +245,9 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		}
 		return html`
 			<div
-				class="container default ${fullSwipe ? 'full-swipe' : ''} ${this
-					.checked
-					? 'on'
-					: 'off'}"
+				class="container default ${this.fullSwipe
+					? 'full-swipe'
+					: ''} ${this.checked ? 'on' : 'off'}"
 				part="default-switch"
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}
@@ -284,9 +270,6 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 	}
 
 	render() {
-		this.thumbType = this.renderTemplate(
-			this.config.thumb ?? 'default',
-		) as ToggleThumbType;
 		let toggle: TemplateResult<1>;
 		switch (this.thumbType) {
 			case 'md3-switch':
@@ -310,7 +293,11 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 	shouldUpdate(changedProperties: PropertyValues) {
 		const should = super.shouldUpdate(changedProperties);
 
-		if (changedProperties.has('hass')) {
+		if (
+			changedProperties.has('hass') ||
+			changedProperties.has('stateObj') ||
+			changedProperties.has('value')
+		) {
 			const checkedIcon = this.renderTemplate(
 				this.config.checked_icon as string,
 			) as string;
@@ -319,23 +306,49 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				this.config.unchecked_icon as string,
 			) as string;
 
+			const fullSwipe =
+				String(
+					this.renderTemplate(
+						String(this.config.full_swipe ?? false),
+					),
+				) == 'true';
+
+			const swipeOnly =
+				String(
+					this.renderTemplate(
+						String(this.config.swipe_only ?? false),
+					),
+				) == 'true';
+
+			const thumbType = this.renderTemplate(
+				this.config.thumb as string,
+			) as ToggleThumbType;
+
 			if (
 				checkedIcon != this.checkedIcon ||
-				uncheckedIcon != this.uncheckedIcon
+				uncheckedIcon != this.uncheckedIcon ||
+				fullSwipe != this.fullSwipe ||
+				swipeOnly != this.swipeOnly ||
+				thumbType != this.thumbType
 			) {
 				this.checkedIcon = checkedIcon;
 				this.uncheckedIcon = uncheckedIcon;
+				this.fullSwipe = fullSwipe;
+				this.swipeOnly = swipeOnly;
+				this.thumbType = ToggleThumbTypes.includes(thumbType)
+					? thumbType
+					: 'default';
 				return true;
 			}
 		}
 
 		return (
+			should ||
 			changedProperties.has('checked') ||
 			changedProperties.has('thumbWidth') ||
 			changedProperties.has('width') ||
 			changedProperties.has('deltaX') ||
-			/deltaX|initialX|currentX/.test(this.config.styles ?? '') ||
-			should
+			/deltaX|initialX|currentX/.test(this.config.styles ?? '')
 		);
 	}
 
