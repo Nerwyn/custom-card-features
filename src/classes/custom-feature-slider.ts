@@ -31,7 +31,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		if (isNaN(value)) {
 			value = this.range[0];
 		}
-		if (!this.precision) {
+		if (this.precision) {
+			value = Number(value.toFixed(this.precision));
+		} else {
 			value = Math.trunc(value as number);
 		}
 		this.value = value;
