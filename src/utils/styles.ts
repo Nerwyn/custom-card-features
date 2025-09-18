@@ -19,7 +19,7 @@ export function buildStyles(styles?: string): TemplateResult<1> {
 	// Initial check to avoid expensive regex for most user styles
 	if (importantStyles.includes('@keyframes')) {
 		const keyframeses = importantStyles.match(
-			/@keyframes .*?\s{(.|\s)*?}\s}/g,
+			/@keyframes\s.*?\s{(.|\r|\n)*?}\n}/g,
 		);
 		for (const keyframes of keyframeses ?? []) {
 			importantStyles = importantStyles.replace(
