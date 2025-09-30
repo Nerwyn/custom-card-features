@@ -53,19 +53,16 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 	render() {
 		const dropdownOptions = [];
 		const options = this.config.options ?? [];
-		let selectedOption: IEntry | undefined = undefined;
 		for (const option0 of options) {
 			const option = structuredClone(option0);
 			const optionName = String(
 				this.renderTemplate(option.option as string),
 			);
-			if (String(this.value) == optionName) {
-				selectedOption = option;
-			}
 
 			option.haptics = option.haptics ?? this.config.haptics;
 			option.label =
 				option.label || option.icon ? option.label : option.option;
+
 			dropdownOptions.push(html`
 				<custom-feature-dropdown-option
 					.hass=${this.hass}
@@ -99,11 +96,11 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				@pointerleave=${this.onPointerLeave}
 				@contextmenu=${this.onContextMenu}
 			>
-				${selectedOption
+				${this.selectedIcon || this.selectedLabel || this.selectedStyles
 					? html`${this.buildIcon(
-							selectedOption.icon,
-						)}${this.buildLabel(selectedOption.label)}${buildStyles(
-							selectedOption.styles,
+							this.selectedIcon,
+						)}${this.buildLabel(this.selectedLabel)}${buildStyles(
+							this.selectedStyles,
 						)}`
 					: ''}
 				${this.buildRipple()}
@@ -138,25 +135,36 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 
 			if (selectedOption) {
 				const selectedIcon = this.renderTemplate(
-					this.config.icon as string,
+					selectedOption.icon as string,
 				) as string;
 
 				const selectedLabel = this.renderTemplate(
-					this.config.label as string,
+					selectedOption.label as string,
 				) as string;
 
 				const selectedStyles = this.renderTemplate(
-					this.config.styles as string,
+					selectedOption.styles as string,
 				) as string;
 
 				if (
-					selectedIcon != this.icon ||
-					selectedLabel != this.label ||
-					selectedStyles != this.styles
+					selectedIcon != this.selectedIcon ||
+					selectedLabel != this.selectedLabel ||
+					selectedStyles != this.selectedStyles
 				) {
 					this.selectedIcon = selectedIcon;
 					this.selectedLabel = selectedLabel;
 					this.selectedStyles = selectedStyles;
+					return true;
+				}
+			} else {
+				if (
+					this.selectedIcon ||
+					this.selectedLabel ||
+					this.selectedStyles
+				) {
+					this.selectedIcon = '';
+					this.selectedLabel = '';
+					this.selectedStyles = '';
 					return true;
 				}
 			}
