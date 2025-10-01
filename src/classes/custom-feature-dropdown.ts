@@ -139,7 +139,9 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				) as string;
 
 				const selectedLabel = this.renderTemplate(
-					selectedOption.label as string,
+					(selectedOption.label || selectedOption.icon
+						? selectedOption.label
+						: (selectedOption as IOption).option) as string,
 				) as string;
 
 				const selectedStyles = this.renderTemplate(
