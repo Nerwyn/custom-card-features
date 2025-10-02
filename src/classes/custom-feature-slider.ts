@@ -552,11 +552,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 					--mdc-icon-size: 24px;
 					--on-active-track-color: var(
-						--md-slider-with-tick-marks-active-container-color,
+						--md-sys-color-on-primary,
 						var(--primary-background-color)
 					);
 					--on-inactive-track-color: var(
-						--md-slider-with-tick-marks-inactive-container-color,
+						--md-sys-color-on-secondary-container,
 						var(--primary-color)
 					);
 				}
@@ -567,7 +567,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						var(
 							--color,
 							var(
-								--md-slider-inactive-track-color,
+								--md-sys-color-secondary-container,
 								rgba(from var(--primary-color) r g b / 20%)
 							)
 						)
@@ -594,6 +594,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					translate: var(--thumb-translate);
 					transition: var(--thumb-transition);
 					pointer-events: none;
+					transition: scale
+						var(--md-sys-motion-expressive-spatial-default);
+				}
+				:host(:focus-visible) .md3-thumb,
+				:host([pressed]) .md3-thumb {
+					scale: 0.66667 1;
 				}
 				.md3-thumb-line {
 					content: '';
@@ -602,28 +608,22 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					border-radius: 4px;
 					background: var(
 						--color,
-						var(
-							--md-slider-active-track-color,
-							var(--primary-color)
-						)
+						var(--md-sys-color-primary, var(--primary-color))
 					);
 					transition: scale
 						var(--md-sys-motion-expressive-spatial-default);
 				}
-				:host(:focus-visible) .md3-thumb,
+				:host(:focus-visible) .md3-thumb-line,
 				:host([pressed]) .md3-thumb-line {
-					scale: 0.5 1;
+					scale: 0.75 1;
 				}
 				.md3-slider .thumb .active {
 					height: 100%;
 					background: var(
 						--color,
-						var(
-							--md-slider-active-track-color,
-							var(--primary-color)
-						)
+						var(--md-sys-color-primary, var(--primary-color))
 					);
-					inset-inline-end: 0;
+					inset-inline-end: 6px;
 				}
 				:host(:focus-visible):has(.md3-slider) {
 					box-shadow: none;
