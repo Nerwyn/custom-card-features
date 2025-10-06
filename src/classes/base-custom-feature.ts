@@ -475,41 +475,16 @@ export class BaseCustomFeature extends LitElement {
 			} else if (this.valueAttribute == 'state') {
 				this.value = this.hass.states[this.entityId].state;
 			} else {
-				let value:
+				const value = deepGet(
+					this.hass.states[this.entityId].attributes,
+					this.valueAttribute,
+				) as
 					| string
 					| number
 					| boolean
 					| string[]
 					| number[]
 					| undefined;
-				const indexMatch = this.valueAttribute.match(/\[\d+\]$/);
-				if (indexMatch) {
-					const index = parseInt(indexMatch[0].replace(/\[|\]/g, ''));
-					this.valueAttribute = this.valueAttribute.replace(
-						indexMatch[0],
-						'',
-					);
-					value =
-						this.hass.states[this.entityId].attributes[
-							this.valueAttribute
-						];
-					if (value && Array.isArray(value) && value.length) {
-						value = value[index];
-					} else {
-						value = undefined;
-					}
-				} else {
-					value =
-						this.hass.states[this.entityId].attributes[
-							this.valueAttribute
-						];
-				}
-				// console.log(
-				// 	deepGet(
-				// 		this.hass.states[this.entityId],
-				// 		this.valueAttribute,
-				// 	),
-				// );
 
 				if (value != undefined || this.valueAttribute == 'elapsed') {
 					switch (this.valueAttribute) {
