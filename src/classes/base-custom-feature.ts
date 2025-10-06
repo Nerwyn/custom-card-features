@@ -504,6 +504,12 @@ export class BaseCustomFeature extends LitElement {
 							this.valueAttribute
 						];
 				}
+				// console.log(
+				// 	deepGet(
+				// 		this.hass.states[this.entityId],
+				// 		this.valueAttribute,
+				// 	),
+				// );
 
 				if (value != undefined || this.valueAttribute == 'elapsed') {
 					switch (this.valueAttribute) {
@@ -679,9 +685,7 @@ export class BaseCustomFeature extends LitElement {
 			typeof value == 'number' &&
 			this.precision != undefined
 		) {
-			value = Number(value).toLocaleString(this.hass.language, {
-				minimumFractionDigits: this.precision,
-			});
+			value = Number(value).toFixed(this.precision);
 			context = {
 				...context,
 				value: value,
@@ -849,7 +853,7 @@ export class BaseCustomFeature extends LitElement {
 			const value = changedProperties.get('value') || this.value;
 			this.setValue();
 
-			const unitOfMeasurement =
+			this.unitOfMeasurement =
 				(this.renderTemplate(
 					this.config.unit_of_measurement as string,
 				) as string) ?? '';
@@ -868,12 +872,10 @@ export class BaseCustomFeature extends LitElement {
 
 			if (
 				value != this.value ||
-				unitOfMeasurement != this.unitOfMeasurement ||
 				icon != this.icon ||
 				label != this.label ||
 				styles != this.styles
 			) {
-				this.unitOfMeasurement = unitOfMeasurement;
 				this.icon = icon;
 				this.label = label;
 				this.styles = styles;

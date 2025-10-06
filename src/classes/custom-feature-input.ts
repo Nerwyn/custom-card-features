@@ -140,6 +140,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	}
 
 	shouldUpdate(changedProperties: PropertyValues) {
+		const unitOfMeasurement = this.unitOfMeasurement;
 		const should = super.shouldUpdate(changedProperties);
 
 		if (
@@ -214,6 +215,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			}
 
 			if (
+				unitOfMeasurement != this.unitOfMeasurement ||
 				thumb != this.thumb ||
 				min != this.range[0] ||
 				max != this.range[1] ||
