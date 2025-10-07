@@ -3,13 +3,13 @@ import {
 	HapticType,
 	HomeAssistant,
 	IConfirmation,
+	StateObj,
 } from '../models/interfaces';
 
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { CSSResult, LitElement, PropertyValues, css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
-import { HassEntity } from 'home-assistant-js-websocket';
 import { load } from 'js-yaml';
 import { UPDATE_AFTER_ACTION_DELAY } from '../models/constants';
 import { ActionType, IAction, IActions, IEntry } from '../models/interfaces';
@@ -20,7 +20,7 @@ import { deepGet, deepSet, getDeepKeys } from '../utils';
 export class BaseCustomFeature extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: IEntry;
-	@property() stateObj!: HassEntity & Record<'area_id', string>;
+	@property() stateObj?: StateObj;
 
 	@property() shouldRenderRipple = true;
 	rippleEndTimer?: ReturnType<typeof setTimeout>;

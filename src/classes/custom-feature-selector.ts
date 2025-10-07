@@ -40,7 +40,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 					@pointerleave=${this.onPointerLeave}
 					@contextmenu=${this.onContextMenu}
 					@keydown=${this.optionOnKeyDown}
-				/>`,
+				></custom-feature-button>`,
 			);
 		}
 

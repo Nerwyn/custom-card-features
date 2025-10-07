@@ -197,7 +197,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				max="${this.range[1]}"
 				step=${this.step}
 				value="${this.range[0]}"
-				.value="${this.value}"
+				.value="${this.value as string}"
 				@input=${this.onInput}
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}

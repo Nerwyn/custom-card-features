@@ -4,6 +4,7 @@ import { property, state } from 'lit/decorators.js';
 
 import { dump, load } from 'js-yaml';
 
+import { ifDefined } from 'lit/directives/if-defined.js';
 import {
 	AUTOFILL,
 	DEBOUNCE_TIME,
@@ -1964,7 +1965,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				${title ? html`<div class="style-header">${title}</div>` : ''}
 				<ha-code-editor
 					mode="${mode}"
-					id="${id}"
+					id="${ifDefined(id)}"
 					dir="ltr"
 					?autocomplete-entities="${autocompleteEntities}"
 					?autocomplete-icons="${autocompleteIcons}"
@@ -2812,6 +2813,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			}
 			.primary,
 			.secondary {
+				/* lit-plugin-ignore-nextline */
 				text-wrap: nowrap;
 			}
 			.secondary {

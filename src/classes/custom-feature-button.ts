@@ -213,7 +213,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 
 	render() {
 		return html`<button
-				class=${`${this.className} background`}
+				class="background"
 				part="button"
 				tabindex="-1"
 				@pointerdown=${this.onPointerDown}
@@ -316,7 +316,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 
 				/* Selector options */
 				@media (hover: hover) {
-					.option:hover {
+					:host(.option) button:hover {
 						opacity: var(--hover-opacity) !important;
 						background: var(
 							--color,
@@ -324,7 +324,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						) !important;
 					}
 				}
-				.option:active {
+				:host(.option) button:active {
 					opacity: var(--hover-opacity) !important;
 					background: var(
 						--color,
@@ -339,6 +339,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					justify-content: flex-start;
 					gap: 8px;
 					padding-inline-start: 24px;
+					overflow: visible;
 
 					--md-button-border-radius: var(--feature-height, 40px);
 					--ha-card-box-shadow:
@@ -356,8 +357,10 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host(.md3) button {
 					inset-inline-start: 0;
 					border-radius: var(--md-button-border-radius);
-					transition: border-radius
-						var(--md-sys-motion-expressive-spatial-fast);
+					transition:
+						border-radius
+							var(--md-sys-motion-expressive-spatial-fast),
+						outline 180ms ease-in-out;
 				}
 				:host(.md3) button::before {
 					opacity: var(--opacity, 1);
@@ -395,8 +398,6 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 
 				:host(.md3-elevated) {
-					overflow: visible;
-
 					--md-button-background-color: var(
 						--md-sys-color-surface-container-low,
 						var(--ha-card-background, var(--card-background-color))
@@ -509,7 +510,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					box-shadow: none;
 				}
 				:host(.md3:focus-visible) button {
-					outline: 2px var(--md-button-on-background-color);
+					outline: 3px solid
+						var(--md-sys-color-secondary, var(--accent-color));
 					outline-offset: 2px;
 				}
 			`,

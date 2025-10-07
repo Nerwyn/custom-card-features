@@ -110,12 +110,12 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				enterkeyhint="done"
 				autocomplete="off"
 				min="${this.range[0]}"
-				minlength="${this.range[0]}"
+				minlength="${this.range[0] as number}"
 				max="${this.range[1]}"
-				maxlength="${this.range[1]}"
+				maxlength="${this.range[1] as number}"
 				step="${this.step}"
 				value="${this.value ?? ''}"
-				.value="${this.value ?? ''}"
+				.value="${(this.value ?? '') as string}"
 				@keydown=${this.onKeyDown}
 				@change=${this.onChange}
 				@blur=${this.onBlur}
@@ -364,7 +364,8 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					color: var(--mdc-theme-primary, #6200ee);
 				}
 				:host(:not(:focus-within))
-					.label:has(~ .input-unit > input[value='']) {
+					.label-input:has(input[value=''])
+					.label {
 					scale: 1.4;
 				}
 				:host(:not(:focus-within)) .input-unit:has(input[value='']) {

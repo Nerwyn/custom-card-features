@@ -161,7 +161,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 					.stateObj=${this.stateObj}
 					.shouldRenderRipple=${false}
 					@contextMenu=${this.onContextMenu}
-				/>
+				></custom-feature-button>
 			`;
 		} else {
 			return html`
@@ -178,7 +178,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 					@pointercancel=${this.onPointerCancel}
 					@pointerleave=${this.onPointerLeave}
 					@contextmenu=${this.onContextMenu}
-				/>
+				></custom-feature-spinbox-operator-button>
 			`;
 		}
 	}

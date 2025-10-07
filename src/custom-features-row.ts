@@ -5,8 +5,7 @@ import { property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
-import { HassEntity } from 'home-assistant-js-websocket';
-import { CardFeatureType, HomeAssistant } from './models/interfaces';
+import { CardFeatureType, HomeAssistant, StateObj } from './models/interfaces';
 
 import { BaseCustomFeature } from './classes/base-custom-feature';
 import './classes/custom-feature-dropdown';
@@ -31,7 +30,7 @@ export class CustomFeaturesRow extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: IConfig;
 	@property() context?: Record<'entity_id' | 'area_id', string>;
-	@property() stateObj?: HassEntity & Record<'area_id', string>;
+	@property() stateObj?: StateObj;
 
 	styles: string = '';
 	entryTypes: CardFeatureType[] = [];
@@ -101,7 +100,7 @@ export class CustomFeaturesRow extends LitElement {
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
-						/>`,
+						></custom-feature-toggle>`,
 					);
 					break;
 				case 'input':
@@ -110,7 +109,7 @@ export class CustomFeaturesRow extends LitElement {
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
-						/>`,
+						></custom-feature-input>`,
 					);
 					break;
 				case 'spinbox':
@@ -119,7 +118,7 @@ export class CustomFeaturesRow extends LitElement {
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
-						/>`,
+						></custom-feature-spinbox>`,
 					);
 					break;
 				case 'slider':
@@ -128,7 +127,7 @@ export class CustomFeaturesRow extends LitElement {
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
-						/>`,
+						></custom-feature-slider>`,
 					);
 					break;
 				case 'selector':
@@ -137,7 +136,7 @@ export class CustomFeaturesRow extends LitElement {
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
-						/>`,
+						></custom-feature-selector>`,
 					);
 					break;
 				case 'dropdown':
@@ -146,7 +145,7 @@ export class CustomFeaturesRow extends LitElement {
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
-						/>`,
+						></custom-feature-dropdown>`,
 					);
 					break;
 				case 'button':
@@ -156,7 +155,7 @@ export class CustomFeaturesRow extends LitElement {
 							.hass=${this.hass}
 							.config=${entry}
 							.stateObj=${this.stateObj}
-						/>`,
+						></custom-feature-button>`,
 					);
 					break;
 			}
@@ -177,7 +176,7 @@ export class CustomFeaturesRow extends LitElement {
 		this.stateObj = {
 			...this.stateObj,
 			area_id: this.context?.area_id,
-		} as HassEntity & Record<'area_id', string>;
+		} as StateObj;
 
 		this.rtl = getComputedStyle(this).direction == 'rtl';
 		if (this.rtl) {

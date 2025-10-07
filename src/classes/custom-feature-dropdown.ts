@@ -71,7 +71,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					id=${optionName}
 					class="option"
 					part="dropdown-option"
-				/>
+				></custom-feature-dropdown-option>
 			`);
 		}
 

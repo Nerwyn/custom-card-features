@@ -155,3 +155,7 @@ export type HapticType =
 	| 'medium'
 	| 'heavy'
 	| 'selection';
+
+export interface StateObj extends HassEntity {
+	area_id?: string;
+}
