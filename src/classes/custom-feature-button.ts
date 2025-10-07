@@ -340,7 +340,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					gap: 8px;
 					padding-inline-start: 24px;
 
-					--md3-border-radius: var(--feature-height, 40px);
+					--md-button-border-radius: var(--feature-height, 40px);
 					--ha-card-box-shadow:
 						#000 0px 2px 1px -1px, #000 0px 1px 1px 0px,
 						#000 0px 1px 3px 0px;
@@ -352,18 +352,10 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						--ha-ripple-pressed-opacity,
 						0.1
 					);
-					--md-ripple-hover-color: var(
-						--ha-ripple-hover-color,
-						var(--ha-ripple-color, var(--md3-ripple-hover-color))
-					);
-					--md-ripple-pressed-color: var(
-						--ha-ripple-pressed-color,
-						var(--ha-ripple-color, var(--md3-ripple-pressed-color))
-					);
 				}
 				:host(.md3) button {
 					inset-inline-start: 0;
-					border-radius: var(--md3-border-radius);
+					border-radius: var(--md-button-border-radius);
 					transition: border-radius
 						var(--md-sys-motion-expressive-spatial-fast);
 				}
@@ -371,19 +363,19 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					opacity: var(--opacity, 1);
 					background: var(
 						--color,
-						var(--md3-background-color, var(--disabled-color))
+						var(--md-button-background-color, var(--disabled-color))
 					);
 				}
 				:host(.md3) .icon {
 					color: var(
 						--icon-color,
-						var(--md3-on-background-color, inherit)
+						var(--md-button-on-background-color, inherit)
 					);
 				}
 				:host(.md3) .label {
 					color: var(
 						--label-color,
-						var(--md3-on-background-color, inherit)
+						var(--md-button-on-background-color, inherit)
 					);
 					width: fit-content;
 				}
@@ -391,19 +383,19 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host(.md3-elevated) {
 					overflow: visible;
 
-					--md3-background-color: var(
+					--md-button-background-color: var(
 						--md-sys-color-surface-container-low,
 						var(--ha-card-background, var(--card-background-color))
 					);
-					--md3-on-background-color: var(
+					--md-button-on-background-color: var(
 						--md-sys-color-primary,
 						var(--primary-color)
 					);
-					--md3-ripple-hover-color: var(
+					--md-ripple-hover-color: var(
 						--md-sys-color-primary,
 						var(--primary-color)
 					);
-					--md3-ripple-pressed-color: var(
+					--md-ripple-pressed-color: var(
 						--md-sys-color-primary,
 						var(--primary-color)
 					);
@@ -416,54 +408,54 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 
 				:host(.md3-filled) {
-					--md3-background-color: var(
+					--md-button-background-color: var(
 						--md-sys-color-primary,
 						var(--primary-color)
 					);
-					--md3-on-background-color: var(
+					--md-button-on-background-color: var(
 						--md-sys-color-on-primary,
 						var(--text-primary-color)
 					);
-					--md3-ripple-hover-color: var(
+					--md-ripple-hover-color: var(
 						--md-sys-color-on-primary,
 						var(--text-primary-color)
 					);
-					--md3-ripple-pressed-color: var(
+					--md-ripple-pressed-color: var(
 						--md-sys-color-on-primary,
 						var(--text-primary-color)
 					);
 				}
 
 				:host(.md3-tonal) {
-					--md3-background-color: var(
+					--md-button-background-color: var(
 						--md-sys-color-secondary-container,
 						var(--secondary-background-color)
 					);
-					--md3-on-background-color: var(
+					--md-button-on-background-color: var(
 						--md-sys-color-on-secondary-container,
 						var(--text-primary-color)
 					);
-					--md3-ripple-hover-color: var(
+					--md-ripple-hover-color: var(
 						--md-sys-color-on-secondary-container,
 						var(--text-primary-color)
 					);
-					--md3-ripple-pressed-color: var(
+					--md-ripple-pressed-color: var(
 						--md-sys-color-on-secondary-container,
 						var(--text-primary-color)
 					);
 				}
 
 				:host(.md3-outlined) {
-					--md3-background-color: transparent;
-					--md3-on-background-color: var(
+					--md-button-background-color: transparent;
+					--md-button-on-background-color: var(
 						--md-sys-color-on-surface-variant,
 						var(--secondary-text-color)
 					);
-					--md3-ripple-hover-color: var(
+					--md-ripple-hover-color: var(
 						--md-sys-color-on-surface-variant,
 						var(--secondary-text-color)
 					);
-					--md3-ripple-pressed-color: var(
+					--md-ripple-pressed-color: var(
 						--md-sys-color-on-surface-variant,
 						var(--secondary-text-color)
 					);
@@ -478,29 +470,32 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 
 				:host(.md3-text) {
-					--md3-background-color: transparent;
-					--md3-on-background-color: var(
+					--md-button-background-color: transparent;
+					--md-button-on-background-color: var(
 						--md-sys-color-primary,
 						var(--primary-color)
 					);
-					--md3-ripple-hover-color: var(
+					--md-ripple-hover-color: var(
 						--md-sys-color-primary,
 						var(--primary-color)
 					);
-					--md3-ripple-pressed-color: var(
+					--md-ripple-pressed-color: var(
 						--md-sys-color-primary,
 						var(--primary-color)
 					);
 				}
 
 				:host([pressed].md3) {
-					--md3-border-radius: var(--md-sys-shape-corner-small, 8px);
+					--md-button-border-radius: var(
+						--md-sys-shape-corner-small,
+						8px
+					);
 				}
 				:host(.md3:focus-visible) {
 					box-shadow: none;
 				}
 				:host(.md3:focus-visible) button {
-					outline: 2px var(--md3-on-background-color);
+					outline: 2px var(--md-button-on-background-color);
 					outline-offset: 2px;
 				}
 			`,
