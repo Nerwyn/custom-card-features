@@ -378,6 +378,20 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						var(--md-button-on-background-color, inherit)
 					);
 					width: fit-content;
+					font-family: var(--font-family);
+					font-size: var(--md-sys-typescale-label-large-size, 14px);
+					font-weight: var(
+						--md-sys-typescale-label-large-weight,
+						500
+					);
+					line-height: var(
+						--md-sys-typescale-label-large-line-height,
+						20px
+					);
+					letter-spacing: var(
+						--md-sys-typescale-label-large-tracking,
+						0.1px
+					);
 				}
 
 				:host(.md3-elevated) {
