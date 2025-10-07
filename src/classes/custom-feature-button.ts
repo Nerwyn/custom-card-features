@@ -1,7 +1,6 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-import { classMap } from 'lit/directives/class-map.js';
 import {
 	DOUBLE_TAP_WINDOW,
 	HOLD_TIME,
@@ -214,12 +213,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 
 	render() {
 		return html`<button
-				class=${classMap({
-					[this.className]: true,
-					background: true,
-					[this.thumbType]: true,
-					md3: this.thumbType.startsWith('md3'),
-				})}
+				class=${`${this.className} background`}
 				part="button"
 				tabindex="-1"
 				@pointerdown=${this.onPointerDown}
@@ -252,6 +246,16 @@ export class CustomFeatureButton extends BaseCustomFeature {
 
 			if (thumbType != this.thumbType) {
 				this.thumbType = thumbType;
+				this.classList.add(thumbType);
+				if (thumbType.startsWith('md3')) {
+					this.classList.add('md3');
+				} else {
+					this.classList.remove(
+						...Array.from(this.classList.values()).filter((c) =>
+							c.startsWith('md3'),
+						),
+					);
+				}
 				return true;
 			}
 		}
@@ -310,6 +314,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					outline: none;
 				}
 
+				/* Selector options */
 				@media (hover: hover) {
 					.option:hover {
 						opacity: var(--hover-opacity) !important;
@@ -325,6 +330,178 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						--color,
 						var(--state-inactive-color, var(--disabled-color))
 					) !important;
+				}
+
+				/* Material Design 3 */
+				:host(.md3) {
+					border-radius: 0;
+					flex-direction: row;
+					justify-content: flex-start;
+					gap: 8px;
+					padding-inline-start: 24px;
+
+					--md3-border-radius: var(--feature-height, 40px);
+					--ha-card-box-shadow:
+						#000 0px 2px 1px -1px, #000 0px 1px 1px 0px,
+						#000 0px 1px 3px 0px;
+					--md-ripple-hover-opacity: var(
+						--ha-ripple-hover-opacity,
+						0.08
+					);
+					--md-ripple-pressed-opacity: var(
+						--ha-ripple-pressed-opacity,
+						0.1
+					);
+					--md-ripple-hover-color: var(
+						--ha-ripple-hover-color,
+						var(--ha-ripple-color, var(--md3-ripple-hover-color))
+					);
+					--md-ripple-pressed-color: var(
+						--ha-ripple-pressed-color,
+						var(--ha-ripple-color, var(--md3-ripple-pressed-color))
+					);
+				}
+				:host(.md3) button {
+					inset-inline-start: 0;
+					border-radius: var(--md3-border-radius);
+					transition: border-radius
+						var(--md-sys-motion-expressive-spatial-fast);
+				}
+				:host(.md3) button::before {
+					opacity: var(--opacity, 1);
+					background: var(
+						--color,
+						var(--md3-background-color, var(--disabled-color))
+					);
+				}
+				:host(.md3) .icon {
+					color: var(
+						--icon-color,
+						var(--md3-on-background-color, inherit)
+					);
+				}
+				:host(.md3) .label {
+					color: var(
+						--label-color,
+						var(--md3-on-background-color, inherit)
+					);
+					width: fit-content;
+				}
+
+				:host(.md3-elevated) {
+					overflow: visible;
+
+					--md3-background-color: var(
+						--md-sys-color-surface-container-low,
+						var(--ha-card-background, var(--card-background-color))
+					);
+					--md3-on-background-color: var(
+						--md-sys-color-primary,
+						var(--primary-color)
+					);
+					--md3-ripple-hover-color: var(
+						--md-sys-color-primary,
+						var(--primary-color)
+					);
+					--md3-ripple-pressed-color: var(
+						--md-sys-color-primary,
+						var(--primary-color)
+					);
+				}
+				:host(.md3-elevated) button {
+					box-shadow: var(
+						--md-sys-elevation-level1,
+						var(--ha-card-box-shadow)
+					);
+				}
+
+				:host(.md3-filled) {
+					--md3-background-color: var(
+						--md-sys-color-primary,
+						var(--primary-color)
+					);
+					--md3-on-background-color: var(
+						--md-sys-color-on-primary,
+						var(--text-primary-color)
+					);
+					--md3-ripple-hover-color: var(
+						--md-sys-color-on-primary,
+						var(--text-primary-color)
+					);
+					--md3-ripple-pressed-color: var(
+						--md-sys-color-on-primary,
+						var(--text-primary-color)
+					);
+				}
+
+				:host(.md3-tonal) {
+					--md3-background-color: var(
+						--md-sys-color-secondary-container,
+						var(--secondary-background-color)
+					);
+					--md3-on-background-color: var(
+						--md-sys-color-on-secondary-container,
+						var(--text-primary-color)
+					);
+					--md3-ripple-hover-color: var(
+						--md-sys-color-on-secondary-container,
+						var(--text-primary-color)
+					);
+					--md3-ripple-pressed-color: var(
+						--md-sys-color-on-secondary-container,
+						var(--text-primary-color)
+					);
+				}
+
+				:host(.md3-outlined) {
+					--md3-background-color: transparent;
+					--md3-on-background-color: var(
+						--md-sys-color-on-surface-variant,
+						var(--secondary-text-color)
+					);
+					--md3-ripple-hover-color: var(
+						--md-sys-color-on-surface-variant,
+						var(--secondary-text-color)
+					);
+					--md3-ripple-pressed-color: var(
+						--md-sys-color-on-surface-variant,
+						var(--secondary-text-color)
+					);
+				}
+				:host(.md3-outlined) button {
+					border-color: var(
+						--md-sys-color-outline-variant,
+						var(--divider-color)
+					);
+					border-width: 1px;
+					border-style: solid;
+				}
+
+				:host(.md3-text) {
+					--md3-background-color: transparent;
+					--md3-on-background-color: var(
+						--md-sys-color-primary,
+						var(--primary-color)
+					);
+					--md3-ripple-hover-color: var(
+						--md-sys-color-primary,
+						var(--primary-color)
+					);
+					--md3-ripple-pressed-color: var(
+						--md-sys-color-primary,
+						var(--primary-color)
+					);
+				}
+
+				:host([pressed].md3) {
+					--md3-border-radius: var(--md-sys-shape-corner-small, 8px);
+				}
+				:host(.md3:focus-visible) {
+					box-shadow: none;
+				}
+				:host(.md3:focus-visible) button {
+					outline: 2px var(--md3-on-background-color);
+					outline-offset: 2px;
 				}
 			`,
 		];

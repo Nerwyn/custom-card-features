@@ -140,9 +140,12 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 			const selected =
 				String(this.value) ==
 				String(this.renderTemplate(options[i].option as string));
-			optionElements[i].className = `${
-				selected ? 'selected' : ''
-			} option`;
+			optionElements[i].classList.add('option');
+			if (selected) {
+				optionElements[i].classList.add('selected');
+			} else {
+				optionElements[i].classList.remove('selected');
+			}
 		}
 	}
 
