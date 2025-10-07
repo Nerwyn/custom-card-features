@@ -594,8 +594,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					translate: var(--thumb-translate);
 					transition: var(--thumb-transition);
 					pointer-events: none;
-					transition: scale
-						var(--md-sys-motion-expressive-spatial-default);
 				}
 				:host(:focus-visible) .md3-thumb,
 				:host([pressed]) .md3-thumb {
@@ -610,8 +608,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						--color,
 						var(--md-sys-color-primary, var(--primary-color))
 					);
-					transition: scale
-						var(--md-sys-motion-expressive-spatial-default);
+					transition: var(--thumb-transition);
 				}
 				:host(:focus-visible) .md3-thumb-line,
 				:host([pressed]) .md3-thumb-line {

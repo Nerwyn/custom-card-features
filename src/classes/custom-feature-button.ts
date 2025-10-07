@@ -1,11 +1,13 @@
-import { css, CSSResult, html } from 'lit';
+import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
+import { classMap } from 'lit/directives/class-map.js';
 import {
 	DOUBLE_TAP_WINDOW,
 	HOLD_TIME,
 	REPEAT_DELAY,
 } from '../models/constants';
+import { ButtonThumbType, ButtonThumbTypes } from '../models/interfaces';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
@@ -17,6 +19,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 	holdTimer?: ReturnType<typeof setTimeout>;
 	holdInterval?: ReturnType<typeof setInterval>;
 	hold: boolean = false;
+
+	thumbType: ButtonThumbType = 'default';
 
 	async onClick(e: PointerEvent) {
 		e.stopImmediatePropagation();
@@ -210,7 +214,12 @@ export class CustomFeatureButton extends BaseCustomFeature {
 
 	render() {
 		return html`<button
-				class=${`${this.className} background`}
+				class=${classMap({
+					[this.className]: true,
+					background: true,
+					[this.thumbType]: true,
+					md3: this.thumbType.startsWith('md3'),
+				})}
 				part="button"
 				tabindex="-1"
 				@pointerdown=${this.onPointerDown}
@@ -224,6 +233,30 @@ export class CustomFeatureButton extends BaseCustomFeature {
 			</button>
 			${this.buildIcon(this.icon)}
 			${this.buildLabel(this.label)}${buildStyles(this.styles)}`;
+	}
+
+	shouldUpdate(changedProperties: PropertyValues) {
+		const should = super.shouldUpdate(changedProperties);
+
+		if (
+			changedProperties.has('hass') ||
+			changedProperties.has('stateObj') ||
+			changedProperties.has('value')
+		) {
+			let thumbType = this.renderTemplate(
+				this.config.thumb as string,
+			) as ButtonThumbType;
+			thumbType = ButtonThumbTypes.includes(thumbType)
+				? thumbType
+				: 'default';
+
+			if (thumbType != this.thumbType) {
+				this.thumbType = thumbType;
+				return true;
+			}
+		}
+
+		return should;
 	}
 
 	static get styles() {

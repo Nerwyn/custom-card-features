@@ -1029,6 +1029,45 @@ export class CustomFeaturesRowEditor extends LitElement {
 			</div>
 			${this.buildAppearancePanel(html`
 				${this.buildCommonAppearanceOptions()}
+				${parentEntry
+					? ''
+					: this.buildSelector(
+							'Type',
+							'thumb',
+							{
+								select: {
+									mode: 'dropdown',
+									options: [
+										{
+											value: 'default',
+											label: 'Default',
+										},
+										{
+											value: 'md3-elevated',
+											label: 'Material Design 3 Elevated',
+										},
+										{
+											value: 'md3-filled',
+											label: 'Material Design 3 Filled',
+										},
+										{
+											value: 'md3-tonal',
+											label: 'Material Design 3 Tonal',
+										},
+										{
+											value: 'md3-outlined',
+											label: 'Material Design 3 Outlined',
+										},
+										{
+											value: 'md3-text',
+											label: 'Material Design 3 Text',
+										},
+									],
+									reorder: false,
+								},
+							},
+							'default',
+						)}
 			`)}
 			${this.buildInteractionsPanel(actionSelectors)}
 		`;
@@ -1116,7 +1155,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				${this.buildCommonAppearanceOptions()}
 				<div class="form">
 					${this.buildSelector(
-						'Thumb type',
+						'Type',
 						'thumb',
 						{
 							select: {
@@ -1536,7 +1575,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			)}
 			${this.buildAppearancePanel(html`
 				${this.buildSelector(
-					'Thumb type',
+					'Type',
 					'thumb',
 					{
 						select: {
@@ -1745,7 +1784,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return html`
 			${this.buildMainFeatureOptions()}
 			${this.buildSelector(
-				'Input Type',
+				'Type',
 				'thumb',
 				{
 					select: {

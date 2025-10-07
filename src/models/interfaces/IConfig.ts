@@ -53,6 +53,14 @@ export interface IDropdownSelectorOptions {
 	options?: IOption[];
 }
 
+export const ButtonThumbTypes = [
+	'default',
+	'md3-elevated',
+	'md3-filled',
+	'md3-tonal',
+	'md3-outlined',
+	'md3-text',
+];
 export const SliderThumbTypes = [
 	'default',
 	'line',
@@ -66,6 +74,7 @@ export const ToggleThumbTypes = [
 	'md3-switch',
 	'checkbox',
 ] as const;
+export type ButtonThumbType = (typeof ButtonThumbTypes)[number];
 export type SliderThumbType = (typeof SliderThumbTypes)[number];
 export type ToggleThumbType = (typeof ToggleThumbTypes)[number];
 export const InputTypes = [
@@ -81,6 +90,7 @@ export const InputTypes = [
 ] as const;
 export type InputType = (typeof InputTypes)[number];
 export const ThumbTypes = [
+	...ButtonThumbTypes,
 	...SliderThumbTypes,
 	...ToggleThumbTypes,
 	...InputTypes,
@@ -109,26 +119,26 @@ export interface IInputOptions {
 }
 
 export const CheckedValues = [
-        'true',
-        'yes',
-        'on',
-        'enable',
-        'enabled',
-        'open',
-        'opening',
-        '1',
+	'true',
+	'yes',
+	'on',
+	'enable',
+	'enabled',
+	'open',
+	'opening',
+	'1',
 ];
 export const UncheckedValues = [
-        'false',
-        'no',
-        'off',
-        'disable',
-        'disabled',
-        'closed',
-        'closing',
-        '0',
-        'undefined',
-        'null',
+	'false',
+	'no',
+	'off',
+	'disable',
+	'disabled',
+	'closed',
+	'closing',
+	'0',
+	'undefined',
+	'null',
 ];
 
 export interface IToggleOptions {
