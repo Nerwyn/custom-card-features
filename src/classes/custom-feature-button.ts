@@ -360,7 +360,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					transition:
 						border-radius
 							var(--md-sys-motion-expressive-spatial-fast),
-						outline 180ms ease-in-out;
+						outline var(--md-sys-motion-expressive-spatial-fast);
 				}
 				:host(.md3) button::before {
 					opacity: var(--opacity, 1);
