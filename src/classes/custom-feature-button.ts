@@ -320,7 +320,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					flex-direction: row;
 					justify-content: flex-start;
 					gap: 8px;
-					padding-inline-start: 24px;
+					padding: 0 16px;
 					overflow: visible;
 
 					--md-button-border-radius: var(--feature-height, 40px);
@@ -389,8 +389,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 				:host(.md3.option.selected) {
 					--md-button-border-radius: var(
-						--md-sys-shape-corner-small,
-						8px
+						--md-sys-shape-corner-medium,
+						12px
 					);
 				}
 
@@ -507,7 +507,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 				}
 
-				:host([pressed].md3) {
+				:host([pressed].md3),
+				:host([pressed].md3.option) {
 					--md-button-border-radius: var(
 						--md-sys-shape-corner-small,
 						8px
