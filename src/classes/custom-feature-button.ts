@@ -384,6 +384,15 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						0.1px
 					);
 				}
+				:host(.md3.option:not(.selected)) {
+					--md-button-border-radius: var(--feature-height, 40px);
+				}
+				:host(.md3.option.selected) {
+					--md-button-border-radius: var(
+						--md-sys-shape-corner-small,
+						8px
+					);
+				}
 
 				:host(.md3-elevated) {
 					--md-button-background-color: var(

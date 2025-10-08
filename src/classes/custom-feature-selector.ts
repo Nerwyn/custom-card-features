@@ -1,12 +1,15 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
+import { SelectorThumbType, SelectorThumbTypes } from '../models/interfaces';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 import './custom-feature-button';
 
 @customElement('custom-feature-selector')
 export class CustomFeatureSelector extends BaseCustomFeature {
+	thumbType: SelectorThumbType = 'default';
+
 	onPointerUp(e: PointerEvent) {
 		super.onPointerUp(e);
 		if (!this.swiping && this.initialX && this.initialY) {
@@ -29,7 +32,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 					.hass=${this.hass}
 					.config=${option}
 					.stateObj=${this.stateObj}
-					.shouldRenderRipple=${false}
+					.shouldRenderRipple=${this.thumbType != 'default'}
 					class="option"
 					part="selector-option"
 					id=${this.renderTemplate(option.option as string)}
@@ -109,6 +112,34 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 
 	shouldUpdate(changedProperties: PropertyValues) {
 		const should = super.shouldUpdate(changedProperties);
+		if (
+			changedProperties.has('hass') ||
+			changedProperties.has('stateObj') ||
+			changedProperties.has('value')
+		) {
+			let thumbType = this.renderTemplate(
+				this.config.thumb as string,
+			) as SelectorThumbType;
+			thumbType = SelectorThumbTypes.includes(thumbType)
+				? thumbType
+				: 'default';
+
+			if (thumbType != this.thumbType) {
+				this.thumbType = thumbType;
+				this.classList.add(thumbType);
+				if (thumbType.startsWith('md3')) {
+					this.classList.add('md3');
+				} else {
+					this.classList.remove(
+						...Array.from(this.classList.values()).filter((c) =>
+							c.startsWith('md3'),
+						),
+					);
+				}
+				return true;
+			}
+		}
+
 		if (should) {
 			return true;
 		}
@@ -141,6 +172,17 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 				String(this.value) ==
 				String(this.renderTemplate(options[i].option as string));
 			optionElements[i].classList.add('option');
+			if (this.thumbType.startsWith('md3')) {
+				optionElements[i].classList.add('md3');
+				optionElements[i].classList.add(this.thumbType);
+			} else {
+				optionElements[i].classList.remove(
+					...Array.from(optionElements[i].classList.values()).filter(
+						(c) => c.startsWith('md3'),
+					),
+				);
+			}
+			optionElements[i].classList.add('option');
 			if (selected) {
 				optionElements[i].classList.add('selected');
 			} else {
@@ -155,7 +197,8 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 			css`
 				:host {
 					flex-flow: row;
-
+				}
+				:host(:not(.md3)) {
 					--color: var(--feature-color);
 					--background: var(--disabled-color);
 					--hover-opacity: 0.2;
@@ -164,26 +207,26 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 					box-shadow: 0 0 0 2px var(--feature-color);
 				}
 
-				.option {
+				.option:not(.md3) {
 					--opacity: 0;
 					--background-opacity: 0;
 				}
-				.option:focus-visible {
+				.option:not(.md3):focus-visible {
 					box-shadow: none;
 					--opacity: 0.2;
 				}
 
-				.selected {
+				.selected:not(.md3) {
 					--opacity: 1;
 					--background-opacity: 1;
 					--hover-opacity: 1;
 				}
-				.selected:focus-visible {
+				.selected:not(.md3):focus-visible {
 					--opacity: 1;
 				}
 
 				@media (hover: hover) {
-					.option::part(button):hover {
+					.option:not(.md3)::part(button):hover {
 						opacity: var(--hover-opacity);
 						background: var(
 							--color,
@@ -191,12 +234,17 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 						);
 					}
 				}
-				.option::part(button):active {
+				.option:not(.md3)::part(button):active {
 					opacity: var(--hover-opacity);
 					background: var(
 						--color,
 						var(--state-inactive-color, var(--disabled-color))
 					);
+				}
+
+				/* Material Design 3 */
+				:host(.md3) .background {
+					display: none;
 				}
 			`,
 		];

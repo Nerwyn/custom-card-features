@@ -61,7 +61,13 @@ export const ButtonThumbTypes = [
 	'md3-outlined',
 	'md3-text',
 ];
-export const SelectorThumbTypes = ['default', 'md3-'];
+export const SelectorThumbTypes = [
+	'default',
+	'md3-elevated',
+	'md3-filled',
+	'md3-tonal',
+	'md3-outlined',
+];
 export const SliderThumbTypes = [
 	'default',
 	'line',
@@ -76,6 +82,7 @@ export const ToggleThumbTypes = [
 	'checkbox',
 ] as const;
 export type ButtonThumbType = (typeof ButtonThumbTypes)[number];
+export type SelectorThumbType = (typeof SelectorThumbTypes)[number];
 export type SliderThumbType = (typeof SliderThumbTypes)[number];
 export type ToggleThumbType = (typeof ToggleThumbTypes)[number];
 export const InputTypes = [
@@ -92,6 +99,7 @@ export const InputTypes = [
 export type InputType = (typeof InputTypes)[number];
 export const ThumbTypes = [
 	...ButtonThumbTypes,
+	...SelectorThumbTypes,
 	...SliderThumbTypes,
 	...ToggleThumbTypes,
 	...InputTypes,

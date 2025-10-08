@@ -1251,6 +1251,41 @@ export class CustomFeaturesRowEditor extends LitElement {
 							HAPTICS,
 						)}
 					</div>
+					${type == 'selector'
+						? this.buildSelector(
+								'Type',
+								'thumb',
+								{
+									select: {
+										mode: 'dropdown',
+										options: [
+											{
+												value: 'default',
+												label: 'Default',
+											},
+											{
+												value: 'md3-elevated',
+												label: 'Material Design 3 Elevated',
+											},
+											{
+												value: 'md3-filled',
+												label: 'Material Design 3 Filled',
+											},
+											{
+												value: 'md3-tonal',
+												label: 'Material Design 3 Tonal',
+											},
+											{
+												value: 'md3-outlined',
+												label: 'Material Design 3 Outlined',
+											},
+										],
+										reorder: false,
+									},
+								},
+								'default',
+							)
+						: ''}
 					<div class="">
 						${this.buildEntryList(
 							'option',
