@@ -327,6 +327,12 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					--ha-card-box-shadow:
 						#000 0px 2px 1px -1px, #000 0px 1px 1px 0px,
 						#000 0px 1px 3px 0px;
+					--md-ripple-hover-color: var(
+						--md-button-on-background-color
+					);
+					--md-ripple-pressed-color: var(
+						--md-button-on-background-color
+					);
 					--md-ripple-hover-opacity: var(
 						--ha-ripple-hover-opacity,
 						0.08
@@ -388,19 +394,21 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						--md-sys-color-primary,
 						var(--primary-color)
 					);
-					--md-ripple-hover-color: var(
-						--md-sys-color-primary,
-						var(--primary-color)
-					);
-					--md-ripple-pressed-color: var(
-						--md-sys-color-primary,
-						var(--primary-color)
-					);
 				}
 				:host(.md3-elevated) button {
 					box-shadow: var(
 						--md-sys-elevation-level1,
 						var(--ha-card-box-shadow)
+					);
+				}
+				:host(.md3-elevated.option.selected) {
+					--md-button-background-color: var(
+						--md-sys-color-primary,
+						var(--primary-color)
+					);
+					--md-button-on-background-color: var(
+						--md-sys-color-on-primary,
+						var(--text-primary-color)
 					);
 				}
 
@@ -413,13 +421,15 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						--md-sys-color-on-primary,
 						var(--text-primary-color)
 					);
-					--md-ripple-hover-color: var(
-						--md-sys-color-on-primary,
-						var(--text-primary-color)
+				}
+				:host(.md3-filled.option:not(.selected)) {
+					--md-button-background-color: var(
+						--md-sys-color-surface-container,
+						var(--primary-background-color)
 					);
-					--md-ripple-pressed-color: var(
-						--md-sys-color-on-primary,
-						var(--text-primary-color)
+					--md-button-on-background-color: var(
+						--md-sys-on-surface-variant,
+						var(--secondary-text-color)
 					);
 				}
 
@@ -432,27 +442,21 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						--md-sys-color-on-secondary-container,
 						var(--text-primary-color)
 					);
-					--md-ripple-hover-color: var(
-						--md-sys-color-on-secondary-container,
-						var(--text-primary-color)
+				}
+				:host(.md3-tonal.option.selected) {
+					--md-button-background-color: var(
+						--md-sys-color-secondary,
+						var(--accent-color)
 					);
-					--md-ripple-pressed-color: var(
-						--md-sys-color-on-secondary-container,
-						var(--text-primary-color)
+					--md-button-on-background-color: var(
+						--md-sys-color-on-secondary,
+						var(--text-accent-color)
 					);
 				}
 
 				:host(.md3-outlined) {
 					--md-button-background-color: transparent;
 					--md-button-on-background-color: var(
-						--md-sys-color-on-surface-variant,
-						var(--secondary-text-color)
-					);
-					--md-ripple-hover-color: var(
-						--md-sys-color-on-surface-variant,
-						var(--secondary-text-color)
-					);
-					--md-ripple-pressed-color: var(
 						--md-sys-color-on-surface-variant,
 						var(--secondary-text-color)
 					);
@@ -465,18 +469,30 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					border-width: 1px;
 					border-style: solid;
 				}
+				:host(.md3-outlined.option.selected) {
+					--md-button-background-color: var(
+						--md-sys-color-inverse-surface,
+						rgb(
+							from
+								var(
+									--lovelace-background,
+									var(--primary-background-color)
+								)
+								calc(255 - r) calc(255 - g) calc(255 - b)
+						)
+					);
+					--md-button-on-background-color: var(
+						--md-sys-color-inverse-on-surface,
+						rgb(
+							from var(--primary-text-color,) calc(255 - r)
+								calc(255 - g) calc(255 - b)
+						)
+					);
+				}
 
 				:host(.md3-text) {
 					--md-button-background-color: transparent;
 					--md-button-on-background-color: var(
-						--md-sys-color-primary,
-						var(--primary-color)
-					);
-					--md-ripple-hover-color: var(
-						--md-sys-color-primary,
-						var(--primary-color)
-					);
-					--md-ripple-pressed-color: var(
 						--md-sys-color-primary,
 						var(--primary-color)
 					);
