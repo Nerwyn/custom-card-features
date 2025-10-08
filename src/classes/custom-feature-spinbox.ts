@@ -354,27 +354,6 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 					opacity: 0.77;
 				}
 
-				.button {
-					position: absolute;
-					background: none;
-					cursor: pointer;
-					display: flex;
-					flex-flow: column;
-					place-content: center space-evenly;
-					align-items: center;
-					height: inherit;
-					width: initial;
-					border: none;
-					padding: 10px;
-					color: inherit;
-
-					--mdc-icon-size: 16px;
-				}
-
-				.button::before {
-					display: none !important;
-				}
-
 				#decrement {
 					left: 0px;
 				}

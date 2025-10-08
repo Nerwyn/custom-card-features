@@ -61,6 +61,7 @@ export const ButtonThumbTypes = [
 	'md3-outlined',
 	'md3-text',
 ];
+export const SelectorThumbTypes = ['default', 'md3-'];
 export const SliderThumbTypes = [
 	'default',
 	'line',

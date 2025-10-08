@@ -289,9 +289,9 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 				}
 
-				button {
-					background: 0px 0px !important;
-					opacity: 1 !important;
+				button.background {
+					background: 0px 0px;
+					opacity: 1;
 					position: absolute;
 					cursor: pointer;
 					height: 100%;
@@ -312,24 +312,6 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 				button:focus-visible {
 					outline: none;
-				}
-
-				/* Selector options */
-				@media (hover: hover) {
-					:host(.option) button:hover {
-						opacity: var(--hover-opacity) !important;
-						background: var(
-							--color,
-							var(--state-inactive-color, var(--disabled-color))
-						) !important;
-					}
-				}
-				:host(.option) button:active {
-					opacity: var(--hover-opacity) !important;
-					background: var(
-						--color,
-						var(--state-inactive-color, var(--disabled-color))
-					) !important;
 				}
 
 				/* Material Design 3 */

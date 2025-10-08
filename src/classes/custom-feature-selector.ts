@@ -181,6 +181,23 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 				.selected:focus-visible {
 					--opacity: 1;
 				}
+
+				@media (hover: hover) {
+					.option::part(button):hover {
+						opacity: var(--hover-opacity);
+						background: var(
+							--color,
+							var(--state-inactive-color, var(--disabled-color))
+						);
+					}
+				}
+				.option::part(button):active {
+					opacity: var(--hover-opacity);
+					background: var(
+						--color,
+						var(--state-inactive-color, var(--disabled-color))
+					);
+				}
 			`,
 		];
 	}

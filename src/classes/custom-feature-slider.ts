@@ -770,7 +770,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 
 				:host([pressed]) {
-					--thumb-transition: background 180ms ease-in-out !important;
+					--thumb-transition: background 180ms ease-in-out;
 				}
 				:host(:focus-visible) .tooltip,
 				:host([pressed]) .tooltip {
