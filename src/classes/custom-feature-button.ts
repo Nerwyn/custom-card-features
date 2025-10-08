@@ -437,7 +437,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						var(--primary-background-color)
 					);
 					--md-button-on-background-color: var(
-						--md-sys-on-surface-variant,
+						--md-sys-color-on-surface-variant,
 						var(--secondary-text-color)
 					);
 				}

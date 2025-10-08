@@ -256,9 +256,35 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 					border-start-start-radius: var(--feature-height, 40px);
 					border-end-start-radius: var(--feature-height, 40px);
 				}
+				:host(.md3)
+					:not([pressed], .selected).option:nth-child(-n + 2)::part(
+						button
+					) {
+					border-start-end-radius: var(
+						--md-sys-shape-corner-medium,
+						12px
+					);
+					border-end-end-radius: var(
+						--md-sys-shape-corner-medium,
+						12px
+					);
+				}
 				:host(.md3) .option:nth-last-child(-n + 1)::part(button) {
 					border-start-end-radius: var(--feature-height, 40px);
 					border-end-end-radius: var(--feature-height, 40px);
+				}
+				:host(.md3)
+					:not([pressed], .selected).option:nth-last-child(
+						-n + 1
+					)::part(button) {
+					border-start-start-radius: var(
+						--md-sys-shape-corner-medium,
+						12px
+					);
+					border-end-start-radius: var(
+						--md-sys-shape-corner-medium,
+						12px
+					);
 				}
 
 				:host(.md3) .option:not(.selected) {
