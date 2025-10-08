@@ -515,6 +515,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 				:host(.md3:focus-visible) {
 					box-shadow: none;
+					z-index: 1;
 				}
 				:host(.md3:focus-visible) button {
 					outline: 3px solid

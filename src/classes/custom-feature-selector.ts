@@ -243,8 +243,43 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 				}
 
 				/* Material Design 3 */
+				:host(.md3) {
+					gap: 2px;
+					overflow: visible;
+				}
+
 				:host(.md3) .background {
 					display: none;
+				}
+
+				:host(.md3) .option:nth-child(-n + 2)::part(button) {
+					border-start-start-radius: var(--feature-height, 40px);
+					border-end-start-radius: var(--feature-height, 40px);
+				}
+				:host(.md3) .option:nth-last-child(-n + 1)::part(button) {
+					border-start-end-radius: var(--feature-height, 40px);
+					border-end-end-radius: var(--feature-height, 40px);
+				}
+
+				:host(.md3) .option:not(.selected) {
+					--md-button-border-radius: var(
+						--md-sys-shape-corner-small,
+						8px
+					);
+				}
+				:host(.md3) .option.selected {
+					--md-button-border-radius: var(--feature-height, 40px);
+				}
+				:host(.md3) .option[pressed] {
+					--md-button-border-radius: var(
+						--md-sys-shape-corner-extra-small,
+						4px
+					);
+				}
+
+				:host(.md3:focus-visible),
+				:host(.md3):has(.option:focus-visible) {
+					box-shadow: none;
 				}
 			`,
 		];
