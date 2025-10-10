@@ -138,12 +138,9 @@ export class CustomFeaturesCard extends LitElement {
 			}
 
 			ha-card.transparent {
-				background: none;
-				box-shadow: none;
-				outline: none;
-				border: none;
-				padding: 0;
-				margin: 0;
+				all: unset;
+				display: flex;
+				flex-direction: column;
 			}
 
 			service-call {
