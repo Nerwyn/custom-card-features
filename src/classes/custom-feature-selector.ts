@@ -53,7 +53,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 	async onKeyDown(_e: KeyboardEvent) {
 		// Firefox focused selector box shadow fix
 		// Because :host:has() doesn't work with Firefox
-		if (this.firefox) {
+		if (this.firefox && !this.thumbType.startsWith('md3')) {
 			this.style.setProperty(
 				'box-shadow',
 				'0 0 0 2px var(--feature-color)',
