@@ -318,7 +318,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host(.md3) {
 					border-radius: 0;
 					flex-direction: row;
-					justify-content: flex-start;
+					justify-content: center;
 					gap: 8px;
 					padding: 0 16px;
 					overflow: visible;
