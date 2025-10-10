@@ -209,8 +209,8 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 					<div class="content">${this.buildRowsList()}</div>
 					${this.buildAddRowButton()}
 				</div>
+				<div class="entry-list-header">Style Options</div>
 				<div class="action-options">
-					<div class="entry-list-header">Style Options</div>
 					<div class="form">
 						${this.buildSelector(
 							'Feature height',
