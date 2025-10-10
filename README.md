@@ -49,7 +49,7 @@ You can provide it with an action, which will fire when you press the `Enter` or
 
 ## Selectors
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_tile.png" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_tile_md3.png" width="600"/>
 
 Selectors allow you to create a row of custom button features with no gaps of which the currently active one will be highlighted, similar to those available for alarm control panel and thermostat modes. Like all features in this project it can be used for any action. Selectors do not have an overall icon or label, but each option has their own appearance fields.
 
@@ -77,9 +77,9 @@ To prevent value bouncing, sliders will wait for one second before retreiving an
 
 Spinboxes allow you to create Home Assistant style number boxes with increment and decrement buttons, similar to the climate target temperature feature. By default the user can increment or decrement this feature's internal value using the corresponding buttons. Once the user stops pressing the buttons for a time period defined by `Debounce time` (default 1000ms), the user defined tap action will fire. Similar to sliders, spinboxes will wait one second before updating it's internal value but this can be changed using `Update after action delay`.
 
-Like sliders, the spinbox's action should use an action which sets a value similar to `number/input_number.set_value` or `climate.set_temperature` and the user should use `value` in a template to pass it to the action call. This way the user can keep incrementing or decrementing the value until they reach the desired value, and the action to update it in Home Assistant is only called once. You can make this features buttons repeat when held by setting the hold action to repeat. These should all be set in the `CENTER` tab of the spinbox configuration page.
+Like sliders, the spinbox's action should use an action which sets a value similar to `number/input_number.set_value` or `climate.set_temperature` and the user should use `value` in a template to pass it to the action call. This way the user can keep incrementing or decrementing the value until they reach the desired value, and the action to update it in Home Assistant is only called once. You can make this features buttons repeat when held by setting the hold action to repeat. These should all be set in the `Center` tab of the spinbox configuration page.
 
-You can also override the default behavior of the increment and decrement buttons by changing the tab bar to `INCREMENT` or `DECREMENT` and modifying the actions there. Doing so will disable the normal increment/decrement and debounce button behavior and create a button feature instead. Spinbox button appearance and styles can also be modified more directly in the `INCREMENT` and `DECREMENT` tabs.
+You can also override the default behavior of the increment and decrement buttons by changing the tab bar to `Increment` or `Decrement` and modifying the actions there. Doing so will disable the normal increment/decrement and debounce button behavior and create a button feature instead. Spinbox button appearance and styles can also be modified more directly in the `Increment` and `Decrement` tabs.
 
 ## Toggles
 
@@ -89,13 +89,21 @@ Toggles allow you to create Home Assistant style toggles, similar to the default
 
 Toggles have a special template variable `checked`. `checked` gives you the current boolean value of the feature. By default this value is true if the feature value is in the allow list `true, yes, on, enable, enabled, open, opening, 1` or if it's numeric cast is greater than 0. You can disable numeric checks and switch to checking a block list `false, no, off, disable, disabled, closed, closing, 0, undefined, null` using the configuration UI. You can also set a custom allow/block list.
 
-In addition to the default Home Assistant toggle feature style toggle, you can also make the toggle appear as a Material Design checkbox, a Material Design 2 switch, or a Material Design 3 switch. The Material Design checkbox and switch options use theme colors instead of the feature color, and have been carefully designed to follow the Material Design specifications. See the [styles section](#css-styles) below for more information on which variables they use. The Material Design 3 switch in particular is made to work best with [Material You Theme](https://github.com/Nerwyn/material-you-theme). If you choose one of the checkbox or switch options and do not provide an icon or label, the feature will only use the minimum width necessary to show the toggle, instead of being equal width to any other features in the row.
+In addition to the default Home Assistant toggle feature style toggle, you can also make the toggle appear as a Material Design checkbox, a Material Design 2 switch, or a Material Design 3 switch. The Material Design checkbox and switch options use theme colors instead of the feature color, and have been carefully designed to follow the Material Design specifications. See the [styles section](#css-styles) below for more information on which variables they use. If you choose one of the checkbox or switch options and do not provide an icon or label, the feature will only use the minimum width necessary to show the toggle, instead of being equal width to any other features in the row.
 
 Toggles feature three icons! There's the icon normally shown alongside the label, and additional checked and unchecked icons. For the default toggle the normal icon and label will appear on the toggle thumb while the checked/unchecked icons will appear in the toggle background. For the Material Design toggle options, the normal icon and label will appear inline with the checkbox/switch, and the checked/unchecked icons will appear within the checkbox or on the switch thumb.
 
+## Material Design 3 Variants
+
+Buttons, selectors, sliders, and toggles have Material Design 3 variants designed using the [Material Design 3 specifications](https://m3.material.io/). While they can be used with any theme, they work best with Material You [Theme](https://github.com/Nerwyn/material-you-theme) and [Utilities](https://github.com/Nerwyn/material-you-utilities). When used with this theme and its companion module, the Material Design 3 variants will follow theme colors rather than parent card colors.
+
+## Custom Features Card
+
+If you want to use these features without a normal parent card, you can! Create a custom features card and then create custom features rows within that. You can go even further and increase feature height and set the card to transparent to use the custom features as cards themselves.
+
 # How To Use
 
-This project now has a fully featured configuration user interface! To get started, install this project using HACS. Then go to a dashboard and create a tile card, or any other card that supports card features. The entity ID can be anything you like. Click `ADD FEATURE` and then `Custom features row`
+This project now has a fully featured configuration user interface! To get started, install this project using HACS. Then go to a dashboard and create a tile card, or any other card that supports card features. The entity ID can be anything you like. Click `Add feature` and then `Custom features row`
 
 All custom features are encapsulated in a custom features row. This allows you to add multiple custom features to a row, apply overall CSS styles, and change the widths of features in the row relative to each other using the `flex-basis` CSS property. You can add a custom features row just like any default feature, except that this feature is available for all entities.
 
@@ -128,7 +136,7 @@ Some additional logic is applied for certain attributes:
 - `elapsed` - Only for timer entities. Updated twice a second using the the current timestamp and the attributes `duration`, `remaining`, and `finishes_at`, and locked to a max value using the attribute `duration`.
   - **Note**: `elapsed` is not an actual attribute of timer entities, but is a possible `value_attribute` for timer entities for the purpose of displaying accurate timer elapsed values. Timer entities do have an attribute `remaining`, which only updates when the timer state changes. The actual `remaining` attribute can be calculated using the `elapsed` value and the timer `duration` attribute.
 
-If you find that the autofilling of the entity ID in the action or feature value is causing issues, setting `Autofill` to `false` may help. Just remember to set the entity ID of the feature and the entity, device, area, or label ID of the action target.
+If you find that the autofilling of the entity ID in the action or feature value is causing issues, setting `Autofill` to `false` may help. Just remember to set or clear the entity ID of the feature and the entity, device, area, or label ID of the action target.
 
 Haptics are disabled for features by default, but can be toggled on at the feature level.
 
@@ -216,6 +224,7 @@ General style options and custom feature specific properties can be set within t
 ```css
 :host {
   flex-basis: 200%;
+
   --color: red;
   --icon-color: blue;
 }
@@ -1355,6 +1364,7 @@ features:
           }
           .label {
             left: -16px;
+            filter: invert(1);
           }
         step: 0.01
       - type: button
