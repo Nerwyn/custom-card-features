@@ -544,6 +544,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					--thumb-transition:
 						translate
 							var(--md-sys-motion-expressive-spatial-default),
+						scale var(--md-sys-motion-expressive-spatial-default),
 						background 180ms ease-in-out;
 				}
 				.md3-slider {
@@ -770,7 +771,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 
 				:host([pressed]) {
-					--thumb-transition: background 180ms ease-in-out;
+					--thumb-transition:
+						scale var(--md-sys-motion-expressive-spatial-default),
+						background 180ms ease-in-out;
 				}
 				:host(:focus-visible) .tooltip,
 				:host([pressed]) .tooltip {
