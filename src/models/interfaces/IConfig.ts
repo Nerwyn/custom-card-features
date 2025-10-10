@@ -3,6 +3,8 @@ import { IActions } from './IActions';
 export interface ICustomFeatureCardConfig {
 	type: string;
 	styles?: string;
+	feature_height?: number;
+	transparent?: boolean;
 	features: IConfig[];
 }
 

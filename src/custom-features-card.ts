@@ -1,6 +1,7 @@
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { css, html, LitElement, PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
 import { HomeAssistant, ICustomFeatureCardConfig } from './models/interfaces';
 import { buildStyles } from './utils/styles';
 
@@ -11,6 +12,8 @@ export class CustomFeaturesCard extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: ICustomFeatureCardConfig;
 
+	featureHeight: number = 42;
+	transparent: boolean = false;
 	styles: string = '';
 
 	static getConfigElement() {
@@ -62,6 +65,7 @@ export class CustomFeaturesCard extends LitElement {
 
 	render() {
 		return html`<ha-card
+				class=${classMap({ transparent: this.transparent })}
 				>${this.config.features.map(
 					(row) =>
 						html`<service-call
@@ -74,22 +78,39 @@ export class CustomFeaturesCard extends LitElement {
 	}
 
 	shouldUpdate(changedProperties: PropertyValues) {
-		if (changedProperties.has('hass')) {
+		if (changedProperties.has('hass') || changedProperties.has('config')) {
 			const styles = this.renderTemplate(
 				this.config.styles as string,
 			) as string;
 
-			if (styles != this.styles) {
+			const featureHeight = Number(
+				this.renderTemplate(
+					(this.config.feature_height ?? 42) as number,
+				),
+			);
+
+			const transparent =
+				String(
+					this.renderTemplate(this.config.transparent as boolean),
+				) == 'true';
+
+			const config = JSON.stringify(changedProperties.get('config'));
+
+			if (
+				styles != this.styles ||
+				featureHeight != this.featureHeight ||
+				transparent != this.transparent ||
+				config != JSON.stringify(this.config)
+			) {
 				this.styles = styles;
+				this.featureHeight = featureHeight;
+				this.style.setProperty(
+					'--feature-height',
+					`${this.featureHeight}px`,
+				);
+				this.transparent = transparent;
 				return true;
 			}
-		}
-
-		if (changedProperties.has('config')) {
-			return (
-				JSON.stringify(this.config) !=
-				JSON.stringify(changedProperties.get('config'))
-			);
 		}
 
 		// Update child hass objects if not updating
@@ -105,7 +126,6 @@ export class CustomFeaturesCard extends LitElement {
 	static get styles() {
 		return css`
 			:host {
-				--feature-height: 42px;
 				--feature-border-radius: 12px;
 				--feature-button-spacing: 12px;
 				--feature-color: var(--primary-color);
@@ -115,6 +135,15 @@ export class CustomFeaturesCard extends LitElement {
 				display: flex;
 				flex-direction: column;
 				padding: 12px 12px 0;
+			}
+
+			ha-card.transparent {
+				background: none;
+				box-shadow: none;
+				outline: none;
+				border: none;
+				padding: 0;
+				margin: 0;
 			}
 
 			service-call {

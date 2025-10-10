@@ -209,7 +209,33 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 					<div class="content">${this.buildRowsList()}</div>
 					${this.buildAddRowButton()}
 				</div>
-				${this.buildCodeEditor('jinja2')}
+				<div class="action-options">
+					<div class="entry-list-header">Style Options</div>
+					<div class="form">
+						${this.buildSelector(
+							'Feature height',
+							'feature_height',
+							{
+								number: {
+									min: 0,
+									step: 1,
+									mode: 'box',
+									unit_of_measurement: 'px',
+								},
+							},
+							42,
+						)}
+						${this.buildSelector(
+							'Transparent card',
+							'transparent',
+							{
+								boolean: {},
+							},
+							false,
+						)}
+					</div>
+					${this.buildCodeEditor('jinja2')}
+				</div>
 			</div>`;
 		} else {
 			editor = html`<custom-features-row-editor

@@ -420,9 +420,19 @@ export class CustomFeaturesRowEditor extends LitElement {
 				};
 			});
 		}
-		this.entryChanged(
-			deepSet(structuredClone(this.activeEntry) as object, key, value),
-		);
+		if (this.entryIndex < 0) {
+			this.configChanged(
+				deepSet(structuredClone(this.config), key, value),
+			);
+		} else {
+			this.entryChanged(
+				deepSet(
+					structuredClone(this.activeEntry as IEntry),
+					key,
+					value,
+				),
+			);
+		}
 	}
 
 	handleExitEditor(_e: Event) {
@@ -712,7 +722,13 @@ export class CustomFeaturesRowEditor extends LitElement {
 			},
 		};
 
-		let value = deepGet(this.activeEntry as object, key);
+		let obj;
+		if (this.entryIndex < 0) {
+			obj = this.config;
+		} else {
+			obj = this.activeEntry;
+		}
+		let value = deepGet(obj as object, key);
 		if (key.endsWith('.confirmation.exemptions')) {
 			value = ((value as Record<string, { user: string }>[]) ?? []).map(
 				(v) => v.user,
@@ -2848,7 +2864,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 			}
 			.primary,
 			.secondary {
-				/* lit-plugin-ignore-nextline */
 				text-wrap: nowrap;
 			}
 			.secondary {
