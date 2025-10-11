@@ -387,7 +387,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host(.md3.option:not(.selected)) {
 					--md-button-border-radius: var(--feature-height, 40px);
 				}
-				:host(.md3.option.selected) {
+				:host(.md3.option.selected),
+				:host(.md3.on) {
 					--md-button-border-radius: var(
 						--md-sys-shape-corner-medium,
 						12px
@@ -410,7 +411,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						var(--ha-card-box-shadow)
 					);
 				}
-				:host(.md3-elevated.option.selected) {
+				:host(.md3-elevated.option.selected),
+				:host(.md3-elevated.on) {
 					--md-button-background-color: var(
 						--md-sys-color-primary,
 						var(--primary-color)
@@ -431,7 +433,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						var(--text-primary-color)
 					);
 				}
-				:host(.md3-filled.option:not(.selected)) {
+				:host(.md3-filled.option:not(.selected)),
+				:host(.md3-filled.off) {
 					--md-button-background-color: var(
 						--md-sys-color-surface-container,
 						var(--primary-background-color)
@@ -452,7 +455,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						var(--text-primary-color)
 					);
 				}
-				:host(.md3-tonal.option.selected) {
+				:host(.md3-tonal.option.selected),
+				:host(.md3-tonal.on) {
 					--md-button-background-color: var(
 						--md-sys-color-secondary,
 						var(--accent-color)
@@ -478,7 +482,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					border-width: 1px;
 					border-style: solid;
 				}
-				:host(.md3-outlined.option.selected) {
+				:host(.md3-outlined.option.selected),
+				:host(.md3-outlined.on) {
 					--md-button-background-color: var(
 						--md-sys-color-inverse-surface,
 						rgb(
