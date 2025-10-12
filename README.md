@@ -33,11 +33,11 @@ Buttons are the most basic type of custom feature, being based on the example pr
 
 Dropdowns allow you to create a dropdown window with multiple user provided options, similar to those available for select entities and climate attributes. Clicking on the dropdown will show you all of the available options. Like all features in this project each option can be used for any action. The Dropdown window itself does not have an icon or label, but each option has their own appearance fields and the currently selected option will be displayed in the dropdown window.
 
-You need to define the options to be listed out in the dropdown list manually. Each of these options is a custom element that supports an action and it's own appearance fields. The currently selected option is the one whose `Option` field matches the state or attribute value of the dropdown parent entity.
+You need to define the options to be listed out in the dropdown list manually. Each of these options is a custom element that supports an action and its own appearance fields. The currently selected option is the one whose `Option` field matches the state or attribute value of the dropdown parent entity.
 
 This feature works best with Home Assistant `select/input_select` entities. By setting the feature entity to one of these domains and leaving autofill enabled, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the `select_option` action information. If no icon or label is provided, the option will use its option as its label.
 
-You can override the default behavior of each option by changing their action. The `Option` field will be the value to compare against the feature's value, whether that is it's entity's state or one of it's attributes. If they match and are not undefined, then the the option will be displayed in the dropdown window. You can use a template in the parent attribute field for more advanced matching.
+You can override the default behavior of each option by changing their action. The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be displayed in the dropdown window. You can use a template in the parent attribute field for more advanced matching.
 
 ## Inputs
 
@@ -57,7 +57,7 @@ After adding a selector to your custom features row, you will see nothing! This 
 
 Like dropdowns, this feature works best with Home Assistant `select/input_select` entities. By setting the feature entity to one of these domains and leaving autofill enabled, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the `select_option` action information. While the option fields and action information will autofill, you still have to click the add option button and give them appearance information so that they will render and be distinguishable (you'll know that you've added all possible options when the last option you add has the text `Option` instead of a different value).
 
-Since each selector option is a custom feature button, you can override it's default behavior by changing it's tap action. The `Option` field will be the value to compare against the feature's value, whether that is it's entity's state or one of it's attributes. If they match and are not undefined, then the the option will be highlighted. The option highlight color defaults to the parent card color (usually the tile card color), but can be changed by setting the CSS attribute `--color` to a different value, either for the entire feature or an individual option.
+Since each selector option is a custom feature button, you can override its default behavior by changing its tap action. The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be highlighted. The option highlight color defaults to the parent card color (usually the tile card color), but can be changed by setting the CSS attribute `--color` to a different value, either for the entire feature or an individual option.
 
 ## Sliders
 
@@ -67,15 +67,15 @@ Sliders are similar to the sliders found in Home Assistant default card features
 
 Sliders can track either the state or attribute of an entity, meaning that when that entity's state or attribute changes so will the slider to match. By default it will track the `state` of an entity. To change this, set `Attribute` to the name of the attribute you want the slider to track. In order to pass the the slider's value to an action, set the value in the action data to `{{ value | float }}`.
 
-By default the slider's range will be from 0 to 100, with a step size of 1. You will need to adjust this depending on the action you are calling. If you find that the action you are calling does not like non-whole numbers (like `light.turn_on` with `color_temp`) in it's data, make sure to set step size to a whole number and to use the `int` filter in the action data template.
+By default the slider's range will be from 0 to 100, with a step size of 1. You will need to adjust this depending on the action you are calling. If you find that the action you are calling does not like non-whole numbers (like `light.turn_on` with `color_temp`) in its data, make sure to set step size to a whole number and to use the `int` filter in the action data template.
 
-To prevent value bouncing, sliders will wait for one second before retreiving an updated value from Home Assistant after it's action is called. This time can be changed by changing `Update after action delay`.
+To prevent value bouncing, sliders will wait for one second before retreiving an updated value from Home Assistant after its action is called. This time can be changed by changing `Update after action delay`.
 
 ## Spinboxes
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/spinbox_tile.png" width="600"/>
 
-Spinboxes allow you to create Home Assistant style number boxes with increment and decrement buttons, similar to the climate target temperature feature. By default the user can increment or decrement this feature's internal value using the corresponding buttons. Once the user stops pressing the buttons for a time period defined by `Debounce time` (default 1000ms), the user defined tap action will fire. Similar to sliders, spinboxes will wait one second before updating it's internal value but this can be changed using `Update after action delay`.
+Spinboxes allow you to create Home Assistant style number boxes with increment and decrement buttons, similar to the climate target temperature feature. By default the user can increment or decrement this feature's internal value using the corresponding buttons. Once the user stops pressing the buttons for a time period defined by `Debounce time` (default 1000ms), the user defined tap action will fire. Similar to sliders, spinboxes will wait one second before updating its internal value but this can be changed using `Update after action delay`.
 
 Like sliders, the spinbox's action should use an action which sets a value similar to `number/input_number.set_value` or `climate.set_temperature` and the user should use `value` in a template to pass it to the action call. This way the user can keep incrementing or decrementing the value until they reach the desired value, and the action to update it in Home Assistant is only called once. You can make this features buttons repeat when held by setting the hold action to repeat. These should all be set in the `Center` tab of the spinbox configuration page.
 
@@ -87,7 +87,7 @@ You can also override the default behavior of the increment and decrement button
 
 Toggles allow you to create Home Assistant style toggles, similar to the default switch and light entity toggle features. Like the default toggle, you can either tap or swipe on it in the correct direction to activate it. While toggles work best with `toggle` actions, like all features in this project it can be used with any action. You can use templates to change the toggle on and off options.
 
-Toggles have a special template variable `checked`. `checked` gives you the current boolean value of the feature. By default this value is true if the feature value is in the allow list `true, yes, on, enable, enabled, open, opening, 1` or if it's numeric cast is greater than 0. You can disable numeric checks and switch to checking a block list `false, no, off, disable, disabled, closed, closing, 0, undefined, null` using the configuration UI. You can also set a custom allow/block list.
+Toggles have a special template variable `checked`. `checked` gives you the current boolean value of the feature. By default this value is true if the feature value is in the allow list `true, yes, on, enable, enabled, open, opening, 1` or if its numeric cast is greater than 0. You can disable numeric checks and switch to checking a block list `false, no, off, disable, disabled, closed, closing, 0, undefined, null` using the configuration UI. You can also set a custom allow/block list.
 
 In addition to the default Home Assistant toggle feature style toggle, you can also make the toggle appear as a Material Design checkbox, a Material Design 2 switch, or a Material Design 3 switch. The Material Design checkbox and switch options use theme colors instead of the feature color, and have been carefully designed to follow the Material Design specifications. See the [styles section](#css-styles) below for more information on which variables they use. If you choose one of the checkbox or switch options and do not provide an icon or label, the feature will only use the minimum width necessary to show the toggle, instead of being equal width to any other features in the row.
 
@@ -121,13 +121,13 @@ You can also add CSS styles for the entire row here. CSS styles have to be encap
 }
 ```
 
-By default, features will autofill with it's parent's entity information for tracking it's internal state. This can be disabled by toggling `Autofill` off at the feature level. Haptics can be similary enabled for a feature.
+By default, features will autofill with its parent's entity information for tracking its internal state. This can be disabled by toggling `Autofill` off at the feature level. Haptics can be similary enabled for a feature.
 
 ## General Options
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/basic_feature_options.png" width="600"/>
 
-Every feature can have an entity assigned to it, which is used to track it's internal value. This value can then be used in styles and actions using templates, like `{{ value | float }}` By default the value will be derived from the entity state, but it can be changed to an attribute use the corresponding field.
+Every feature can have an entity assigned to it, which is used to track its internal value. This value can then be used in styles and actions using templates, like `{{ value | float }}` By default the value will be derived from the entity state, but it can be changed to an attribute use the corresponding field.
 
 Some additional logic is applied for certain attributes:
 
@@ -162,7 +162,7 @@ Like sliders and spinboxes, selectors have a one second delay before updating th
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/toggle_general_options.png" width="600"/>
 
-While toggles are fairly simple, custom toggles have some extra options so you can customize their behavior. By default a toggle is considered on/checked if it's value (entity's state or attribute) is in the list `true, yes, on, enable, enabled, open, opening, 1`, or if it's numeric cast is greater than zero. You can disable the numeric cast check with the option `Check numeric value`. You can also change the toggle check behavior to instead set the toggle state to off/unchecked if it's value is in the list `false, no, off, disable, disabled, closed, closing, 0, undefined, null` using the option `Allow/Block checked values`. If you want to make your toggle change it's state based on a value not in either of these lists or a limited list, you can use the `Alternate checked values` box to create an alternate allow or block list.
+While toggles are fairly simple, custom toggles have some extra options so you can customize their behavior. By default a toggle is considered on/checked if its value (entity's state or attribute) is in the list `true, yes, on, enable, enabled, open, opening, 1`, or if its numeric cast is greater than zero. You can disable the numeric cast check with the option `Check numeric value`. You can also change the toggle check behavior to instead set the toggle state to off/unchecked if its value is in the list `false, no, off, disable, disabled, closed, closing, 0, undefined, null` using the option `Allow/Block checked values`. If you want to make your toggle change its state based on a value not in either of these lists or a limited list, you can use the `Alternate checked values` box to create an alternate allow or block list.
 
 For default toggles and default styled custom toggles, you can swipe on them in the correct direction in addition to tapping them to actuate them. You can make it so that default styled custom toggles only activate on swipe. In addition to this, you can enable full swipe mode, where the toggle thumb will move as you drag it and will only activate if you drag it all the way to the other end of the toggle track. This makes it perform like a "swipe to unlock" switch.
 
@@ -170,15 +170,17 @@ For default toggles and default styled custom toggles, you can swipe on them in 
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/appearance_options.png" width="600"/>
 
-All features can have a `Label`, `Icon`, and `Units` (dropdowns and selectors support these fields at the option level). These fields can also be set using templates. Like the overall custom features row, each custom feature can have it's CSS styles set (including using templates).
+All features can have a `Label`, `Icon`, and `Units` (dropdowns and selectors support these fields at the option level). These fields can also be set using templates. Like the overall custom features row, each custom feature can have its CSS styles set (including using templates).
 
 Toggles have two extra icons for checked and unchecked states. These icons appear in the background of the default toggle, within the box of the checkbox toggle, and on the thumb of the switch toggles.
+
+Buttons, selectors, sliders, and toggles have design variants that can be changed here. These are based off of variants found within Home Assistant and Material Design. Most Material Design 3 button variants also support toggle styles (not to be confused with toggles, which have more in depth boolean logic) to style the button differently if its state is `off` or `on`.
 
 ### A Note on Templating
 
 Almost all fields support nunjucks templating. Nunjucks is a templating engine for JavaScript, which is heavily based on the jinja2 templating engine for Python which Home Assistant uses. While the syntax of nunjucks and jinja2 is almost identical, you may find the [nunjucks documentation](https://mozilla.github.io/nunjucks/templating.html) useful. Most extensions supported by Home Assistant templates are supported by this templating system, but not all and the syntax may vary. Please see the [ha-nunjucks](https://github.com/Nerwyn/ha-nunjucks) repository for a list of available extensions. If you want additional extensions to be added or have templating questions or bugs, please make an issue or discussion on that repository, not this one.
 
-You can include the current value of a feature and it's units by using the variables `value` and `unit` in a label template. You can also include `hold_secs` in a template if performing a momentary end action. For toggles you can use the boolean variable `checked` to check whether the toggle is on or off. Each custom feature can also reference it's entry using `config` within templates. `config.entity` and `config.attribute` will return the features entity ID and attribute with their templates rendered (if they have them), and other templated config fields can be rendered within templates by wrapping them in the function `render` within a template. Information about the parent card such as it's entity ID, state, and attributes can be accessed using `stateObj`. The structure of `stateObj` can be found [here](https://github.com/home-assistant/home-assistant-js-websocket/blob/1d51737f6092b95e2bc98e85aca752771b97b760/lib/types.ts#L72-L96) as a `HassEntity` type and is listed below.
+You can include the current value of a feature and its units by using the variables `value` and `unit` in a label template. You can also include `hold_secs` in a template if performing a momentary end action. For toggles you can use the boolean variable `checked` to check whether the toggle is on or off. Each custom feature can also reference its entry using `config` within templates. `config.entity` and `config.attribute` will return the features entity ID and attribute with their templates rendered (if they have them), and other templated config fields can be rendered within templates by wrapping them in the function `render` within a template. Information about the parent card such as its entity ID, state, and attributes can be accessed using `stateObj`. The structure of `stateObj` can be found [here](https://github.com/home-assistant/home-assistant-js-websocket/blob/1d51737f6092b95e2bc98e85aca752771b97b760/lib/types.ts#L72-L96) as a `HassEntity` type and is listed below.
 
 <details>
 
@@ -260,21 +262,21 @@ All sub-elements within a custom feature are given easy to remember classes to a
 
 While any CSS property can be used, these values are internal CSS attributes used by custom features. You can choose to either use these values or to set these fields directly using class selectors for each sub-element.
 
-| Name                     | Description                                                                                          |
-| ------------------------ | ---------------------------------------------------------------------------------------------------- |
-| flex-basis               | Percentage of the row the the feature should populate relative to it's siblings. Defaults to `100%`. |
-| --feature-color          | Color of the feature. Inherited from the card, like tile icon color or climate mode color.           |
-| --feature-height         | Height of the features. Defaults to 40px (pre 2024.8.0) or 42px (2024.8.0 or later).                 |
-| --feature-border-radius  | The border radius of custom features. Defaults to 12px.                                              |
-| --feature-button-spacing | The gap between custom features. Defaults to 12px.                                                   |
-| --color                  | Color of the custom feature.                                                                         |
-| --opacity                | Opacity of the custom feature. Defaults to 0.2.                                                      |
-| --icon-color             | Color of the icon.                                                                                   |
-| --label-color            | Color of the string label.                                                                           |
-| --icon-filter            | Filter to apply to the icon color.                                                                   |
-| --label-filter           | Filter to apply to the string label color.                                                           |
-| --background             | Color for the custom feature background. Sometimes equivalent to `--color`.                          |
-| --background-opacity     | Opacity of the feature background. Defaults to 0.2.                                                  |
+| Name                     | Description                                                                                         |
+| ------------------------ | --------------------------------------------------------------------------------------------------- |
+| flex-basis               | Percentage of the row the the feature should populate relative to its siblings. Defaults to `100%`. |
+| --feature-color          | Color of the feature. Inherited from the card, like tile icon color or climate mode color.          |
+| --feature-height         | Height of the features. Defaults to 40px (pre 2024.8.0) or 42px (2024.8.0 or later).                |
+| --feature-border-radius  | The border radius of custom features. Defaults to 12px.                                             |
+| --feature-button-spacing | The gap between custom features. Defaults to 12px.                                                  |
+| --color                  | Color of the custom feature.                                                                        |
+| --opacity                | Opacity of the custom feature. Defaults to 0.2.                                                     |
+| --icon-color             | Color of the icon.                                                                                  |
+| --label-color            | Color of the string label.                                                                          |
+| --icon-filter            | Filter to apply to the icon color.                                                                  |
+| --label-filter           | Filter to apply to the string label color.                                                          |
+| --background             | Color for the custom feature background. Sometimes equivalent to `--color`.                         |
+| --background-opacity     | Opacity of the feature background. Defaults to 0.2.                                                 |
 
 Most features have additional custom CSS attributes which can be used to style them. I've also include their HTML below, so you can more easily style them directly using CSS selectors.
 

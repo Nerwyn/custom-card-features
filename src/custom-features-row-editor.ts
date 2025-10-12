@@ -1286,6 +1286,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 							HAPTICS,
 						)}
 					</div>
+					<div class="">
+						${this.buildEntryList(
+							'option',
+						)}${this.buildAddEntryButton('option')}
+					</div>
 					${type == 'selector'
 						? this.buildSelector(
 								'Type',
@@ -1321,11 +1326,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 								'default',
 							)
 						: ''}
-					<div class="">
-						${this.buildEntryList(
-							'option',
-						)}${this.buildAddEntryButton('option')}
-					</div>
 					${this.buildCodeEditor('jinja2')}`;
 				break;
 			default:
