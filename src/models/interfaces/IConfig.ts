@@ -16,6 +16,7 @@ export interface IConfig {
 
 export interface IEntry
 	extends IActions,
+		IButtonOptions,
 		ISliderOptions,
 		IDropdownSelectorOptions,
 		ISpinboxOptions,
@@ -108,6 +109,10 @@ export const ThumbTypes = [
 ] as const;
 export type ThumbType = (typeof ThumbTypes)[number];
 
+export interface IButtonOptions {
+	thumb?: ThumbType;
+	toggle_styles?: boolean;
+}
 export interface ISliderOptions {
 	range?: [number, number] | [string, string];
 	step?: number;

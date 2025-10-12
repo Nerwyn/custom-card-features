@@ -23,6 +23,7 @@ import {
 	Actions,
 	ActionType,
 	ActionTypes,
+	ButtonThumbType,
 	CardFeatureType,
 	CardFeatureTypes,
 	CheckedValues,
@@ -959,6 +960,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	buildButtonGuiEditor(parentEntry?: IEntry) {
+		const context = this.getEntryContext(this.activeEntry as IEntry);
+		const thumb = this.renderTemplate(
+			this.activeEntry?.thumb ?? 'default',
+			context,
+		) as ButtonThumbType;
+
 		const actionsTabBar = this.buildTabBar(
 			this.actionsTabIndex,
 			this.handleActionsTabSelected,
@@ -1044,48 +1051,60 @@ export class CustomFeaturesRowEditor extends LitElement {
 					parentEntry?.haptics ?? HAPTICS,
 				)}
 			</div>
-			${this.buildAppearancePanel(html`
-				${this.buildCommonAppearanceOptions()}
+			${this.buildAppearancePanel(
+				html` ${this.buildCommonAppearanceOptions()}
 				${parentEntry
 					? ''
-					: this.buildSelector(
-							'Type',
-							'thumb',
-							{
-								select: {
-									mode: 'dropdown',
-									options: [
-										{
-											value: 'default',
-											label: 'Default',
-										},
-										{
-											value: 'md3-elevated',
-											label: 'Material Design 3 Elevated',
-										},
-										{
-											value: 'md3-filled',
-											label: 'Material Design 3 Filled',
-										},
-										{
-											value: 'md3-tonal',
-											label: 'Material Design 3 Tonal',
-										},
-										{
-											value: 'md3-outlined',
-											label: 'Material Design 3 Outlined',
-										},
-										{
-											value: 'md3-text',
-											label: 'Material Design 3 Text',
-										},
-									],
-									reorder: false,
+					: html`<div class="form">
+							${this.buildSelector(
+								'Type',
+								'thumb',
+								{
+									select: {
+										mode: 'dropdown',
+										options: [
+											{
+												value: 'default',
+												label: 'Default',
+											},
+											{
+												value: 'md3-elevated',
+												label: 'Material Design 3 Elevated',
+											},
+											{
+												value: 'md3-filled',
+												label: 'Material Design 3 Filled',
+											},
+											{
+												value: 'md3-tonal',
+												label: 'Material Design 3 Tonal',
+											},
+											{
+												value: 'md3-outlined',
+												label: 'Material Design 3 Outlined',
+											},
+											{
+												value: 'md3-text',
+												label: 'Material Design 3 Text',
+											},
+										],
+										reorder: false,
+									},
 								},
-							},
-							'default',
-						)}
-			`)}
+								'default',
+							)}
+							${thumb.startsWith('md3') && !thumb.endsWith('text')
+								? this.buildSelector(
+										'Toggle styles',
+										'toggle_styles',
+										{
+											boolean: {},
+										},
+										false,
+									)
+								: ''}
+						</div>`}`,
+			)}
 			${this.buildInteractionsPanel(actionSelectors)}
 		`;
 	}
@@ -1589,7 +1608,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				)}
 				${thumb == 'default'
 					? html`${this.buildSelector(
-							'Swipe Only',
+							'Swipe only',
 							'swipe_only',
 							{
 								boolean: {},
@@ -1597,7 +1616,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 							false,
 						)}
 						${this.buildSelector(
-							'Full Swipe',
+							'Full swipe',
 							'full_swipe',
 							{
 								boolean: {},

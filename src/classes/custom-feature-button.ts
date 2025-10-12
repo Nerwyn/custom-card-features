@@ -20,6 +20,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 	hold: boolean = false;
 
 	thumbType: ButtonThumbType = 'default';
+	toggleStyles: boolean = false;
 
 	async onClick(e: PointerEvent) {
 		e.stopImmediatePropagation();
@@ -244,7 +245,15 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				? thumbType
 				: 'default';
 
-			if (thumbType != this.thumbType) {
+			let toggleStyles =
+				String(
+					this.renderTemplate(this.config.toggle_styles ?? 'false'),
+				) == 'true';
+
+			if (
+				thumbType != this.thumbType ||
+				toggleStyles != this.toggleStyles
+			) {
 				this.thumbType = thumbType;
 				this.classList.add(thumbType);
 				if (thumbType.startsWith('md3')) {
@@ -256,6 +265,14 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						),
 					);
 				}
+
+				this.toggleStyles = toggleStyles;
+				if (toggleStyles) {
+					this.classList.add('toggle');
+				} else {
+					this.classList.remove('toggle');
+				}
+
 				return true;
 			}
 		}
@@ -388,7 +405,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					--md-button-border-radius: var(--feature-height, 40px);
 				}
 				:host(.md3.option.selected),
-				:host(.md3.on) {
+				:host(.md3.toggle[value='on']) {
 					--md-button-border-radius: var(
 						--md-sys-shape-corner-medium,
 						12px
@@ -412,7 +429,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 				}
 				:host(.md3-elevated.option.selected),
-				:host(.md3-elevated.on) {
+				:host(.md3-elevated.toggle[value='on']) {
 					--md-button-background-color: var(
 						--md-sys-color-primary,
 						var(--primary-color)
@@ -434,7 +451,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 				}
 				:host(.md3-filled.option:not(.selected)),
-				:host(.md3-filled.off) {
+				:host(.md3-filled.toggle[value='off']) {
 					--md-button-background-color: var(
 						--md-sys-color-surface-container,
 						var(--primary-background-color)
@@ -456,7 +473,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 				}
 				:host(.md3-tonal.option.selected),
-				:host(.md3-tonal.on) {
+				:host(.md3-tonal.toggle[value='on']) {
 					--md-button-background-color: var(
 						--md-sys-color-secondary,
 						var(--accent-color)
@@ -483,7 +500,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					border-style: solid;
 				}
 				:host(.md3-outlined.option.selected),
-				:host(.md3-outlined.on) {
+				:host(.md3-outlined.toggle[value='on']) {
 					--md-button-background-color: var(
 						--md-sys-color-inverse-surface,
 						rgb(
@@ -517,6 +534,12 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					--md-button-border-radius: var(
 						--md-sys-shape-corner-small,
 						8px
+					);
+				}
+				:host([pressed].md3.toggle) {
+					--md-button-border-radius: var(
+						--md-sys-shape-corner-extra-small,
+						4px
 					);
 				}
 				:host(.md3:focus-visible) {
