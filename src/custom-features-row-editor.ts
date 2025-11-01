@@ -2348,10 +2348,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 				) as string;
 
 				// Icon
-				entry.icon ??= this.hass.states[entryEntityId]?.attributes.icon;
+				entry.icon ||= this.hass.states[entryEntityId]?.attributes.icon;
 
 				// Unit of measurement
-				entry.unit_of_measurement ??=
+				entry.unit_of_measurement ||=
 					this.hass.states[
 						entryEntityId
 					]?.attributes.unit_of_measurement;
