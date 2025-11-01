@@ -102,6 +102,15 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	async onKeyUp(_e: KeyboardEvent) {}
 
 	render() {
+		let value = this.value ?? '';
+		if (
+			value != undefined &&
+			!isNaN(value as number) &&
+			this.precision != undefined
+		) {
+			value = Number(value).toFixed(this.precision);
+		}
+
 		const input = html`
 			<input
 				type="${this.thumb}"
@@ -114,8 +123,8 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				max="${this.range[1]}"
 				maxlength="${this.range[1] as number}"
 				step="${this.step}"
-				value="${this.value ?? ''}"
-				.value="${(this.value ?? '') as string}"
+				value="${value}"
+				.value="${value as string}"
 				@keydown=${this.onKeyDown}
 				@change=${this.onChange}
 				@blur=${this.onBlur}

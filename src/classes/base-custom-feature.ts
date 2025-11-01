@@ -657,7 +657,7 @@ export class BaseCustomFeature extends LitElement {
 		let value: string | number = context['value' as keyof typeof context];
 		if (
 			value != undefined &&
-			typeof value == 'number' &&
+			!isNaN(value as number) &&
 			this.precision != undefined
 		) {
 			value = Number(value).toFixed(this.precision);
