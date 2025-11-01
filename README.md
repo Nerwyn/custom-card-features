@@ -121,7 +121,7 @@ You can also add CSS styles for the entire row here. CSS styles have to be encap
 }
 ```
 
-By default, features will autofill with its parent's entity information for tracking its internal state. This can be disabled by toggling `Autofill` off at the feature level. Haptics can be similary enabled for a feature.
+By default, features will autofill with its parent's entity information for tracking its internal state. The feature icon and unit of measurement will also autofill if enabled and available. This can be disabled by toggling `Autofill` off at the feature level. Haptics can be similary enabled for a feature.
 
 ## General Options
 
@@ -136,7 +136,7 @@ Some additional logic is applied for certain attributes:
 - `elapsed` - Only for timer entities. Updated twice a second using the the current timestamp and the attributes `duration`, `remaining`, and `finishes_at`, and locked to a max value using the attribute `duration`.
   - **Note**: `elapsed` is not an actual attribute of timer entities, but is a possible `value_attribute` for timer entities for the purpose of displaying accurate timer elapsed values. Timer entities do have an attribute `remaining`, which only updates when the timer state changes. The actual `remaining` attribute can be calculated using the `elapsed` value and the timer `duration` attribute.
 
-If you find that the autofilling of the entity ID in the action or feature value is causing issues, setting `Autofill` to `false` may help. Just remember to set or clear the entity ID of the feature and the entity, device, area, or label ID of the action target.
+If you find that the autofilling of the entity ID in the action or feature value or the icon and units is causing issues, setting `Autofill` to `false` may help. Just remember to set or clear the entity ID of the feature and the entity, device, area, or label ID of the action target.
 
 Haptics are disabled for features by default, but can be toggled on at the feature level.
 
