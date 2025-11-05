@@ -7,17 +7,29 @@ import { dump, load } from 'js-yaml';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import {
 	AUTOFILL,
+	COLOR_MAX,
+	COLOR_MIN,
+	DATE_MAX,
+	DATE_MIN,
+	DATETIME_MAX,
+	DATETIME_MIN,
 	DEBOUNCE_TIME,
 	DOUBLE_TAP_WINDOW,
 	HAPTICS,
 	HOLD_TIME,
 	INPUT_TYPE,
+	MONTH_MAX,
+	MONTH_MIN,
 	RANGE_MAX,
 	RANGE_MIN,
 	REPEAT_DELAY,
 	STEP,
 	STEP_COUNT,
+	TIME_MAX,
+	TIME_MIN,
 	UPDATE_AFTER_ACTION_DELAY,
+	WEEK_MAX,
+	WEEK_MIN,
 } from './models/constants';
 import {
 	Actions,
@@ -79,7 +91,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			composed: true,
 		});
 		event.detail = {
-			config: config,
+			config,
 		};
 		this.dispatchEvent(event);
 		this.requestUpdate();
@@ -88,7 +100,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	entriesChanged(entries: IEntry[]) {
 		this.configChanged({
 			...this.config,
-			entries: entries,
+			entries,
 		} as IConfig);
 	}
 
@@ -121,6 +133,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 			case 'entry':
 			default:
 				updatedEntry = entry;
+
+				// Clear range when input feature type changes
+				if (
+					updatedEntry.type == 'input' &&
+					oldEntry.thumb != updatedEntry.thumb
+				) {
+					delete updatedEntry.range;
+				}
 		}
 		entries[this.entryIndex] = updatedEntry;
 		this.entriesChanged(entries);
@@ -1738,9 +1758,20 @@ export class CustomFeaturesRowEditor extends LitElement {
 					<div class="form">
 						${this.buildSelector('Start', 'range.0', {
 							date: {},
+							DATE_MIN,
 						})}
 						${this.buildSelector('End', 'range.1', {
 							date: {},
+							DATE_MAX,
+						})}
+						${this.buildSelector('Step', 'step', {
+							number: {
+								min: 1,
+								step: 1,
+								mode: 'box',
+								unit_of_measurement: 'days',
+							},
+							STEP,
 						})}
 					</div>
 				`;
@@ -1749,9 +1780,20 @@ export class CustomFeaturesRowEditor extends LitElement {
 				mainOptions = html`
 					${this.buildSelector('Start', 'range.0', {
 						time: {},
+						TIME_MIN,
 					})}
 					${this.buildSelector('End', 'range.1', {
 						time: {},
+						TIME_MAX,
+					})}
+					${this.buildSelector('Step', 'step', {
+						number: {
+							min: 1,
+							step: 1,
+							mode: 'box',
+							unit_of_measurement: 'seconds',
+						},
+						STEP,
 					})}
 				`;
 				break;
@@ -1759,9 +1801,20 @@ export class CustomFeaturesRowEditor extends LitElement {
 				mainOptions = html`
 					${this.buildSelector('Start', 'range.0', {
 						datetime: {},
+						DATETIME_MIN,
 					})}
 					${this.buildSelector('End', 'range.1', {
 						datetime: {},
+						DATETIME_MAX,
+					})}
+					${this.buildSelector('Step', 'step', {
+						number: {
+							min: 1,
+							step: 1,
+							mode: 'box',
+							unit_of_measurement: 'seconds',
+						},
+						STEP,
 					})}
 				`;
 				break;
@@ -1772,11 +1825,13 @@ export class CustomFeaturesRowEditor extends LitElement {
 							text: {
 								type: 'week',
 							},
+							WEEK_MIN,
 						})}
 						${this.buildSelector('End', 'range.1', {
 							text: {
 								type: 'week',
 							},
+							WEEK_MAX,
 						})}
 					</div>
 				`;
@@ -1788,11 +1843,13 @@ export class CustomFeaturesRowEditor extends LitElement {
 							text: {
 								type: 'month',
 							},
+							MONTH_MIN,
 						})}
 						${this.buildSelector('End', 'range.1', {
 							text: {
 								type: 'month',
 							},
+							MONTH_MAX,
 						})}
 					</div>
 				`;
@@ -2356,12 +2413,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 						entryEntityId
 					]?.attributes.unit_of_measurement;
 
-				switch (
-					this.renderTemplate(
-						entry.type as string,
-						this.getEntryContext(entry),
-					) as CardFeatureType
-				) {
+				const featureType = this.renderTemplate(
+					entry.type as string,
+					this.getEntryContext(entry),
+				) as CardFeatureType;
+				switch (featureType) {
 					case 'dropdown':
 					case 'selector': {
 						// Get option names from attributes if it exists
@@ -2478,33 +2534,25 @@ export class CustomFeaturesRowEditor extends LitElement {
 							const data = tap_action.data ?? {};
 							tap_action.action = 'perform-action';
 							switch (domain) {
+								case 'text':
 								case 'input_text':
-									tap_action.perform_action =
-										'input_text.set_value';
+									tap_action.perform_action = `${domain}.set_value`;
 									if (!data.value) {
 										data.value = '{{ value | string }}';
 										tap_action.data = data;
 									}
 									break;
 								case 'number':
-									tap_action.perform_action =
-										'number.set_value';
-									if (!data.value) {
-										data.value = '{{ value | float }}';
-										tap_action.data = data;
-									}
-									break;
 								case 'input_number':
-									tap_action.perform_action =
-										'input_number.set_value';
+									tap_action.perform_action = `${domain}.set_value`;
 									if (!data.value) {
 										data.value = '{{ value | float }}';
 										tap_action.data = data;
 									}
 									break;
+								case 'datetime':
 								case 'input_datetime':
-									tap_action.perform_action =
-										'input_datetime.set_datetime';
+									tap_action.perform_action = `${domain}.set_datetime`;
 									const hasDate =
 										this.hass.states[entryEntityId]
 											?.attributes.has_date;
@@ -2529,28 +2577,68 @@ export class CustomFeaturesRowEditor extends LitElement {
 							entry.tap_action = tap_action;
 						}
 
-						let rangeMin = entry.range?.[0];
-						let rangeMax = entry.range?.[1];
-						if (rangeMin == undefined) {
-							rangeMin =
-								this.hass.states[entryEntityId]?.attributes
-									?.min ?? RANGE_MIN;
-						}
-						if (rangeMax == undefined) {
-							rangeMax =
-								this.hass.states[entryEntityId]?.attributes
-									?.max ?? RANGE_MAX;
-						}
-						entry.range = [rangeMin as number, rangeMax as number];
-
 						const thumb = this.renderTemplate(
-							this.activeEntry?.thumb ?? '',
+							entry.thumb ?? '',
 							context,
 						) as ThumbType;
-
-						if (thumb != 'number') {
+						let rangeMin = entry.range?.[0];
+						let rangeMax = entry.range?.[1];
+						if (featureType == 'input' && thumb != 'number') {
+							switch (thumb) {
+								case 'date':
+									rangeMin ||= DATE_MIN;
+									rangeMax ||= DATE_MAX;
+									entry.step ||= 1;
+									break;
+								case 'time':
+									rangeMin ||= TIME_MIN;
+									rangeMax ||= TIME_MAX;
+									entry.step ||= 1;
+									break;
+								case 'datetime-local':
+									rangeMin ||= DATETIME_MIN;
+									rangeMax ||= DATETIME_MAX;
+									entry.step ||= 1;
+									break;
+								case 'week':
+									rangeMin ||= WEEK_MIN;
+									rangeMax ||= WEEK_MAX;
+									break;
+								case 'month':
+									rangeMin ||= MONTH_MIN;
+									rangeMax ||= MONTH_MAX;
+									break;
+								case 'color':
+									rangeMin ||= COLOR_MIN;
+									rangeMax ||= COLOR_MAX;
+									break;
+								case 'text':
+								case 'password':
+								default:
+									rangeMin =
+										(parseFloat(rangeMin as string) ||
+											this.hass.states[entryEntityId]
+												?.attributes?.min) ??
+										RANGE_MIN;
+									rangeMax =
+										(parseFloat(rangeMax as string) ||
+											this.hass.states[entryEntityId]
+												?.attributes?.max) ??
+										RANGE_MAX;
+									break;
+							}
+							entry.range = [rangeMin, rangeMax] as
+								| [number, number]
+								| [string, string];
 							break;
 						}
+						rangeMin ??=
+							this.hass.states[entryEntityId]?.attributes?.min ??
+							RANGE_MIN;
+						rangeMax ??=
+							this.hass.states[entryEntityId]?.attributes?.max ??
+							RANGE_MAX;
+						entry.range = [rangeMin as number, rangeMax as number];
 
 						if (!entry.step) {
 							const defaultStep =

@@ -1,4 +1,4 @@
-import { css, CSSResult, html, PropertyValues } from 'lit';
+import { css, CSSResult, html, nothing, PropertyValues } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import {
 	COLOR_MAX,
@@ -27,6 +27,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	thumb: InputType = 'text';
 	range: [number, number] | [string, string] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
+	rangeIsLength: boolean = true;
 
 	shouldFire: boolean = true;
 
@@ -118,10 +119,14 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				tabindex="-1"
 				enterkeyhint="done"
 				autocomplete="off"
-				min="${this.range[0]}"
-				minlength="${this.range[0] as number}"
-				max="${this.range[1]}"
-				maxlength="${this.range[1] as number}"
+				min="${this.rangeIsLength ? nothing : this.range[0]}"
+				max="${this.rangeIsLength ? nothing : this.range[1]}"
+				minlength="${this.rangeIsLength
+					? (this.range[0] as number)
+					: nothing}"
+				maxlength="${this.rangeIsLength
+					? (this.range[1] as number)
+					: nothing}"
 				step="${this.step}"
 				value="${value}"
 				.value="${value as string}"
@@ -161,6 +166,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				this.config.thumb ?? 'text',
 			) as InputType;
 
+			this.rangeIsLength = ['text', 'password'].includes(thumb);
 			let min: string | number = this.renderTemplate(
 				this.config.range?.[0] as unknown as string,
 			) as string;
@@ -210,6 +216,12 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				switch (this.thumb) {
 					case 'number':
 						step = ((max as number) - (min as number)) / STEP_COUNT;
+						break;
+					case 'date':
+					case 'time':
+					case 'datetime-local':
+					case 'week':
+						step ||= 1;
 						break;
 					default:
 						step = STEP;
