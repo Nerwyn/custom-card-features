@@ -51,6 +51,9 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			this.shouldFire &&
 			this.value?.toString() != input.value?.toString()
 		) {
+			if (!this.validate(input.value)) {
+				return;
+			}
 			this.value = input.value;
 			await this.sendAction('tap_action');
 		}
@@ -102,6 +105,43 @@ export class CustomFeatureInput extends BaseCustomFeature {
 
 	async onKeyUp(_e: KeyboardEvent) {}
 
+	validate(value: string | number) {
+		let valid = true;
+		switch (this.thumb) {
+			// TODO
+			case 'date':
+				break;
+			case 'time':
+				break;
+			case 'datetime-local':
+				break;
+			case 'week':
+				break;
+			case 'month':
+				break;
+			case 'color':
+				break;
+			case 'number':
+				valid = value >= this.range[0] && value <= this.range[1];
+				break;
+			case 'text':
+			case 'password':
+			default:
+				const len = (value as string).length;
+				valid =
+					len >= (this.range[0] as number) &&
+					len <= (this.range[1] as number);
+				break;
+		}
+
+		if (valid) {
+			this.removeAttribute('invalid');
+		} else {
+			this.setAttribute('invalid', '');
+		}
+		return valid;
+	}
+
 	render() {
 		let value = this.value ?? '';
 		if (
@@ -151,6 +191,15 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			<div class="line-ripple" part="ripple"></div>
 			${buildStyles(this.styles)}
 		`;
+	}
+
+	willUpdate() {
+		const input = this.shadowRoot?.querySelector(
+			'input',
+		) as HTMLInputElement;
+		if (input) {
+			this.validate(input.value);
+		}
 	}
 
 	shouldUpdate(changedProperties: PropertyValues) {
@@ -397,6 +446,9 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				:host([dir='rtl']) .label {
 					transform-origin: 100% 50%;
 				}
+				:host([invalid]) .label {
+					color: var(--mdc-theme-error, #b00020);
+				}
 
 				input {
 					font-family: var(
@@ -522,6 +574,10 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				:host(:focus-within) .line-ripple::after {
 					scale: 1 1;
 					opacity: 1;
+				}
+				:host([invalid]) .line-ripple::before,
+				:host([invalid]) .line-ripple::after {
+					background: var(--mdc-theme-error, #b00020);
 				}
 			`,
 		];
