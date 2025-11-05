@@ -29,7 +29,6 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	thumb: InputType = 'text';
 	range: [number, number] | [string, string] = [RANGE_MIN, RANGE_MAX];
 	rangeTs?: [number, number];
-	dateRange?: [Date, Date];
 	step: number = STEP;
 	rangeIsLength: boolean = true;
 
