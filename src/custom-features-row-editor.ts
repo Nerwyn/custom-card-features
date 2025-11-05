@@ -1833,6 +1833,15 @@ export class CustomFeaturesRowEditor extends LitElement {
 							},
 							WEEK_MAX,
 						})}
+						${this.buildSelector('Step', 'step', {
+							number: {
+								min: 1,
+								step: 1,
+								mode: 'box',
+								unit_of_measurement: 'weeks',
+							},
+							STEP,
+						})}
 					</div>
 				`;
 				break;
@@ -1850,6 +1859,15 @@ export class CustomFeaturesRowEditor extends LitElement {
 								type: 'month',
 							},
 							MONTH_MAX,
+						})}
+						${this.buildSelector('Step', 'step', {
+							number: {
+								min: 1,
+								step: 1,
+								mode: 'box',
+								unit_of_measurement: 'months',
+							},
+							STEP,
 						})}
 					</div>
 				`;
@@ -2603,10 +2621,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 								case 'week':
 									rangeMin ||= WEEK_MIN;
 									rangeMax ||= WEEK_MAX;
+									entry.step ||= 1;
 									break;
 								case 'month':
 									rangeMin ||= MONTH_MIN;
 									rangeMax ||= MONTH_MAX;
+									entry.step ||= 1;
 									break;
 								case 'color':
 									rangeMin ||= COLOR_MIN;

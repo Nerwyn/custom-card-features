@@ -221,6 +221,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					case 'time':
 					case 'datetime-local':
 					case 'week':
+					case 'month':
 						step ||= 1;
 						break;
 					default:
