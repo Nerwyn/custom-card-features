@@ -7,6 +7,8 @@ import {
 	DATE_MIN,
 	DATETIME_MAX,
 	DATETIME_MIN,
+	DT_MAX,
+	DT_MIN,
 	MONTH_MAX,
 	MONTH_MIN,
 	RANGE_MAX,
@@ -26,6 +28,8 @@ import { BaseCustomFeature } from './base-custom-feature';
 export class CustomFeatureInput extends BaseCustomFeature {
 	thumb: InputType = 'text';
 	range: [number, number] | [string, string] = [RANGE_MIN, RANGE_MAX];
+	rangeTs?: [number, number];
+	dateRange?: [Date, Date];
 	step: number = STEP;
 	rangeIsLength: boolean = true;
 
@@ -107,31 +111,54 @@ export class CustomFeatureInput extends BaseCustomFeature {
 
 	validate(value: string | number) {
 		let valid = true;
-		switch (this.thumb) {
-			// TODO
-			case 'date':
-				break;
-			case 'time':
-				break;
-			case 'datetime-local':
-				break;
-			case 'week':
-				break;
-			case 'month':
-				break;
-			case 'color':
-				break;
-			case 'number':
-				valid = value >= this.range[0] && value <= this.range[1];
-				break;
-			case 'text':
-			case 'password':
-			default:
-				const len = (value as string).length;
-				valid =
-					len >= (this.range[0] as number) &&
-					len <= (this.range[1] as number);
-				break;
+		if (valid == undefined) {
+			valid = false;
+		} else {
+			switch (this.thumb) {
+				case 'week':
+					value = String(value);
+					if (!value.includes('-W')) {
+						valid = false;
+						break;
+					}
+					const [year, week] = value.split('-W');
+					const weekDate =
+						new Date(`${year}-01-01`).getTime() +
+						(parseInt(week) - 1) * 7 * 24 * 60 * 60 * 1000;
+					valid =
+						weekDate >= (this.rangeTs ? this.rangeTs[0] : DT_MIN) &&
+						weekDate <= (this.rangeTs ? this.rangeTs[1] : DT_MAX);
+					break;
+				case 'time':
+					const time = new Date(`1970-01-01T${value}Z`).getTime();
+					valid =
+						time >= (this.rangeTs ? this.rangeTs[0] : 0) &&
+						time <
+							(this.rangeTs
+								? this.rangeTs[1]
+								: 1000 * 60 * 60 * 24);
+					break;
+				case 'month':
+				case 'date':
+				case 'datetime-local':
+					const dt = new Date(value as string).getTime();
+					valid =
+						dt >= (this.rangeTs ? this.rangeTs[0] : DT_MIN) &&
+						dt <= (this.rangeTs ? this.rangeTs[1] : DT_MAX);
+					break;
+				case 'number':
+					valid = value >= this.range[0] && value <= this.range[1];
+					break;
+				case 'color':
+				case 'text':
+				case 'password':
+				default:
+					const len = (value as string).length;
+					valid =
+						len >= (this.range[0] as number) &&
+						len <= (this.range[1] as number);
+					break;
+			}
 		}
 
 		if (valid) {
@@ -244,8 +271,8 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					max ||= MONTH_MAX;
 					break;
 				case 'color':
-					min ||= COLOR_MIN;
-					max ||= COLOR_MAX;
+					min = COLOR_MIN;
+					max = COLOR_MAX;
 					break;
 				case 'text':
 				case 'password':
@@ -279,7 +306,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				}
 			}
 
-			const splitStep = this.step.toString().split('.');
+			const splitStep = String(this.step).split('.');
 			let precision = 0;
 			if (splitStep.length > 1) {
 				precision = splitStep[1].length;
@@ -293,6 +320,56 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				step != this.step ||
 				precision != this.precision
 			) {
+				// Get timestamps for datetime type validation
+				if (min != this.range[0] || max != this.range[1]) {
+					switch (thumb) {
+						case 'week':
+							min = String(min);
+							max = String(max);
+							if (!min.includes('-W')) {
+								min = WEEK_MIN;
+							}
+							if (!max.includes('-W')) {
+								max = WEEK_MAX;
+							}
+
+							const [minYear, minWeek] = min.split('-W');
+							const [maxYear, maxWeek] = max.split('-W');
+							this.rangeTs = [
+								new Date(`${minYear}-01-01`).getTime() +
+									(parseInt(minWeek) - 1) *
+										7 *
+										24 *
+										60 *
+										60 *
+										1000,
+								new Date(`${maxYear}-01-01`).getTime() +
+									(parseInt(maxWeek) - 1) *
+										7 *
+										24 *
+										60 *
+										60 *
+										1000,
+							];
+							break;
+						case 'time':
+							this.rangeTs = [
+								new Date(`1970-01-01T${min}Z`).getTime(),
+								new Date(`1970-01-01T${max}Z`).getTime(),
+							];
+							break;
+						case 'month':
+						case 'date':
+						case 'datetime-local':
+						default:
+							this.rangeTs = [
+								new Date(min as string).getTime(),
+								new Date(max as string).getTime(),
+							];
+							break;
+					}
+				}
+
 				this.thumb = thumb;
 				this.range = [min, max] as [number, number] | [string, string];
 				this.step = step;

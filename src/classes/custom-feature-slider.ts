@@ -263,7 +263,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				step = (max - min) / STEP_COUNT;
 			}
 
-			const splitStep = step.toString().split('.');
+			const splitStep = String(step).split('.');
 			let precision = 0;
 			if (splitStep.length > 1) {
 				precision = splitStep[1].length;

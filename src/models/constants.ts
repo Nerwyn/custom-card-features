@@ -13,6 +13,8 @@ export const STEP = 1;
 
 export const RANGE_MIN = 0;
 export const RANGE_MAX = 100;
+export const COLOR_MIN = 7;
+export const COLOR_MAX = 9;
 export const DATE_MIN = '0001-01-01';
 export const DATE_MAX = '9999-12-31';
 export const TIME_MIN = '00:00:00';
@@ -23,7 +25,7 @@ export const WEEK_MIN = '0001-W01';
 export const WEEK_MAX = '9999-W52';
 export const MONTH_MIN = '0001-01';
 export const MONTH_MAX = '9999-12';
-export const COLOR_MIN = 7;
-export const COLOR_MAX = 9;
+export const DT_MIN = -62135596800000; // 0001-01-01T00:00:00.000Z
+export const DT_MAX = 253402275599000; // 9999-12-31T23:59:59.000Z
 
 export const INPUT_TYPE = 'text';
