@@ -2502,6 +2502,21 @@ export class CustomFeaturesRowEditor extends LitElement {
 										tap_action.data = data;
 									}
 									break;
+								case 'input_datetime':
+									tap_action.perform_action =
+										'input_datetime.set_datetime';
+									const hasDate =
+										this.hass.states[entryEntityId]
+											?.attributes.has_date;
+									const hasTime =
+										this.hass.states[entryEntityId]
+											?.attributes.has_time;
+									const field = `${hasDate ? 'date' : ''}${hasTime ? 'time' : ''}`;
+									if (field && !data[field]) {
+										data[field] = '{{ value }}';
+										tap_action.data = data;
+									}
+									break;
 								default:
 									break;
 							}
