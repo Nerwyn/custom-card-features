@@ -50,17 +50,18 @@ export class CustomFeatureInput extends BaseCustomFeature {
 		const input = this.shadowRoot?.querySelector(
 			'input',
 		) as HTMLInputElement;
-		if (
-			this.shouldFire &&
-			this.value?.toString() != input.value?.toString()
-		) {
-			if (!this.validate(input.value)) {
-				return;
+		if (input) {
+			if (
+				this.shouldFire &&
+				this.value?.toString() != input.value?.toString() &&
+				this.validate(input.value)
+			) {
+				this.value = input.value;
+				await this.sendAction('tap_action');
 			}
-			this.value = input.value;
-			await this.sendAction('tap_action');
+			input.value = String(this.value ?? '');
+			this.validate(input.value);
 		}
-		input.value = String(this.value ?? '');
 		this.resetGetValueFromHass();
 		this.shouldFire = true;
 	}
@@ -70,43 +71,59 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			'input',
 		) as HTMLInputElement;
 
-		switch (this.thumb) {
-			case 'date':
-			case 'time':
-			case 'datetime-local':
-			case 'week':
-			case 'month':
-			case 'color':
-				this.shouldFire = true;
-				this.onBlur(new FocusEvent('blur', { ...e }));
-				break;
-			case 'number':
-				if (this.precision) {
-					input.value = Number(input.value).toFixed(this.precision);
-				}
-				break;
-			case 'text':
-			case 'password':
-			default:
-				break;
+		if (input) {
+			this.validate(input.value);
+
+			switch (this.thumb) {
+				case 'date':
+				case 'time':
+				case 'datetime-local':
+				case 'week':
+				case 'month':
+				case 'color':
+					this.shouldFire = true;
+					this.onBlur(new FocusEvent('blur', { ...e }));
+					break;
+				case 'number':
+					if (this.precision) {
+						input.value = Number(input.value).toFixed(
+							this.precision,
+						);
+					}
+					break;
+				case 'text':
+				case 'password':
+				default:
+					break;
+			}
 		}
 	}
 
 	async onKeyDown(e: KeyboardEvent) {
 		this.getValueFromHass = false;
-		const input = this.shadowRoot?.querySelector(
-			'input',
-		) as HTMLInputElement;
 
-		if (!e.repeat && input && ['Enter', 'Escape'].includes(e.key)) {
+		if (!e.repeat && ['Enter', 'Escape'].includes(e.key)) {
 			e.preventDefault();
 			e.stopImmediatePropagation();
+
+			const input = this.shadowRoot?.querySelector(
+				'input',
+			) as HTMLInputElement;
 			this.shouldFire = e.key == 'Enter';
-			input.blur();
+			input?.blur();
 		}
 	}
 
-	async onKeyUp(_e: KeyboardEvent) {}
+	async onKeyUp(e: KeyboardEvent) {
+		if (!e.repeat) {
+			const input = this.shadowRoot?.querySelector(
+				'input',
+			) as HTMLInputElement;
+			if (input) {
+				this.validate(input.value);
+			}
+		}
+	}
 
 	validate(value: string | number) {
 		let valid = true;
@@ -197,6 +214,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				value="${value}"
 				.value="${value as string}"
 				@keydown=${this.onKeyDown}
+				@keyup=${this.onKeyUp}
 				@change=${this.onChange}
 				@blur=${this.onBlur}
 			/>

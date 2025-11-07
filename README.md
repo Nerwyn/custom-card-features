@@ -45,7 +45,7 @@ You can override the default behavior of each option by changing their action. T
 
 Inputs allow you to create Home Assistant stylized and optimized [HTML input elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input). Visually they are similar to those found when you add an input text entity to an entities card. Technically they support all input types, although only a subset will be available through the configuration UI as most of the others are redundant or better handled by other custom card features.
 
-You can provide it with an action, which will fire when you press the `Enter` or `Tab` key or when you complete using the browser dialog for the input type. You can cancel your action by pressing `Escape`. All input type can be given a range, with defaults being provided for each input type. Number inputs can also be provided a step.
+You can provide it with an action, which will fire when you press the `Enter` or `Tab` key or when you complete using the browser dialog for the input type. You can cancel your action by pressing `Escape`. All input type can be given a range, with defaults being provided for each input type. Number inputs can also be provided a step. Most input types can be provided with a range. If the input value falls outside of this range, then the feature will be highlighted with error colors and it will not fire an action until its value passes validation.
 
 ## Selectors
 
