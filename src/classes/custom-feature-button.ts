@@ -331,6 +331,12 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					outline: none;
 				}
 
+				/* Transparent */
+				:host(.transparent) button::before,
+				:host(.transparent) md-ripple {
+					display: none;
+				}
+
 				/* Material Design 3 */
 				:host(.md3) {
 					border-radius: 0;

@@ -1088,6 +1088,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 												label: 'Default',
 											},
 											{
+												value: 'Transparent',
+												label: 'transparent',
+											},
+											{
 												value: 'md3-elevated',
 												label: 'Material Design 3 Elevated',
 											},

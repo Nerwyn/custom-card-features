@@ -58,6 +58,7 @@ export interface IDropdownSelectorOptions {
 
 export const ButtonThumbTypes = [
 	'default',
+	'transparent',
 	'md3-elevated',
 	'md3-filled',
 	'md3-tonal',
