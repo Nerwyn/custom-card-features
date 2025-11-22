@@ -1265,7 +1265,7 @@ features:
           - 0
           - 360
         step: 0.1
-        value_attribute: Hs color[0]
+        value_attribute: hs_color.0
         icon: mdi:palette
         tap_action:
           action: perform-action
