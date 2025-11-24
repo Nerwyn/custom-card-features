@@ -253,8 +253,12 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 				}
 
 				:host(.md3) .option:nth-child(-n + 2)::part(button) {
-					border-start-start-radius: var(--feature-height, 40px);
-					border-end-start-radius: var(--feature-height, 40px);
+					border-start-start-radius: calc(
+						var(--feature-height, 40px) / 2
+					);
+					border-end-start-radius: calc(
+						var(--feature-height, 40px) / 2
+					);
 				}
 				:host(.md3)
 					:not([pressed], .selected).option:nth-child(-n + 2)::part(
@@ -270,8 +274,12 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 					);
 				}
 				:host(.md3) .option:nth-last-child(-n + 1)::part(button) {
-					border-start-end-radius: var(--feature-height, 40px);
-					border-end-end-radius: var(--feature-height, 40px);
+					border-start-end-radius: calc(
+						var(--feature-height, 40px) / 2
+					);
+					border-end-end-radius: calc(
+						var(--feature-height, 40px) / 2
+					);
 				}
 				:host(.md3)
 					:not([pressed], .selected).option:nth-last-child(
