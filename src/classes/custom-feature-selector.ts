@@ -265,12 +265,12 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 						button
 					) {
 					border-start-end-radius: var(
-						--md-sys-shape-corner-medium,
-						12px
+						--md-sys-shape-corner-small,
+						8px
 					);
 					border-end-end-radius: var(
-						--md-sys-shape-corner-medium,
-						12px
+						--md-sys-shape-corner-small,
+						8px
 					);
 				}
 				:host(.md3) .option:nth-last-child(-n + 1)::part(button) {
@@ -286,12 +286,12 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 						-n + 1
 					)::part(button) {
 					border-start-start-radius: var(
-						--md-sys-shape-corner-medium,
-						12px
+						--md-sys-shape-corner-small,
+						8px
 					);
 					border-end-start-radius: var(
-						--md-sys-shape-corner-medium,
-						12px
+						--md-sys-shape-corner-small,
+						8px
 					);
 				}
 
