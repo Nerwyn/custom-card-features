@@ -371,6 +371,14 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					transition:
 						border-radius
 							var(--md-sys-motion-expressive-spatial-fast),
+						border-start-start-radius
+							var(--md-sys-motion-expressive-spatial-fast),
+						border-start-end-radius
+							var(--md-sys-motion-expressive-spatial-fast),
+						border-end-start-radius
+							var(--md-sys-motion-expressive-spatial-fast),
+						border-end-end-radius
+							var(--md-sys-motion-expressive-spatial-fast),
 						outline var(--md-sys-motion-expressive-spatial-fast);
 				}
 				:host(.md3) button::before {
@@ -379,12 +387,16 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						--color,
 						var(--md-button-background-color, var(--disabled-color))
 					);
+					transition: background
+						var(--md-sys-motion-expressive-effects-fast);
 				}
 				:host(.md3) .icon {
 					color: var(
 						--icon-color,
 						var(--md-button-on-background-color, inherit)
 					);
+					transition: color
+						var(--md-sys-motion-expressive-effects-fast);
 				}
 				:host(.md3) .label {
 					color: var(
@@ -406,11 +418,9 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						--md-sys-typescale-label-large-tracking,
 						0.1px
 					);
+					transition: color
+						var(--md-sys-motion-expressive-effects-fast);
 				}
-				:host(.md3.option:not(.selected)) {
-					--md-button-border-radius: var(--feature-height, 40px);
-				}
-				:host(.md3.option.selected),
 				:host(.md3.toggle[value='on']) {
 					--md-button-border-radius: var(
 						--md-sys-shape-corner-medium,
@@ -535,8 +545,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 				}
 
-				:host([pressed].md3),
-				:host([pressed].md3.option) {
+				:host([pressed].md3) {
 					--md-button-border-radius: var(
 						--md-sys-shape-corner-small,
 						8px

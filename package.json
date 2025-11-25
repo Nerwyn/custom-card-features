@@ -8,7 +8,7 @@
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "npx rspack && gzip -fk dist/custom-card-features.min.js",
 		"prelint": "tsc --noemit",
-		"lint": "eslint --fix --config ./.eslintrc.config.cjs",
+		"lint": "eslint --fix --config ./eslint.config.js",
 		"build-css": "tcm src",
 		"setup": "git config --add core.hooksPath githooks && chmod +x githooks/pre-commit && npm i"
 	},
