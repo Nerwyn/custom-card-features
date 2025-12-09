@@ -2,7 +2,6 @@ import {
 	Action,
 	HapticType,
 	HomeAssistant,
-	IConfirmation,
 	StateObj,
 } from '../models/interfaces';
 
@@ -15,6 +14,7 @@ import { UPDATE_AFTER_ACTION_DELAY } from '../models/constants';
 import { ActionType, IAction, IActions, IEntry } from '../models/interfaces';
 import { MdRipple } from '../models/interfaces/MdRipple';
 import { deepGet, deepSet, getDeepKeys } from '../utils';
+import { handleConfirmation } from '../utils/cardHelpers';
 
 @customElement('base-custom-feature')
 export class BaseCustomFeature extends LitElement {
@@ -110,7 +110,7 @@ export class BaseCustomFeature extends LitElement {
 		}
 
 		action &&= this.deepRenderTemplate(action);
-		if (!action || !(await this.handleConfirmation(action))) {
+		if (!action || !(await handleConfirmation(this, action))) {
 			this.dispatchEvent(new Event('confirmation-failed'));
 			return;
 		}
@@ -325,101 +325,6 @@ export class BaseCustomFeature extends LitElement {
 
 	eval(action: IAction) {
 		eval(action.eval ?? '');
-	}
-
-	async handleConfirmation(action: IAction): Promise<boolean> {
-		if (
-			action.confirmation &&
-			(!(action.confirmation as IConfirmation).exemptions ||
-				!(action.confirmation as IConfirmation).exemptions?.some(
-					(e) => e.user == this.hass.user?.id,
-				))
-		) {
-			// Retrieve original confirmation text or get translation
-			let text = (action.confirmation as IConfirmation).text;
-			if (!text) {
-				let serviceName;
-				const [domain, service] = (
-					action.perform_action ??
-					action['service' as 'perform_action'] ??
-					''
-				).split('.');
-				if (this.hass.services[domain]?.[service]) {
-					const localize =
-						await this.hass.loadBackendTranslation('title');
-					serviceName = `${
-						localize(`component.${domain}.title`) || domain
-					}: ${
-						localize(
-							`component.${domain}.services.${service}.name`,
-						) ||
-						this.hass.services[domain][service].name ||
-						service
-					}`;
-				}
-
-				text = this.hass.localize(
-					'ui.panel.lovelace.cards.actions.action_confirmation',
-					{
-						action:
-							serviceName ??
-							this.hass.localize(
-								`ui.panel.lovelace.editor.action-editor.actions.${action.action}`,
-							) ??
-							action.action,
-					},
-				);
-			}
-
-			// Use hass-action to fire a dom event with a confirmation
-			const event = new Event('hass-action', {
-				bubbles: true,
-				composed: true,
-			});
-			event.detail = {
-				action: 'tap',
-				config: {
-					tap_action: {
-						action: 'fire-dom-event',
-						confirmation: {
-							text,
-						},
-						confirmed: true,
-					},
-				},
-			};
-			this.dispatchEvent(event);
-
-			return new Promise((resolve) => {
-				// Cleanup timeout and event listeners
-				let cancelTimeout: ReturnType<typeof setTimeout>;
-				const cleanup = () => {
-					clearTimeout(cancelTimeout);
-					window.removeEventListener('ll-custom', confirmTrue);
-					window.removeEventListener('dialog-closed', confirmFalse);
-				};
-
-				// ll-custom event is fired when the user accepts the confirmation
-				const confirmTrue = (e: Event) => {
-					if (e.detail.confirmed) {
-						cleanup();
-						resolve(true);
-					}
-				};
-				window.addEventListener('ll-custom', confirmTrue);
-
-				// dialog-closed event is always fired
-				// The timeout allows the ll-custom listener to resolve true before this one resolves false
-				const confirmFalse = () => {
-					cancelTimeout = setTimeout(() => {
-						cleanup();
-						resolve(false);
-					}, 100);
-				};
-				window.addEventListener('dialog-closed', confirmFalse);
-			});
-		}
-		return true;
 	}
 
 	showFailureToast(action: Action) {

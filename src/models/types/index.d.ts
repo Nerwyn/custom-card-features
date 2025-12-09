@@ -1,9 +1,12 @@
+import { CardHelpers } from '../interfaces';
+
 export {};
 
 declare global {
 	interface Window {
 		customCardFeatures: CustomCardFeature[];
 		customCards: CustomCard[];
+		loadCardHelpers: () => Promise<CardHelpers>;
 	}
 
 	interface CustomCardFeature {
