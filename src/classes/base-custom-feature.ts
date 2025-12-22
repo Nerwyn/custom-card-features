@@ -763,11 +763,12 @@ export class BaseCustomFeature extends LitElement {
 			}
 		}
 
-		if (changedProperties.has('config')) {
-			return (
-				JSON.stringify(this.config) !=
+		if (
+			changedProperties.has('config') &&
+			JSON.stringify(this.config) !=
 				JSON.stringify(changedProperties.get('config'))
-			);
+		) {
+			return true;
 		}
 
 		return (
