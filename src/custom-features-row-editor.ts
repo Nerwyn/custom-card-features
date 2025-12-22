@@ -2358,7 +2358,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 				if (
 					['perform-action', 'more-info', 'toggle'].includes(
 						action.action,
-					)
+					) &&
+					typeof action.target != 'string'
 				) {
 					const data = action.data ?? {};
 					const target = action.target ?? {};
