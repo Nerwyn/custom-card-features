@@ -212,6 +212,10 @@ type HassEntity {
     user_id?: string;
     parent_id?: string;
   };
+
+  // Area card fields
+  area_id?: string;
+  exclude_entities?: string[];
 }
 ```
 
