@@ -2377,7 +2377,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 						}
 					}
 					if (
-						typeof target != 'string' &&
 						!target.entity_id &&
 						!target.device_id &&
 						!target.area_id &&
