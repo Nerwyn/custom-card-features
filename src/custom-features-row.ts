@@ -5,7 +5,12 @@ import { property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
-import { CardFeatureType, HomeAssistant, StateObj } from './models/interfaces';
+import {
+	CardFeatureType,
+	FeatureContext,
+	HomeAssistant,
+	StateObj,
+} from './models/interfaces';
 
 import { BaseCustomFeature } from './classes/base-custom-feature';
 import './classes/custom-feature-dropdown';
@@ -29,7 +34,7 @@ console.info(
 export class CustomFeaturesRow extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: IConfig;
-	@property() context?: Record<'entity_id' | 'area_id', string>;
+	@property() context?: FeatureContext;
 	@property() stateObj?: StateObj;
 
 	styles: string = '';
@@ -174,8 +179,8 @@ export class CustomFeaturesRow extends LitElement {
 
 	willUpdate() {
 		this.stateObj = {
+			...this.context,
 			...this.stateObj,
-			area_id: this.context?.area_id,
 		} as StateObj;
 
 		this.rtl = getComputedStyle(this).direction == 'rtl';

@@ -159,3 +159,9 @@ export type HapticType =
 export interface StateObj extends HassEntity {
 	area_id?: string;
 }
+
+export interface FeatureContext {
+	entity_id?: string;
+	area_id?: string;
+	exclude_entities?: string[];
+}
