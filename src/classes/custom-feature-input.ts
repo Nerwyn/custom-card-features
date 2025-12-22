@@ -190,6 +190,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 		if (
 			value != undefined &&
 			!isNaN(value as number) &&
+			(value as string)?.trim?.() != '' &&
 			this.precision != undefined
 		) {
 			value = Number(value).toFixed(this.precision);
