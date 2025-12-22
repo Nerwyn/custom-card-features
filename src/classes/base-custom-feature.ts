@@ -563,6 +563,7 @@ export class BaseCustomFeature extends LitElement {
 		if (
 			value != undefined &&
 			!isNaN(value as number) &&
+			value != '' &&
 			this.precision != undefined
 		) {
 			value = Number(value).toFixed(this.precision);
