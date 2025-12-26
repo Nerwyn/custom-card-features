@@ -332,6 +332,9 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 
 				/* Transparent */
+				:host(.transparent) {
+					border-radius: 0;
+				}
 				:host(.transparent) button::before,
 				:host(.transparent) md-ripple {
 					visibility: hidden;
