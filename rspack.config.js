@@ -8,8 +8,7 @@ export default defineConfig([
 			'custom-features-row': './src/custom-features-row.ts',
 		},
 		output: {
-			path: './dist',
-			filename: 'custom-card-features.min.js',
+			filename: '/custom-card-features.min.js',
 		},
 		resolve: {
 			extensions: ['.ts', '.tsx', '.js'],

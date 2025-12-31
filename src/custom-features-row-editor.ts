@@ -471,7 +471,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		let entries: IEntry[] | IOption[];
 		let handlers: Record<
 			'move' | 'copy' | 'edit' | 'remove',
-			(e: Event) => void
+			(_e: Event) => void
 		>;
 		let listHeader: string;
 		switch (field) {
@@ -654,7 +654,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	buildEntryHeader() {
 		let title: string;
-		let exitHandler: (e: Event) => void;
+		let exitHandler: (_e: Event) => void;
 		switch (this.activeEntryType) {
 			case 'option':
 				switch (
@@ -963,7 +963,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		</div>`;
 	}
 
-	buildTabBar(index: number, handler: (e: Event) => void, tabs: string[]) {
+	buildTabBar(index: number, handler: (_e: Event) => void, tabs: string[]) {
 		return html`
 			<ha-tab-group @wa-tab-show=${handler}>
 				${tabs.map(
@@ -1276,6 +1276,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	buildDropdownSelectorGuiEditor(type: 'dropdown' | 'selector') {
 		let selectorGuiEditor: TemplateResult<1>;
+		let optionGuiEditor: TemplateResult<1>;
 		switch (this.optionIndex) {
 			case -1:
 				selectorGuiEditor = html`${this.buildMainFeatureOptions()}
@@ -1353,7 +1354,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 					${this.buildCodeEditor('jinja2')}`;
 				break;
 			default:
-				let optionGuiEditor: TemplateResult<1>;
 				switch (type) {
 					case 'dropdown':
 						optionGuiEditor = this.buildDropdownOptionGuiEditor(
@@ -1381,7 +1381,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	buildDropdownOptionGuiEditor(parentEntry: IEntry) {
-		let actionSelectors: TemplateResult<1>;
 		const actionsNoRepeat = Actions.concat();
 		actionsNoRepeat.splice(Actions.indexOf('repeat'), 1);
 		const defaultUiActions = {
@@ -1390,8 +1389,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				default_action: 'none',
 			},
 		};
-
-		actionSelectors = html`
+		const actionSelectors = html`
 			${this.buildActionOption(
 				'Behavior',
 				'tap_action',
@@ -2064,7 +2062,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	buildCodeEditor(mode: string, id?: string) {
 		let title: string | undefined;
 		let value: string;
-		let handler: (e: Event) => void;
+		let handler: (_e: Event) => void;
 		let autocompleteEntities: boolean;
 		let autocompleteIcons: boolean;
 		switch (mode) {
@@ -2574,7 +2572,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 									}
 									break;
 								case 'datetime':
-								case 'input_datetime':
+								case 'input_datetime': {
 									tap_action.perform_action = `${domain}.set_datetime`;
 									const hasDate =
 										this.hass.states[entryEntityId]
@@ -2588,6 +2586,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 										tap_action.data = data;
 									}
 									break;
+								}
 								default:
 									break;
 							}

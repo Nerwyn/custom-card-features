@@ -13,7 +13,7 @@ import { CustomFeaturesRowEditor } from './custom-features-row-editor';
 
 export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 	@property() hass!: HomeAssistant;
-	// @ts-ignore
+	// @ts-expect-error re-using editor code config is different
 	@property() config!: ICustomFeatureCardConfig;
 
 	@state() rowIndex: number = -1;
@@ -22,7 +22,7 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 		return { hass: {}, config: {} };
 	}
 
-	// @ts-ignore
+	// @ts-expect-error re-using editor code config is different
 	configChanged(config: ICustomFeatureCardConfig) {
 		super.configChanged(config as unknown as IConfig, false);
 	}

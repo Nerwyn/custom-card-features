@@ -245,7 +245,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				? thumbType
 				: 'default';
 
-			let toggleStyles =
+			const toggleStyles =
 				String(
 					this.renderTemplate(this.config.toggle_styles ?? 'false'),
 				) == 'true';
