@@ -249,8 +249,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 
 	shouldUpdate(changedProperties: PropertyValues) {
 		const unitOfMeasurement = this.unitOfMeasurement;
-		const should = super.shouldUpdate(changedProperties);
-
+		let rangeChanged = false;
 		if (
 			changedProperties.has('hass') ||
 			changedProperties.has('stateObj') ||
@@ -330,14 +329,15 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				precision = splitStep[1].length;
 			}
 
-			if (
+			rangeChanged =
 				unitOfMeasurement != this.unitOfMeasurement ||
 				thumb != this.thumb ||
 				min != this.range[0] ||
 				max != this.range[1] ||
 				step != this.step ||
-				precision != this.precision
-			) {
+				precision != this.precision;
+
+			if (rangeChanged) {
 				// Get timestamps for datetime type validation
 				if (min != this.range[0] || max != this.range[1]) {
 					switch (thumb) {
@@ -392,11 +392,11 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				this.range = [min, max] as [number, number] | [string, string];
 				this.step = step;
 				this.precision = precision;
-				return true;
 			}
 		}
 
-		return should;
+		const should = super.shouldUpdate(changedProperties);
+		return should || rangeChanged;
 	}
 
 	firstUpdated(changedProperties: PropertyValues) {

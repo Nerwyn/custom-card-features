@@ -235,8 +235,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	shouldUpdate(changedProperties: PropertyValues): boolean {
-		const should = super.shouldUpdate(changedProperties);
-
+		let rangeChanged = false;
 		if (
 			changedProperties.has('hass') ||
 			changedProperties.has('stateObj') ||
@@ -280,25 +279,27 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				String(this.renderTemplate(this.config.ticks ?? 'false')) ==
 				'true';
 
-			if (
+			rangeChanged =
 				min != this.range[0] ||
 				max != this.range[1] ||
 				step != this.step ||
 				precision != this.precision ||
 				thumbType != this.thumbType ||
-				ticks != this.ticks
-			) {
+				ticks != this.ticks;
+
+			if (rangeChanged) {
 				this.range = [min, max];
 				this.step = step;
 				this.precision = precision;
 				this.thumbType = thumbType;
 				this.ticks = ticks;
-				return true;
 			}
 		}
 
+		const should = super.shouldUpdate(changedProperties);
 		return (
 			should ||
+			rangeChanged ||
 			changedProperties.has('thumbOffset') ||
 			changedProperties.has('sliderOn') ||
 			changedProperties.has('width')

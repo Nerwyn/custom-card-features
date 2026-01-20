@@ -256,8 +256,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 	}
 
 	shouldUpdate(changedProperties: PropertyValues) {
-		const should = super.shouldUpdate(changedProperties);
-
+		let rangeChanged = false;
 		if (
 			changedProperties.has('hass') ||
 			changedProperties.has('stateObj') ||
@@ -296,22 +295,23 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 				) as string) ?? DEBOUNCE_TIME,
 			);
 
-			if (
+			rangeChanged =
 				min != this.range[0] ||
 				max != this.range[1] ||
 				step != this.step ||
 				precision != this.precision ||
-				debounceTime != this.debounceTime
-			) {
+				debounceTime != this.debounceTime;
+
+			if (rangeChanged) {
 				this.range = [min, max];
 				this.step = step;
 				this.precision = precision;
 				this.debounceTime = debounceTime;
-				return true;
 			}
 		}
 
-		if (should) {
+		const should = super.shouldUpdate(changedProperties);
+		if (should || rangeChanged) {
 			return true;
 		}
 
