@@ -131,7 +131,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			valid = false;
 		} else {
 			switch (this.thumb) {
-				case 'week':
+				case 'week': {
 					value = String(value);
 					if (!value.includes('-W')) {
 						valid = false;
@@ -145,7 +145,8 @@ export class CustomFeatureInput extends BaseCustomFeature {
 						weekDate >= (this.rangeTs ? this.rangeTs[0] : DT_MIN) &&
 						weekDate <= (this.rangeTs ? this.rangeTs[1] : DT_MAX);
 					break;
-				case 'time':
+				}
+				case 'time': {
 					const time = new Date(`1970-01-01T${value}Z`).getTime();
 					valid =
 						time >= (this.rangeTs ? this.rangeTs[0] : 0) &&
@@ -154,26 +155,29 @@ export class CustomFeatureInput extends BaseCustomFeature {
 								? this.rangeTs[1]
 								: 1000 * 60 * 60 * 24);
 					break;
+				}
 				case 'month':
 				case 'date':
-				case 'datetime-local':
+				case 'datetime-local': {
 					const dt = new Date(value as string).getTime();
 					valid =
 						dt >= (this.rangeTs ? this.rangeTs[0] : DT_MIN) &&
 						dt <= (this.rangeTs ? this.rangeTs[1] : DT_MAX);
 					break;
+				}
 				case 'number':
 					valid = value >= this.range[0] && value <= this.range[1];
 					break;
 				case 'color':
 				case 'text':
 				case 'password':
-				default:
+				default: {
 					const len = (value as string).length;
 					valid =
 						len >= (this.range[0] as number) &&
 						len <= (this.range[1] as number);
 					break;
+				}
 			}
 		}
 
@@ -341,7 +345,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				// Get timestamps for datetime type validation
 				if (min != this.range[0] || max != this.range[1]) {
 					switch (thumb) {
-						case 'week':
+						case 'week': {
 							min = String(min);
 							max = String(max);
 							if (!min.includes('-W')) {
@@ -370,6 +374,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 										1000,
 							];
 							break;
+						}
 						case 'time':
 							this.rangeTs = [
 								new Date(`1970-01-01T${min}Z`).getTime(),
@@ -412,6 +417,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	}
 
 	handleExternalClick = (e: MouseEvent) => {
+		// eslint-disable-next-line no-constant-binary-expression
 		if (typeof e.composedPath && !e.composedPath().includes(this)) {
 			this.shadowRoot?.querySelector('input')?.blur();
 		}

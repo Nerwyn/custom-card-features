@@ -245,15 +245,14 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					'max-height',
 					`${(down ? window.innerHeight - rect.bottom : rect.top) - edgeOffset - 16}px`,
 				);
-				this.rtl
-					? dropdownElement.style.setProperty(
-							'right',
-							`${window.innerWidth - rect.right}px`,
-						)
-					: dropdownElement.style.setProperty(
-							'left',
-							`${rect.left}px`,
-						);
+				if (this.rtl) {
+					dropdownElement.style.setProperty(
+						'right',
+						`${window.innerWidth - rect.right}px`,
+					);
+				} else {
+					dropdownElement.style.setProperty('left', `${rect.left}px`);
+				}
 				dropdownElement.style.setProperty(
 					down ? 'top' : 'bottom',
 					`${down ? rect.bottom : window.innerHeight - rect.top}px`,
@@ -264,6 +263,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 	}
 
 	handleExternalClick = (e: MouseEvent) => {
+		// eslint-disable-next-line no-constant-binary-expression
 		if (typeof e.composedPath && !e.composedPath().includes(this)) {
 			this.open = false;
 		}

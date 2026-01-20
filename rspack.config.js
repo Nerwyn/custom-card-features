@@ -1,22 +1,14 @@
 import { defineConfig } from '@rspack/cli';
 import rspack from '@rspack/core';
-import { execSync } from 'child_process';
-
-let env =
-	execSync('git branch --show-current').toString().trim() == 'main'
-		? 'production'
-		: 'development';
-env = 'production';
 
 export default defineConfig([
 	{
-		mode: env,
+		mode: 'production',
 		entry: {
 			'custom-features-row': './src/custom-features-row.ts',
 		},
 		output: {
-			path: './dist',
-			filename: 'custom-card-features.min.js',
+			filename: '/custom-card-features.min.js',
 		},
 		resolve: {
 			extensions: ['.ts', '.tsx', '.js'],
@@ -49,6 +41,6 @@ export default defineConfig([
 			maxEntrypointSize: 512000,
 			maxAssetSize: 512000,
 		},
-		devtool: env == 'production' ? false : 'eval',
+		devtool: false,
 	},
 ]);

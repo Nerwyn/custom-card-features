@@ -24,10 +24,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	pressedTimeout?: ReturnType<typeof setTimeout>;
 
 	set _value(value: string | number | boolean | undefined) {
-		value = Math.max(
-			Math.min(Number(value) ?? this.range[0], this.range[1]),
-			this.range[0],
-		);
+		value = Number(value);
+		if (isNaN(value)) {
+			value = this.range[0];
+		}
+		value = Math.max(Math.min(value, this.range[1]), this.range[0]);
 		if (isNaN(value)) {
 			value = this.range[0];
 		}

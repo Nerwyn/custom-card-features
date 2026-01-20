@@ -245,7 +245,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				? thumbType
 				: 'default';
 
-			let toggleStyles =
+			const toggleStyles =
 				String(
 					this.renderTemplate(this.config.toggle_styles ?? 'false'),
 				) == 'true';
@@ -332,6 +332,9 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 
 				/* Transparent */
+				:host(.transparent) {
+					border-radius: 0;
+				}
 				:host(.transparent) button::before,
 				:host(.transparent) md-ripple {
 					visibility: hidden;
