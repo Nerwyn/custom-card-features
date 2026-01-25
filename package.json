@@ -1,6 +1,6 @@
 {
 	"name": "custom-card-features",
-	"version": "4.7.10",
+	"version": "4.7.11",
 	"description": "Custom Features for Home Assistant Tile Card And More!",
 	"main": "./dist/custom-features-row.min.js",
 	"type": "module",
