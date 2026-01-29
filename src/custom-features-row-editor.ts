@@ -262,12 +262,13 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	addEntry(e: Event) {
-		const i = e.detail.index as number;
+		const entryType = e.detail.item.value;
 		const entries = structuredClone(this.config.entries);
 		entries.push({
-			type: CardFeatureTypes[i],
+			type: entryType,
 		});
 		this.entriesChanged(entries);
+		this.scrollToBottomOfList();
 	}
 
 	addOption(_e: Event) {
@@ -276,6 +277,17 @@ export class CustomFeaturesRowEditor extends LitElement {
 		options.push({});
 		entry.options = options;
 		this.entryChanged(entry);
+		this.scrollToBottomOfList();
+	}
+
+	scrollToBottomOfList() {
+		const entriesList = this.shadowRoot?.querySelector('.features');
+		if (entriesList) {
+			setTimeout(
+				() => (entriesList.scrollTop = entriesList.scrollHeight),
+				100,
+			);
+		}
 	}
 
 	exitEditEntry(_e: Event) {
@@ -631,10 +643,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 			case 'entry':
 			default:
 				return html`
-					<ha-button-menu
-						class="add-list-item"
-						@action=${this.addEntry}
-						@closed=${(e: Event) => e.stopPropagation()}
+					<ha-dropdown
+						@wa-select=${this.addEntry}
+						placement="bottom-end"
 					>
 						<ha-button slot="trigger">
 							<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon
@@ -642,12 +653,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 						>
 						${CardFeatureTypes.map(
 							(cardFeatureType) => html`
-								<ha-list-item .value=${cardFeatureType}>
+								<ha-dropdown-item value=${cardFeatureType}>
 									${cardFeatureType}
-								</ha-list-item>
+								</ha-dropdown-item>
 							`,
 						)}
-					</ha-button-menu>
+					</ha-dropdown>
 				`;
 		}
 	}
@@ -2978,7 +2989,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			ha-button::part(label) {
 				text-transform: capitalize;
 			}
-			ha-list-item {
+			ha-dropdown-item {
 				text-transform: capitalize;
 			}
 
