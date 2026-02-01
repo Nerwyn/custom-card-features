@@ -89,13 +89,7 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 
 		return html`
 			<div class="content">
-				<div class="entry-list-header">
-					Custom Features Rows<ha-icon-button
-						class="header-icon"
-						@click=${this.handleREADME}
-						><ha-icon .icon="${'mdi:information-outline'}"></ha-icon
-					></ha-icon-button>
-				</div>
+				<div class="entry-list-header">Custom Features Rows</div>
 				<ha-sortable
 					handle-selector=".handle"
 					@item-moved=${handlers.move}

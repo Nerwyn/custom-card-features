@@ -547,7 +547,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					<ha-icon-button
 						class="header-icon"
 						@click=${this.handleREADME}
-						><ha-icon .icon="${'mdi:information-outline'}"></ha-icon
+						><ha-icon .icon="${'mdi:help-circle'}"></ha-icon
 					></ha-icon-button>
 				</div>
 				<ha-sortable
@@ -726,7 +726,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					<ha-icon-button
 						class="header-icon"
 						@click=${this.handleREADME}
-						><ha-icon .icon="${'mdi:information-outline'}"></ha-icon
+						><ha-icon .icon="${'mdi:help-circle'}"></ha-icon
 					></ha-icon-button>
 					<ha-icon-button
 						class="header-icon"

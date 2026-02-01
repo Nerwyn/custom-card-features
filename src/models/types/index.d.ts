@@ -19,7 +19,9 @@ declare global {
 	interface CustomCard {
 		type: string;
 		name: string;
-		description: string;
+		description?: string;
+		preview?: boolean;
+		documentationURL?: string;
 	}
 
 	interface Event {

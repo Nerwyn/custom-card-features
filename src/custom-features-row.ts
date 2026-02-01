@@ -309,6 +309,7 @@ window.customCards.push({
 	type: 'custom-features-card',
 	name: 'Custom features card',
 	description: 'Headless container/stack for custom features rows.',
+	documentationURL: packageInfo.homepage,
 });
 
 if (!window.structuredClone) {
