@@ -1,6 +1,7 @@
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { css, html, LitElement, TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import packageInfo from '../package.json';
 
 import { dump, load } from 'js-yaml';
 
@@ -479,6 +480,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 		);
 	}
 
+	handleREADME(_e: Event) {
+		window.open(packageInfo.homepage, '_blank')?.focus();
+	}
+
 	buildEntryList(field: 'entry' | 'option' = 'entry') {
 		let entries: IEntry[] | IOption[];
 		let handlers: Record<
@@ -536,8 +541,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 									)}
 									@click=${this.handleExitEditor}
 								></ha-icon-button-prev>
+								${listHeader}
 							</div>`
-						: ''}${listHeader}
+						: listHeader}
+					<ha-icon-button
+						class="header-icon"
+						@click=${this.handleREADME}
+						><ha-icon .icon="${'mdi:information-outline'}"></ha-icon
+					></ha-icon-button>
 				</div>
 				<ha-sortable
 					handle-selector=".handle"
@@ -711,22 +722,28 @@ export class CustomFeaturesRowEditor extends LitElement {
 					></ha-icon-button-prev>
 					<span class="primary" slot="title">${title}</span>
 				</div>
-				<ha-icon-button
-					class="gui-mode-button"
-					@click=${this.toggleGuiMode}
-					.label=${this.hass.localize(
-						this.guiMode
-							? 'ui.panel.lovelace.editor.edit_card.show_code_editor'
-							: 'ui.panel.lovelace.editor.edit_card.show_visual_editor',
-					)}
-				>
-					<ha-icon
+				<div class="header-icons">
+					<ha-icon-button
 						class="header-icon"
-						.icon="${this.guiMode
-							? 'mdi:code-braces'
-							: 'mdi:list-box-outline'}"
-					></ha-icon>
-				</ha-icon-button>
+						@click=${this.handleREADME}
+						><ha-icon .icon="${'mdi:information-outline'}"></ha-icon
+					></ha-icon-button>
+					<ha-icon-button
+						class="header-icon"
+						@click=${this.toggleGuiMode}
+						.label=${this.hass.localize(
+							this.guiMode
+								? 'ui.panel.lovelace.editor.edit_card.show_code_editor'
+								: 'ui.panel.lovelace.editor.edit_card.show_visual_editor',
+						)}
+					>
+						<ha-icon
+							.icon="${this.guiMode
+								? 'mdi:code-braces'
+								: 'mdi:list-box-outline'}"
+						></ha-icon>
+					</ha-icon-button>
+				</div>
 			</div>
 		`;
 	}
@@ -3097,6 +3114,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			.entry-list-header {
 				display: flex;
 				align-items: center;
+				justify-content: space-between;
 				font-size: 20px;
 				font-weight: 500;
 			}
