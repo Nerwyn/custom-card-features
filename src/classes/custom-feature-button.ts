@@ -244,7 +244,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				${this.buildRipple()}
 			</button>
 			${this.buildIcon(this.icon)}
-			${this.buildLabel(this.label)}${buildStyles(this.styles)}`;
+			${this.buildLabel(this.label)}${buildStyles(this.styles)}
+			<div class="hold-indicator"></div>`;
 	}
 
 	shouldUpdate(changedProperties: PropertyValues) {
@@ -296,6 +297,13 @@ export class CustomFeatureButton extends BaseCustomFeature {
 
 		if (this.hold) {
 			this.setAttribute('hold', '');
+			const holdIndicator = this.shadowRoot?.querySelector(
+				'.hold-indicator',
+			) as HTMLElement;
+			if (holdIndicator) {
+				holdIndicator.style.setProperty('left', `${this.initialX ?? 0}px`);
+				holdIndicator.style.setProperty('top', `${this.initialY ?? 0}px`);
+			}
 		} else {
 			this.removeAttribute('hold');
 		}
@@ -344,6 +352,22 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 				button:focus-visible {
 					outline: none;
+				}
+
+				.hold-indicator {
+					position: fixed;
+					height: 50px;
+					width: 50px;
+					background: var(--primary-color);
+					transform: translate(-50%, -50%) scale(0);
+					pointer-events: none;
+					z-index: 999;
+					opacity: 0.2;
+					border-radius: 50%;
+					transition: transform 180ms ease-in-out;
+				}
+				:host([hold]) .hold-indicator {
+					transform: translate(-50%, -50%) scale(1);
 				}
 
 				/* Transparent */
