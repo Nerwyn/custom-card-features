@@ -1,5 +1,5 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
 
 import {
 	DOUBLE_TAP_WINDOW,
@@ -17,7 +17,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 
 	holdTimer?: ReturnType<typeof setTimeout>;
 	holdInterval?: ReturnType<typeof setInterval>;
-	hold: boolean = false;
+	@state() hold: boolean = false;
 
 	thumbType: ButtonThumbType = 'default';
 	toggleStyles: boolean = false;
@@ -80,25 +80,30 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				const holdTime = this.renderTemplate(
 					this.config.momentary_repeat_action?.hold_time ?? HOLD_TIME,
 				) as number;
-				const repeat_delay = this.renderTemplate(
-					this.config.momentary_repeat_action?.repeat_delay ?? REPEAT_DELAY,
-				) as number;
 
 				clearTimeout(this.holdTimer);
 				clearInterval(this.holdInterval);
-				this.holdTimer = setTimeout(async () => {
-					if (!this.swiping) {
-						this.hold = true;
-
-						this.holdInterval = setInterval(async () => {
-							this.fireHapticEvent('selection');
-							this.momentaryEnd = performance.now();
-							await this.sendAction('momentary_repeat_action');
-						}, repeat_delay);
-					}
-				}, holdTime);
+				if (
+					this.renderTemplate(
+						this.config.momentary_repeat_action?.action ?? 'none',
+					) != 'none'
+				) {
+					this.holdTimer = setTimeout(async () => {
+						if (!this.swiping) {
+							this.hold = true;
+							const repeat_delay = this.renderTemplate(
+								this.config.momentary_repeat_action?.repeat_delay ??
+									REPEAT_DELAY,
+							) as number;
+							this.holdInterval = setInterval(async () => {
+								this.fireHapticEvent('selection');
+								this.momentaryEnd = performance.now();
+								await this.sendAction('momentary_repeat_action');
+							}, repeat_delay);
+						}
+					}, holdTime);
+				}
 			} else if (
-				this.config.momentary_end_action &&
 				this.renderTemplate(
 					this.config.momentary_end_action?.action ?? 'none',
 				) != 'none'
@@ -115,10 +120,12 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					this.config.hold_action?.action as string,
 				);
 
-				if (holdAction != 'none') {
-					this.holdTimer = setTimeout(() => {
-						if (!this.swiping) {
-							this.hold = true;
+				clearTimeout(this.holdTimer);
+				clearInterval(this.holdInterval);
+				this.holdTimer = setTimeout(() => {
+					if (!this.swiping) {
+						this.hold = true;
+						if (holdAction != 'none') {
 							if (holdAction == 'repeat') {
 								const repeatDelay = this.config.hold_action?.repeat_delay
 									? (this.renderTemplate(
@@ -126,18 +133,16 @@ export class CustomFeatureButton extends BaseCustomFeature {
 												?.repeat_delay as unknown as string,
 										) as number)
 									: REPEAT_DELAY;
-								if (!this.holdInterval) {
-									this.holdInterval = setInterval(async () => {
-										this.fireHapticEvent('selection');
-										await this.sendAction('tap_action');
-									}, repeatDelay);
-								}
+								this.holdInterval = setInterval(async () => {
+									this.fireHapticEvent('selection');
+									await this.sendAction('tap_action');
+								}, repeatDelay);
 							} else {
 								this.fireHapticEvent('selection');
 							}
 						}
-					}, holdTime);
-				}
+					}
+				}, holdTime);
 			}
 		}
 	}
@@ -180,6 +185,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				this.onClick(e);
 			}
 		}
+		this.hold = false;
 	}
 
 	onPointerMove(e: PointerEvent) {
@@ -282,7 +288,17 @@ export class CustomFeatureButton extends BaseCustomFeature {
 			}
 		}
 
-		return should;
+		return should || changedProperties.has('hold');
+	}
+
+	updated(changedProperties: PropertyValues) {
+		super.updated(changedProperties);
+
+		if (this.hold) {
+			this.setAttribute('hold', '');
+		} else {
+			this.removeAttribute('hold');
+		}
 	}
 
 	static get styles() {
