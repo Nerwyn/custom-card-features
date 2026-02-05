@@ -379,6 +379,43 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					visibility: hidden;
 				}
 
+				/* Tile Icon */
+				:host(.tile-icon) {
+					flex: none;
+					height: 36px;
+					width: 36px;
+					border-radius: 50%;
+					transition: scale 180ms ease-in-out;
+
+					--mdc-icon-size: 24px;
+				}
+				:host([pressed].tile-icon) {
+					scale: 1.2;
+				}
+
+				:host(.tile-icon) .icon {
+					color: var(--icon-color, var(--state-inactive-color));
+					transition: color 180ms ease-in-out;
+				}
+				:host([value='on'].tile-icon) .icon {
+					color: var(--icon-color, var(--feature-color));
+				}
+
+				:host(.tile-icon) .background::before {
+					background: var(--color, var(--state-inactive-color));
+					transition:
+						background-color 180ms ease-in-out,
+						opacity 180ms ease-in-out;
+				}
+				:host([value='on'].tile-icon) .background::before {
+					background: var(--color, var(--feature-color));
+				}
+				@media (hover: hover) {
+					:host(.tile-icon:hover) .background::before {
+						opacity: 0.35;
+					}
+				}
+
 				/* Material Design 3 */
 				:host(.md3) {
 					border-radius: 0;

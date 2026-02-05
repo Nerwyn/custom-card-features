@@ -1062,6 +1062,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 												label: 'Transparent',
 											},
 											{
+												value: 'tile-icon',
+												label: 'Tile Icon',
+											},
+											{
 												value: 'md3-elevated',
 												label: 'Material Design 3 Elevated',
 											},

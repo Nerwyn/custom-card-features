@@ -15,7 +15,8 @@ export interface IConfig {
 }
 
 export interface IEntry
-	extends IActions,
+	extends
+		IActions,
 		IButtonOptions,
 		ISliderOptions,
 		IDropdownSelectorOptions,
@@ -59,6 +60,7 @@ export interface IDropdownSelectorOptions {
 export const ButtonThumbTypes = [
 	'default',
 	'transparent',
+	'tile-icon',
 	'md3-elevated',
 	'md3-filled',
 	'md3-tonal',
