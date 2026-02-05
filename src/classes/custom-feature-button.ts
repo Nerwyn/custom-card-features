@@ -28,9 +28,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 
 		if (
 			this.config.double_tap_action &&
-			this.renderTemplate(
-				this.config.double_tap_action?.action as string,
-			) != 'none'
+			this.renderTemplate(this.config.double_tap_action?.action as string) !=
+				'none'
 		) {
 			// Double tap action is defined
 			if (this.clickCount > 1) {
@@ -67,14 +66,37 @@ export class CustomFeatureButton extends BaseCustomFeature {
 		super.onPointerDown(e);
 		if (!this.swiping) {
 			if (
-				this.config.momentary_start_action &&
 				this.renderTemplate(
 					this.config.momentary_start_action?.action ?? 'none',
+				) != 'none' ||
+				this.renderTemplate(
+					this.config.momentary_repeat_action?.action ?? 'none',
 				) != 'none'
 			) {
 				this.fireHapticEvent('light');
 				this.momentaryStart = performance.now();
 				await this.sendAction('momentary_start_action');
+
+				const holdTime = this.renderTemplate(
+					this.config.momentary_repeat_action?.hold_time ?? HOLD_TIME,
+				) as number;
+				const repeat_delay = this.renderTemplate(
+					this.config.momentary_repeat_action?.repeat_delay ?? REPEAT_DELAY,
+				) as number;
+
+				clearTimeout(this.holdTimer);
+				clearInterval(this.holdInterval);
+				this.holdTimer = setTimeout(async () => {
+					if (!this.swiping) {
+						this.hold = true;
+
+						this.holdInterval = setInterval(async () => {
+							this.fireHapticEvent('selection');
+							this.momentaryEnd = performance.now();
+							await this.sendAction('momentary_repeat_action');
+						}, repeat_delay);
+					}
+				}, holdTime);
 			} else if (
 				this.config.momentary_end_action &&
 				this.renderTemplate(
@@ -86,8 +108,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 			} else if (!this.holdTimer && this.config.hold_action) {
 				const holdTime = this.config.hold_action.hold_time
 					? (this.renderTemplate(
-							this.config.hold_action
-								?.hold_time as unknown as string,
+							this.config.hold_action?.hold_time as unknown as string,
 						) as number)
 					: HOLD_TIME;
 				const holdAction = this.renderTemplate(
@@ -99,21 +120,17 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						if (!this.swiping) {
 							this.hold = true;
 							if (holdAction == 'repeat') {
-								const repeatDelay = this.config.hold_action
-									?.repeat_delay
+								const repeatDelay = this.config.hold_action?.repeat_delay
 									? (this.renderTemplate(
 											this.config.hold_action
 												?.repeat_delay as unknown as string,
 										) as number)
 									: REPEAT_DELAY;
 								if (!this.holdInterval) {
-									this.holdInterval = setInterval(
-										async () => {
-											this.fireHapticEvent('selection');
-											await this.sendAction('tap_action');
-										},
-										repeatDelay,
-									);
+									this.holdInterval = setInterval(async () => {
+										this.fireHapticEvent('selection');
+										await this.sendAction('tap_action');
+									}, repeatDelay);
 								}
 							} else {
 								this.fireHapticEvent('selection');
@@ -129,19 +146,20 @@ export class CustomFeatureButton extends BaseCustomFeature {
 		super.onPointerUp(e);
 		if (!this.swiping && this.initialX && this.initialY) {
 			if (
-				this.config.momentary_end_action &&
 				this.renderTemplate(
-					this.config.momentary_end_action?.action as string,
+					this.config.momentary_end_action?.action ?? 'none',
 				) != 'none'
 			) {
-				this.fireHapticEvent('selection');
+				this.fireHapticEvent('light');
 				this.momentaryEnd = performance.now();
 				await this.sendAction('momentary_end_action');
 				this.endAction();
 			} else if (
-				this.config.momentary_start_action &&
 				this.renderTemplate(
-					this.config.momentary_start_action?.action as string,
+					this.config.momentary_start_action?.action ?? 'none',
+				) != 'none' ||
+				this.renderTemplate(
+					this.config.momentary_repeat_action?.action ?? 'none',
 				) != 'none'
 			) {
 				this.endAction();
@@ -150,11 +168,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				e.stopImmediatePropagation();
 				e.preventDefault();
 				if (
-					!(
-						this.renderTemplate(
-							this.config.hold_action?.action as string,
-						) == 'repeat'
-					)
+					this.renderTemplate(this.config.hold_action?.action ?? 'none') !=
+					'repeat'
 				) {
 					this.fireHapticEvent('medium');
 					await this.sendAction('hold_action');
@@ -174,10 +189,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 		const sensitivity = 8;
 		const totalDeltaX = (this.currentX ?? 0) - (this.initialX ?? 0);
 		const totalDeltaY = (this.currentY ?? 0) - (this.initialY ?? 0);
-		if (
-			Math.abs(Math.abs(totalDeltaX) - Math.abs(totalDeltaY)) >
-			sensitivity
-		) {
+		if (Math.abs(Math.abs(totalDeltaX) - Math.abs(totalDeltaY)) > sensitivity) {
 			this.onPointerCancel(e);
 		}
 	}
@@ -187,9 +199,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 			this.renderTemplate(
 				this.config.momentary_start_action?.action ?? 'none',
 			) != 'none' &&
-			this.renderTemplate(
-				this.config.momentary_end_action?.action ?? 'none',
-			) != 'none'
+			this.renderTemplate(this.config.momentary_end_action?.action ?? 'none') !=
+				'none'
 		) {
 			this.momentaryEnd = performance.now();
 			await this.sendAction('momentary_end_action');
@@ -241,19 +252,13 @@ export class CustomFeatureButton extends BaseCustomFeature {
 			let thumbType = this.renderTemplate(
 				this.config.thumb as string,
 			) as ButtonThumbType;
-			thumbType = ButtonThumbTypes.includes(thumbType)
-				? thumbType
-				: 'default';
+			thumbType = ButtonThumbTypes.includes(thumbType) ? thumbType : 'default';
 
 			const toggleStyles =
-				String(
-					this.renderTemplate(this.config.toggle_styles ?? 'false'),
-				) == 'true';
+				String(this.renderTemplate(this.config.toggle_styles ?? 'false')) ==
+				'true';
 
-			if (
-				thumbType != this.thumbType ||
-				toggleStyles != this.toggleStyles
-			) {
+			if (thumbType != this.thumbType || toggleStyles != this.toggleStyles) {
 				this.thumbType = thumbType;
 				this.classList.add(thumbType);
 				if (thumbType.startsWith('md3')) {
@@ -287,14 +292,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host {
 					-webkit-tap-highlight-color: transparent;
 					-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-					--md-ripple-hover-opacity: var(
-						--ha-ripple-hover-opacity,
-						0.08
-					);
-					--md-ripple-pressed-opacity: var(
-						--ha-ripple-pressed-opacity,
-						0.12
-					);
+					--md-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
+					--md-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.12);
 					--ha-ripple-color: var(--secondary-text-color);
 					--md-ripple-hover-color: var(
 						--ha-ripple-hover-color,
@@ -351,37 +350,22 @@ export class CustomFeatureButton extends BaseCustomFeature {
 
 					--md-button-border-radius: var(--feature-height, 40px);
 					--ha-card-box-shadow:
-						#000 0px 2px 1px -1px, #000 0px 1px 1px 0px,
-						#000 0px 1px 3px 0px;
-					--md-ripple-hover-color: var(
-						--md-button-on-background-color
-					);
-					--md-ripple-pressed-color: var(
-						--md-button-on-background-color
-					);
-					--md-ripple-hover-opacity: var(
-						--ha-ripple-hover-opacity,
-						0.08
-					);
-					--md-ripple-pressed-opacity: var(
-						--ha-ripple-pressed-opacity,
-						0.1
-					);
+						#000 0px 2px 1px -1px, #000 0px 1px 1px 0px, #000 0px 1px 3px 0px;
+					--md-ripple-hover-color: var(--md-button-on-background-color);
+					--md-ripple-pressed-color: var(--md-button-on-background-color);
+					--md-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
+					--md-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.1);
 				}
 				:host(.md3) button {
 					inset-inline-start: 0;
 					border-radius: var(--md-button-border-radius);
 					transition:
-						border-radius
-							var(--md-sys-motion-expressive-spatial-fast),
+						border-radius var(--md-sys-motion-expressive-spatial-fast),
 						border-start-start-radius
 							var(--md-sys-motion-expressive-spatial-fast),
-						border-start-end-radius
-							var(--md-sys-motion-expressive-spatial-fast),
-						border-end-start-radius
-							var(--md-sys-motion-expressive-spatial-fast),
-						border-end-end-radius
-							var(--md-sys-motion-expressive-spatial-fast),
+						border-start-end-radius var(--md-sys-motion-expressive-spatial-fast),
+						border-end-start-radius var(--md-sys-motion-expressive-spatial-fast),
+						border-end-end-radius var(--md-sys-motion-expressive-spatial-fast),
 						outline var(--md-sys-motion-expressive-spatial-fast);
 				}
 				:host(.md3) button::before {
@@ -390,16 +374,14 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						--color,
 						var(--md-button-background-color, var(--disabled-color))
 					);
-					transition: background
-						var(--md-sys-motion-expressive-effects-fast);
+					transition: background var(--md-sys-motion-expressive-effects-fast);
 				}
 				:host(.md3) .icon {
 					color: var(
 						--icon-color,
 						var(--md-button-on-background-color, inherit)
 					);
-					transition: color
-						var(--md-sys-motion-expressive-effects-fast);
+					transition: color var(--md-sys-motion-expressive-effects-fast);
 				}
 				:host(.md3) .label {
 					color: var(
@@ -409,26 +391,13 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					width: fit-content;
 					font-family: var(--font-family);
 					font-size: var(--md-sys-typescale-label-large-size, 14px);
-					font-weight: var(
-						--md-sys-typescale-label-large-weight,
-						500
-					);
-					line-height: var(
-						--md-sys-typescale-label-large-line-height,
-						20px
-					);
-					letter-spacing: var(
-						--md-sys-typescale-label-large-tracking,
-						0.1px
-					);
-					transition: color
-						var(--md-sys-motion-expressive-effects-fast);
+					font-weight: var(--md-sys-typescale-label-large-weight, 500);
+					line-height: var(--md-sys-typescale-label-large-line-height, 20px);
+					letter-spacing: var(--md-sys-typescale-label-large-tracking, 0.1px);
+					transition: color var(--md-sys-motion-expressive-effects-fast);
 				}
 				:host(.md3.toggle[value='on']) {
-					--md-button-border-radius: var(
-						--md-sys-shape-corner-medium,
-						12px
-					);
+					--md-button-border-radius: var(--md-sys-shape-corner-medium, 12px);
 				}
 
 				:host(.md3-elevated) {
@@ -442,10 +411,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 				}
 				:host(.md3-elevated) button {
-					box-shadow: var(
-						--md-sys-elevation-level1,
-						var(--ha-card-box-shadow)
-					);
+					box-shadow: var(--md-sys-elevation-level1, var(--ha-card-box-shadow));
 				}
 				:host(.md3-elevated.option.selected),
 				:host(.md3-elevated.toggle[value='on']) {
@@ -523,19 +489,15 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					--md-button-background-color: var(
 						--md-sys-color-inverse-surface,
 						rgb(
-							from
-								var(
-									--lovelace-background,
-									var(--primary-background-color)
-								)
+							from var(--lovelace-background, var(--primary-background-color))
 								calc(255 - r) calc(255 - g) calc(255 - b)
 						)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-inverse-on-surface,
 						rgb(
-							from var(--primary-text-color,) calc(255 - r)
-								calc(255 - g) calc(255 - b)
+							from var(--primary-text-color,) calc(255 - r) calc(255 - g)
+								calc(255 - b)
 						)
 					);
 				}
@@ -549,10 +511,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 
 				:host([pressed].md3) {
-					--md-button-border-radius: var(
-						--md-sys-shape-corner-small,
-						8px
-					);
+					--md-button-border-radius: var(--md-sys-shape-corner-small, 8px);
 				}
 				:host([pressed].md3.toggle) {
 					--md-button-border-radius: var(
@@ -565,8 +524,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					z-index: 1;
 				}
 				:host(.md3:focus-visible) button {
-					outline: 3px solid
-						var(--md-sys-color-secondary, var(--accent-color));
+					outline: 3px solid var(--md-sys-color-secondary, var(--accent-color));
 					outline-offset: 2px;
 				}
 			`,

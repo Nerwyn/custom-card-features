@@ -85,38 +85,32 @@ export class BaseCustomFeature extends LitElement {
 		this.deltaY = undefined;
 	}
 
-	async sendAction(
-		actionType: ActionType,
-		actions: IActions = this.config as IActions,
-	) {
-		let action;
+	getAction(actionType: ActionType, config: IActions = this.config) {
 		switch (actionType) {
 			case 'momentary_start_action':
-				action = actions.momentary_start_action;
-				break;
+				return config.momentary_start_action;
+			case 'momentary_repeat_action':
+				return config.momentary_repeat_action;
 			case 'momentary_end_action':
-				action = actions.momentary_end_action;
-				break;
+				return config.momentary_end_action;
 			case 'hold_action':
-				action = actions.hold_action ?? actions.tap_action;
-				break;
+				return config.hold_action ?? config.tap_action;
 			case 'double_tap_action':
-				action = actions.double_tap_action ?? actions.tap_action;
-				break;
+				return config.double_tap_action ?? config.tap_action;
 			case 'tap_action':
 			default:
-				action = actions.tap_action;
-				break;
+				return config.tap_action;
 		}
+	}
 
+	async sendAction(actionType: ActionType, config: IActions = this.config) {
+		let action = this.getAction(actionType, config);
 		action &&= this.deepRenderTemplate(action);
 		if (!action || !(await handleConfirmation(this, action))) {
-			this.dispatchEvent(new Event('confirmation-failed'));
 			return;
 		}
 
 		try {
-			action &&= this.deepRenderTemplate(action);
 			switch (action?.action) {
 				case 'navigate':
 					this.navigate(action);
@@ -353,9 +347,7 @@ export class BaseCustomFeature extends LitElement {
 			composed: true,
 		});
 		event.detail = {
-			message: this.hass.localize(
-				`ui.panel.lovelace.cards.actions.${suffix}`,
-			),
+			message: this.hass.localize(`ui.panel.lovelace.cards.actions.${suffix}`),
 		};
 		this.dispatchEvent(event);
 		this.fireHapticEvent('failure');
@@ -383,13 +375,7 @@ export class BaseCustomFeature extends LitElement {
 				const value = deepGet(
 					this.hass.states[this.entityId].attributes,
 					this.valueAttribute,
-				) as
-					| string
-					| number
-					| boolean
-					| string[]
-					| number[]
-					| undefined;
+				) as string | number | boolean | string[] | number[] | undefined;
 
 				if (value != undefined || this.valueAttribute == 'elapsed') {
 					switch (this.valueAttribute) {
@@ -408,27 +394,21 @@ export class BaseCustomFeature extends LitElement {
 									}
 
 									if (
-										this.hass.states[
-											this.entityId as string
-										].state == 'playing'
+										this.hass.states[this.entityId as string].state == 'playing'
 									) {
 										this.value = Math.min(
 											Math.floor(
 												Math.floor(value as number) +
 													(Date.now() -
 														Date.parse(
-															this.hass.states[
-																this
-																	.entityId as string
-															].attributes
-																.media_position_updated_at,
+															this.hass.states[this.entityId as string]
+																.attributes.media_position_updated_at,
 														)) /
 														1000,
 											),
 											Math.floor(
-												this.hass.states[
-													this.entityId as string
-												].attributes.media_duration,
+												this.hass.states[this.entityId as string].attributes
+													.media_duration,
 											),
 										);
 									} else {
@@ -437,10 +417,7 @@ export class BaseCustomFeature extends LitElement {
 								};
 
 								setIntervalValue();
-								this.valueUpdateInterval = setInterval(
-									setIntervalValue,
-									500,
-								);
+								this.valueUpdateInterval = setInterval(setIntervalValue, 500);
 							} catch (e) {
 								console.error(e);
 								this.value = value as string | number | boolean;
@@ -448,10 +425,7 @@ export class BaseCustomFeature extends LitElement {
 							break;
 						case 'elapsed':
 							if (this.entityId.startsWith('timer.')) {
-								if (
-									this.hass.states[this.entityId as string]
-										.state == 'idle'
-								) {
+								if (this.hass.states[this.entityId as string].state == 'idle') {
 									this.value = 0;
 								} else {
 									const durationHMS =
@@ -463,44 +437,32 @@ export class BaseCustomFeature extends LitElement {
 										parseInt(durationHMS[1]) * 60 +
 										parseInt(durationHMS[2]);
 									const endSeconds = Date.parse(
-										this.hass.states[
-											this.entityId as string
-										].attributes.finishes_at,
+										this.hass.states[this.entityId as string].attributes
+											.finishes_at,
 									);
 									try {
 										const setIntervalValue = () => {
 											if (
-												this.hass.states[
-													this.entityId as string
-												].state == 'active'
+												this.hass.states[this.entityId as string].state ==
+												'active'
 											) {
 												const remainingSeconds =
-													(endSeconds - Date.now()) /
-													1000;
+													(endSeconds - Date.now()) / 1000;
 												const value = Math.floor(
-													durationSeconds -
-														remainingSeconds,
+													durationSeconds - remainingSeconds,
 												);
-												this.value = Math.min(
-													value,
-													durationSeconds,
-												);
+												this.value = Math.min(value, durationSeconds);
 											} else {
 												const remainingHMS =
 													this.hass.states[
 														this.entityId as string
-													].attributes.remaining.split(
-														':',
-													);
+													].attributes.remaining.split(':');
 												const remainingSeconds =
-													parseInt(remainingHMS[0]) *
-														3600 +
-													parseInt(remainingHMS[1]) *
-														60 +
+													parseInt(remainingHMS[0]) * 3600 +
+													parseInt(remainingHMS[1]) * 60 +
 													parseInt(remainingHMS[2]);
 												this.value = Math.floor(
-													durationSeconds -
-														remainingSeconds,
+													durationSeconds - remainingSeconds,
 												);
 											}
 										};
@@ -623,9 +585,7 @@ export class BaseCustomFeature extends LitElement {
 	}
 
 	buildLabel(label?: string) {
-		return label
-			? html`<pre class="label" part="label">${label}</pre>`
-			: '';
+		return label ? html`<pre class="label" part="label">${label}</pre>` : '';
 	}
 
 	buildBackground() {
@@ -698,10 +658,7 @@ export class BaseCustomFeature extends LitElement {
 		// Stuck ripple fix
 		clearTimeout(this.rippleEndTimer);
 		const ripple = this.shadowRoot?.querySelector('md-ripple') as MdRipple;
-		this.rippleEndTimer = setTimeout(
-			() => ripple?.endPressAnimation?.(),
-			15,
-		);
+		this.rippleEndTimer = setTimeout(() => ripple?.endPressAnimation?.(), 15);
 	}
 
 	async onKeyDown(e: KeyboardEvent) {
@@ -745,13 +702,9 @@ export class BaseCustomFeature extends LitElement {
 					this.config.unit_of_measurement as string,
 				) as string) ?? '';
 
-			const icon = this.renderTemplate(
-				this.config.icon as string,
-			) as string;
+			const icon = this.renderTemplate(this.config.icon as string) as string;
 
-			const label = this.renderTemplate(
-				this.config.label as string,
-			) as string;
+			const label = this.renderTemplate(this.config.label as string) as string;
 
 			const styles = this.renderTemplate(
 				this.config.styles as string,
@@ -848,10 +801,7 @@ export class BaseCustomFeature extends LitElement {
 				position: absolute;
 				width: 100%;
 				height: var(--background-height, 100%);
-				background: var(
-					--background,
-					var(--color, var(--disabled-color))
-				);
+				background: var(--background, var(--color, var(--disabled-color)));
 				opacity: var(--background-opacity, 0.2);
 			}
 

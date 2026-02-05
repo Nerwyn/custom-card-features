@@ -62,10 +62,11 @@ export interface IAction {
 
 export interface IActions {
 	tap_action?: IAction;
-	hold_action?: IAction;
 	double_tap_action?: IAction;
+	hold_action?: IAction;
 
 	momentary_start_action?: IAction;
+	momentary_repeat_action?: IAction;
 	momentary_end_action?: IAction;
 }
 
@@ -74,6 +75,7 @@ export const ActionTypes = [
 	'hold_action',
 	'double_tap_action',
 	'momentary_start_action',
+	'momentary_repeat_action',
 	'momentary_end_action',
 ] as const;
 export type ActionType = (typeof ActionTypes)[number];

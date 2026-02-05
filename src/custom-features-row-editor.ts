@@ -167,9 +167,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	copyEntry(e: Event) {
 		const entries = structuredClone(this.config.entries);
-		const i = (
-			e.currentTarget as unknown as Event & Record<'index', number>
-		).index;
+		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
+			.index;
 		const entry = structuredClone(entries[i]);
 		entries.splice(i, 1, entries[i], entry);
 		this.entriesChanged(entries);
@@ -178,9 +177,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 	copyOption(e: Event) {
 		const entry = structuredClone(this.activeEntry) as IEntry;
 		const options = structuredClone(entry.options) ?? [];
-		const i = (
-			e.currentTarget as unknown as Event & Record<'index', number>
-		).index;
+		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
+			.index;
 		const option = structuredClone(options[i]);
 		options.splice(i, 1, options[i], option);
 		entry.options = options;
@@ -190,23 +188,31 @@ export class CustomFeaturesRowEditor extends LitElement {
 	editEntry(e: Event) {
 		this.yamlStringsCache = {};
 		this.yamlString = undefined;
-		const i = (
-			e.currentTarget as unknown as Event & Record<'index', number>
-		).index;
+		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
+			.index;
 		this.activeEntryType = 'entry';
-		this.actionsTabIndex =
+
+		const entry = this.config.entries[i];
+		const context = this.getEntryContext(entry);
+		if (
 			i > -1 &&
 			(this.renderTemplate(
-				this.config.entries[i].momentary_start_action?.action ?? 'none',
-				this.getEntryContext(this.config.entries[i]),
+				entry.momentary_start_action?.action ?? 'none',
+				context,
 			) != 'none' ||
 				this.renderTemplate(
-					this.config.entries[i].momentary_end_action?.action ??
-						'none',
-					this.getEntryContext(this.config.entries[i]),
+					entry.momentary_repeat_action?.action ?? 'none',
+					context,
+				) != 'none' ||
+				this.renderTemplate(
+					entry.momentary_end_action?.action ?? 'none',
+					context,
 				) != 'none')
-				? 1
-				: 0;
+		) {
+			this.actionsTabIndex = 1;
+		} else {
+			this.actionsTabIndex = 0;
+		}
 		this.optionIndex = -1;
 		this.spinboxTabIndex = 1;
 		this.entryIndex = i;
@@ -215,9 +221,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 	editOption(e: Event) {
 		this.yamlStringsCache = {};
 		this.yamlString = undefined;
-		const i = (
-			e.currentTarget as unknown as Event & Record<'index', number>
-		).index;
+		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
+			.index;
 		this.activeEntryType = 'option';
 		this.actionsTabIndex =
 			i > -1 &&
@@ -232,9 +237,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					this.config.entries[this.entryIndex].options?.[i]
 						?.momentary_end_action?.action ?? 'none',
 					this.getEntryContext(
-						this.config.entries[this.entryIndex].options?.[
-							i
-						] as IEntry,
+						this.config.entries[this.entryIndex].options?.[i] as IEntry,
 					),
 				) != 'none')
 				? 1
@@ -243,18 +246,16 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	removeEntry(e: Event) {
-		const i = (
-			e.currentTarget as unknown as Event & Record<'index', number>
-		).index;
+		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
+			.index;
 		const entries = structuredClone(this.config.entries);
 		entries.splice(i, 1);
 		this.entriesChanged(entries);
 	}
 
 	removeOption(e: Event) {
-		const i = (
-			e.currentTarget as unknown as Event & Record<'index', number>
-		).index;
+		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
+			.index;
 		const entry = structuredClone(this.activeEntry) as IOption;
 		const options = entry.options ?? [];
 		options.splice(i, 1);
@@ -284,10 +285,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	scrollToBottomOfList() {
 		const entriesList = this.shadowRoot?.querySelector('.features');
 		if (entriesList) {
-			setTimeout(
-				() => (entriesList.scrollTop = entriesList.scrollHeight),
-				100,
-			);
+			setTimeout(() => (entriesList.scrollTop = entriesList.scrollHeight), 100);
 		}
 	}
 
@@ -455,16 +453,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 			});
 		}
 		if (this.entryIndex < 0) {
-			this.configChanged(
-				deepSet(structuredClone(this.config), key, value),
-			);
+			this.configChanged(deepSet(structuredClone(this.config), key, value));
 		} else {
 			this.entryChanged(
-				deepSet(
-					structuredClone(this.activeEntry as IEntry),
-					key,
-					value,
-				),
+				deepSet(structuredClone(this.activeEntry as IEntry), key, value),
 			);
 		}
 	}
@@ -536,35 +528,22 @@ export class CustomFeaturesRowEditor extends LitElement {
 					${field == 'entry' && this.showExitButton
 						? html`<div class="back-title">
 								<ha-icon-button-prev
-									.label=${this.hass.localize(
-										'ui.common.back',
-									)}
+									.label=${this.hass.localize('ui.common.back')}
 									@click=${this.handleExitEditor}
 								></ha-icon-button-prev>
 								${listHeader}
 							</div>`
 						: listHeader}
-					<ha-icon-button
-						class="header-icon"
-						@click=${this.handleREADME}
+					<ha-icon-button class="header-icon" @click=${this.handleREADME}
 						><ha-icon .icon="${'mdi:help-circle'}"></ha-icon
 					></ha-icon-button>
 				</div>
-				<ha-sortable
-					handle-selector=".handle"
-					@item-moved=${handlers.move}
-				>
+				<ha-sortable handle-selector=".handle" @item-moved=${handlers.move}>
 					<div class="features">
 						${entries.map((entry, i) => {
 							const context = this.getEntryContext(entry);
-							const icon = this.renderTemplate(
-								entry.icon as string,
-								context,
-							);
-							const label = this.renderTemplate(
-								entry.label as string,
-								context,
-							);
+							const icon = this.renderTemplate(entry.icon as string, context);
+							const label = this.renderTemplate(entry.label as string, context);
 							const option = this.renderTemplate(
 								(entry as IOption).option as string,
 								context,
@@ -576,30 +555,21 @@ export class CustomFeaturesRowEditor extends LitElement {
 							return html`
 								<div class="feature-list-item">
 									<div class="handle">
-										<ha-icon
-											.icon="${'mdi:drag'}"
-										></ha-icon>
+										<ha-icon .icon="${'mdi:drag'}"></ha-icon>
 									</div>
 									<div class="feature-list-item-content">
-										${icon
-											? html`<ha-icon
-													.icon="${icon}"
-												></ha-icon>`
-											: ''}
+										${icon ? html`<ha-icon .icon="${icon}"></ha-icon>` : ''}
 										<div class="feature-list-item-label">
 											<span class="primary"
 												>${option ??
-												(field == 'option'
-													? 'Option'
-													: entryType)}${label
+												(field == 'option' ? 'Option' : entryType)}${label
 													? ` ⸱ ${label}`
 													: ''}</span
 											>
 											${context.config.entity
 												? html`<span class="secondary"
-														>${context.config
-															.entity_id}${context
-															.config.attribute
+														>${context.config.entity_id}${context.config
+															.attribute
 															? ` ⸱ ${context.config.attribute}`
 															: ''}</span
 													>`
@@ -611,27 +581,21 @@ export class CustomFeaturesRowEditor extends LitElement {
 										.index=${i}
 										@click=${handlers.copy}
 									>
-										<ha-icon
-											.icon="${'mdi:content-copy'}"
-										></ha-icon>
+										<ha-icon .icon="${'mdi:content-copy'}"></ha-icon>
 									</ha-icon-button>
 									<ha-icon-button
 										class="edit-icon"
 										.index=${i}
 										@click=${handlers.edit}
 									>
-										<ha-icon
-											.icon="${'mdi:pencil'}"
-										></ha-icon>
+										<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
 									</ha-icon-button>
 									<ha-icon-button
 										class="remove-icon"
 										.index=${i}
 										@click=${handlers.remove}
 									>
-										<ha-icon
-											.icon="${'mdi:delete'}"
-										></ha-icon>
+										<ha-icon .icon="${'mdi:delete'}"></ha-icon>
 									</ha-icon-button>
 								</div>
 							`;
@@ -654,13 +618,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 			case 'entry':
 			default:
 				return html`
-					<ha-dropdown
-						@wa-select=${this.addEntry}
-						placement="bottom-end"
-					>
+					<ha-dropdown @wa-select=${this.addEntry} placement="bottom-end">
 						<ha-button slot="trigger">
-							<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon
-							>Add custom feature</ha-button
+							<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon>Add custom
+							feature</ha-button
 						>
 						${CardFeatureTypes.map(
 							(cardFeatureType) => html`
@@ -683,8 +644,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					(
 						(renderTemplate(
 							this.hass,
-							this.config.entries[this.entryIndex]
-								?.type as string,
+							this.config.entries[this.entryIndex]?.type as string,
 							this.getEntryContext(this.activeEntry ?? {}),
 						) ?? 'selector') as string
 					).toLowerCase()
@@ -723,9 +683,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					<span class="primary" slot="title">${title}</span>
 				</div>
 				<div class="header-icons">
-					<ha-icon-button
-						class="header-icon"
-						@click=${this.handleREADME}
+					<ha-icon-button class="header-icon" @click=${this.handleREADME}
 						><ha-icon .icon="${'mdi:help-circle'}"></ha-icon
 					></ha-icon-button>
 					<ha-icon-button
@@ -760,12 +718,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 			...this.hass,
 			localize: (key, values) => {
 				const value = {
-					'ui.panel.lovelace.editor.action-editor.actions.repeat':
-						'Repeat',
+					'ui.panel.lovelace.editor.action-editor.actions.repeat': 'Repeat',
 					'ui.panel.lovelace.editor.action-editor.actions.fire-dom-event':
 						'Fire DOM event',
-					'ui.panel.lovelace.editor.action-editor.actions.eval':
-						'Evaluate JS',
+					'ui.panel.lovelace.editor.action-editor.actions.eval': 'Evaluate JS',
 				}[key];
 				return value ?? this.hass.localize(key, values);
 			},
@@ -820,12 +776,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	buildAppearancePanel(appearanceOptions: TemplateResult<1> = html``) {
 		return html`
 			<ha-expansion-panel .header=${'Appearance'}>
-				<div
-					class="panel-header"
-					slot="header"
-					role="heading"
-					aria-level="3"
-				>
+				<div class="panel-header" slot="header" role="heading" aria-level="3">
 					<ha-icon .icon=${'mdi:palette'}></ha-icon>
 					Appearance
 				</div>
@@ -855,12 +806,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	buildInteractionsPanel(actionSelectors: TemplateResult<1>) {
 		return html`
 			<ha-expansion-panel .header=${'Interactions'}>
-				<div
-					class="panel-header"
-					slot="header"
-					role="heading"
-					aria-level="3"
-				>
+				<div class="panel-header" slot="header" role="heading" aria-level="3">
 					<ha-icon .icon=${'mdi:gesture-tap'}></ha-icon>
 					Interactions
 				</div>
@@ -896,7 +842,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 						},
 						DOUBLE_TAP_WINDOW,
 					)
-				: actionType == 'hold_action' && this.activeEntry?.hold_action
+				: ['hold_action', 'momentary_repeat_action'].includes(actionType) &&
+					  this.activeEntry?.[actionType]
 					? html`<div class="form">
 							${this.buildSelector(
 								'Hold time',
@@ -914,7 +861,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 							${this.renderTemplate(
 								this.activeEntry?.hold_action?.action as string,
 								context,
-							) == 'repeat'
+							) == 'repeat' || actionType == 'momentary_repeat_action'
 								? this.buildSelector(
 										'Repeat delay',
 										'hold_action.repeat_delay',
@@ -932,13 +879,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 						</div>`
 					: ''}
 			${action == 'more-info'
-				? this.buildSelector(
-						'Entity',
-						`${actionType}.target.entity_id`,
-						{
-							entity: {},
-						},
-					)
+				? this.buildSelector('Entity', `${actionType}.target.entity_id`, {
+						entity: {},
+					})
 				: ''}
 			${action == 'toggle'
 				? this.buildSelector('Target', `${actionType}.target`, {
@@ -996,10 +939,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			<ha-tab-group @wa-tab-show=${handler}>
 				${tabs.map(
 					(tab, i) =>
-						html`<ha-tab-group-tab
-							slot="nav"
-							panel=${tab}
-							.active=${i == index}
+						html`<ha-tab-group-tab slot="nav" panel=${tab} .active=${i == index}
 							>${tab}</ha-tab-group-tab
 						>`,
 				)}
@@ -1042,6 +982,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 						"Set the action below, and then use the code editor to set a data field to the seconds the feature was held down using a template like '{{ hold_secs | float }}'.",
 					)}
 					${this.buildActionOption(
+						'Repeat behavior (optional)',
+						'momentary_repeat_action',
+						defaultUiActions,
+						true,
+					)}
+					${this.buildActionOption(
 						'End behavior (optional)',
 						'momentary_end_action',
 						defaultUiActions,
@@ -1064,16 +1010,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 						'double_tap_action',
 						defaultUiActions,
 					)}
-					${this.buildActionOption(
-						'Hold behavior (optional)',
-						'hold_action',
-						{
-							ui_action: {
-								actions: Actions,
-								default_action: 'none',
-							},
+					${this.buildActionOption('Hold behavior (optional)', 'hold_action', {
+						ui_action: {
+							actions: Actions,
+							default_action: 'none',
 						},
-					)}
+					})}
 				`;
 				break;
 			}
@@ -1175,8 +1117,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			context,
 		);
 		const step =
-			this.renderTemplate(this.activeEntry?.step as number, context) ??
-			STEP;
+			this.renderTemplate(this.activeEntry?.step as number, context) ?? STEP;
 		const unit = this.renderTemplate(
 			this.activeEntry?.unit_of_measurement as string,
 			context,
@@ -1340,9 +1281,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 						)}
 					</div>
 					<div class="">
-						${this.buildEntryList(
+						${this.buildEntryList('option')}${this.buildAddEntryButton(
 							'option',
-						)}${this.buildAddEntryButton('option')}
+						)}
 					</div>
 					${type == 'selector'
 						? this.buildSelector(
@@ -1418,11 +1359,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			},
 		};
 		const actionSelectors = html`
-			${this.buildActionOption(
-				'Behavior',
-				'tap_action',
-				defaultUiActions,
-			)}
+			${this.buildActionOption('Behavior', 'tap_action', defaultUiActions)}
 		`;
 		return html`
 			${this.buildMainFeatureOptions()}
@@ -1497,9 +1434,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				break;
 			case 1:
 			default: {
-				const context = this.getEntryContext(
-					this.activeEntry as IEntry,
-				);
+				const context = this.getEntryContext(this.activeEntry as IEntry);
 				const rangeMin = this.renderTemplate(
 					this.activeEntry?.range?.[0] as number,
 					context,
@@ -1509,10 +1444,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 					context,
 				);
 				const step =
-					this.renderTemplate(
-						this.activeEntry?.step as number,
-						context,
-					) ?? STEP;
+					this.renderTemplate(this.activeEntry?.step as number, context) ??
+					STEP;
 				const unit = this.renderTemplate(
 					this.activeEntry?.unit_of_measurement as string,
 					context,
@@ -1590,9 +1523,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 							HAPTICS,
 						)}
 					</div>
-					${this.buildAppearancePanel(
-						this.buildCommonAppearanceOptions(),
-					)}
+					${this.buildAppearancePanel(this.buildCommonAppearanceOptions())}
 					${this.buildInteractionsPanel(actionSelectors)}
 				`;
 				break;
@@ -1733,13 +1664,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 					})}
 					${this.buildSelector('Units', 'unit_of_measurement', {
 						text: {},
-					})}${this.buildSelector(
-						'Unchecked icon',
-						'unchecked_icon',
-						{
-							icon: {},
-						},
-					)}
+					})}${this.buildSelector('Unchecked icon', 'unchecked_icon', {
+						icon: {},
+					})}
 					${this.buildSelector('Checked icon', 'checked_icon', {
 						icon: {},
 					})}
@@ -1770,8 +1697,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			context,
 		);
 		const step =
-			this.renderTemplate(this.activeEntry?.step as number, context) ??
-			STEP;
+			this.renderTemplate(this.activeEntry?.step as number, context) ?? STEP;
 		const unit = this.renderTemplate(
 			this.activeEntry?.unit_of_measurement as string,
 			context,
@@ -2110,9 +2036,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				id = id ?? 'tap_action';
 				value =
 					this.yamlStringsCache[id] ??
-					dump(
-						(this.activeEntry?.[id as ActionType] as IAction) ?? {},
-					);
+					dump((this.activeEntry?.[id as ActionType] as IAction) ?? {});
 				value = value.trim() == '{}' ? '' : value;
 				autocompleteEntities = true;
 				autocompleteIcons = false;
@@ -2172,14 +2096,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return html`
 			${this.errors && this.errors.length > 0
 				? html`<div class="error">
-						${this.hass.localize(
-							'ui.errors.config.error_detected',
-						)}:
+						${this.hass.localize('ui.errors.config.error_detected')}:
 						<br />
 						<ul>
-							${this.errors!.map(
-								(error) => html`<li>${error}</li>`,
-							)}
+							${this.errors!.map((error) => html`<li>${error}</li>`)}
 						</ul>
 					</div>`
 				: ''}
@@ -2190,10 +2110,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		title = "Set the action below, and then use the code editor to set a data field to the feature's new value using a template like '{{ value | float }}'.",
 		type: 'info' | 'warning' | 'error' | 'success' = 'info',
 	) {
-		return html`<ha-alert
-			.title="${title}"
-			.alertType="${type}"
-		></ha-alert>`;
+		return html`<ha-alert .title="${title}" .alertType="${type}"></ha-alert>`;
 	}
 
 	buildPeopleList() {
@@ -2224,13 +2141,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 			case -1:
 				editor = html`
 					<div class="content">
-						<div>
-							${this.buildEntryList()}${this.buildAddEntryButton()}
-						</div>
+						<div>${this.buildEntryList()}${this.buildAddEntryButton()}</div>
 						${this.buildCodeEditor('jinja2')}
 						<ha-button @click=${this.handleUpdateDeprecatedConfig}>
-							<ha-icon .icon=${'mdi:cog'} slot="start"></ha-icon
-							>Update old config</ha-button
+							<ha-icon .icon=${'mdi:cog'} slot="start"></ha-icon>Update old
+							config</ha-button
 						>
 						${this.buildErrorPanel()}
 					</div>
@@ -2325,46 +2240,32 @@ export class CustomFeaturesRowEditor extends LitElement {
 			if (value != undefined || valueAttribute == 'elapsed') {
 				switch (valueAttribute) {
 					case 'brightness':
-						return Math.round(
-							(100 * parseInt((value as string) ?? 0)) / 255,
-						);
+						return Math.round((100 * parseInt((value as string) ?? 0)) / 255);
 					case 'elapsed':
 						if (entityId.startsWith('timer.')) {
 							const durationHMS =
-								this.hass.states[
-									entityId
-								].attributes.duration.split(':');
+								this.hass.states[entityId].attributes.duration.split(':');
 							const durationSeconds =
 								parseInt(durationHMS[0]) * 3600 +
 								parseInt(durationHMS[1]) * 60 +
 								parseInt(durationHMS[2]);
 							if (this.hass.states[entityId].state == 'idle') {
 								return 0;
-							} else if (
-								this.hass.states[entityId].state == 'active'
-							) {
+							} else if (this.hass.states[entityId].state == 'active') {
 								const endSeconds = Date.parse(
-									this.hass.states[entityId].attributes
-										.finishes_at,
+									this.hass.states[entityId].attributes.finishes_at,
 								);
-								const remainingSeconds =
-									(endSeconds - Date.now()) / 1000;
-								const value = Math.floor(
-									durationSeconds - remainingSeconds,
-								);
+								const remainingSeconds = (endSeconds - Date.now()) / 1000;
+								const value = Math.floor(durationSeconds - remainingSeconds);
 								return Math.min(value, durationSeconds);
 							} else {
 								const remainingHMS =
-									this.hass.states[
-										entityId
-									].attributes.remaining.split(':');
+									this.hass.states[entityId].attributes.remaining.split(':');
 								const remainingSeconds =
 									parseInt(remainingHMS[0]) * 3600 +
 									parseInt(remainingHMS[1]) * 60 +
 									parseInt(remainingHMS[2]);
-								return Math.floor(
-									durationSeconds - remainingSeconds,
-								);
+								return Math.floor(durationSeconds - remainingSeconds);
 							}
 						}
 					// falls through
@@ -2379,12 +2280,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 	populateMissingEntityId(entry: IEntry, parentEntityId: string) {
 		for (const actionType of ActionTypes) {
 			if (actionType in entry) {
-				const action =
-					entry[actionType as ActionType] ?? ({} as IAction);
+				const action = entry[actionType as ActionType] ?? ({} as IAction);
 				if (
-					['perform-action', 'more-info', 'toggle'].includes(
-						action.action,
-					) &&
+					['perform-action', 'more-info', 'toggle'].includes(action.action) &&
 					typeof action.target != 'string'
 				) {
 					const data = action.data ?? {};
@@ -2396,9 +2294,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 						'label_id',
 					]) {
 						if (data[targetId]) {
-							target[targetId as keyof ITarget] = data[
-								targetId
-							] as string | string[];
+							target[targetId as keyof ITarget] = data[targetId] as
+								| string
+								| string[];
 							delete data[targetId];
 						}
 					}
@@ -2458,9 +2356,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 				// Unit of measurement
 				entry.unit_of_measurement ||=
-					this.hass.states[
-						entryEntityId
-					]?.attributes.unit_of_measurement;
+					this.hass.states[entryEntityId]?.attributes.unit_of_measurement;
 
 				const featureType = this.renderTemplate(
 					entry.type as string,
@@ -2475,8 +2371,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 						if (entryEntityId) {
 							optionNames =
 								(this.hass.states[entryEntityId]?.attributes
-									?.options as string[]) ??
-								new Array<string>(options.length);
+									?.options as string[]) ?? new Array<string>(options.length);
 						}
 						if (optionNames.length < options.length) {
 							optionNames = Object.assign(
@@ -2508,20 +2403,16 @@ export class CustomFeaturesRowEditor extends LitElement {
 									!options[i].double_tap_action &&
 									!options[i].hold_action
 								) {
-									const [domain, _service] = (
-										entryEntityId ?? ''
-									).split('.');
+									const [domain, _service] = (entryEntityId ?? '').split('.');
 									const tap_action = {} as IAction;
 									tap_action.action = 'perform-action';
 									switch (domain) {
 										case 'select':
-											tap_action.perform_action =
-												'select.select_option';
+											tap_action.perform_action = 'select.select_option';
 											break;
 										case 'input_select':
 										default:
-											tap_action.perform_action =
-												'input_select.select_option';
+											tap_action.perform_action = 'input_select.select_option';
 											break;
 									}
 
@@ -2533,8 +2424,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 									}
 									const target = tap_action.target ?? {};
 									if (!target.entity_id) {
-										target.entity_id =
-											entryEntityId as string;
+										target.entity_id = entryEntityId as string;
 										tap_action.target = target;
 									}
 									options[i].tap_action = tap_action;
@@ -2575,9 +2465,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					// falls through
 					case 'input':
 					case 'slider': {
-						const [domain, _service] = (entryEntityId ?? '').split(
-							'.',
-						);
+						const [domain, _service] = (entryEntityId ?? '').split('.');
 						if (!entry.tap_action) {
 							const tap_action = {} as IAction;
 							const data = tap_action.data ?? {};
@@ -2603,11 +2491,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 								case 'input_datetime': {
 									tap_action.perform_action = `${domain}.set_datetime`;
 									const hasDate =
-										this.hass.states[entryEntityId]
-											?.attributes.has_date;
+										this.hass.states[entryEntityId]?.attributes.has_date;
 									const hasTime =
-										this.hass.states[entryEntityId]
-											?.attributes.has_time;
+										this.hass.states[entryEntityId]?.attributes.has_time;
 									const field = `${hasDate ? 'date' : ''}${hasTime ? 'time' : ''}`;
 									if (field && !data[field]) {
 										data[field] = '{{ value }}';
@@ -2669,13 +2555,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 								default:
 									rangeMin =
 										(parseFloat(rangeMin as string) ||
-											this.hass.states[entryEntityId]
-												?.attributes?.min) ??
+											this.hass.states[entryEntityId]?.attributes?.min) ??
 										RANGE_MIN;
 									rangeMax =
 										(parseFloat(rangeMax as string) ||
-											this.hass.states[entryEntityId]
-												?.attributes?.max) ??
+											this.hass.states[entryEntityId]?.attributes?.max) ??
 										RANGE_MAX;
 									break;
 							}
@@ -2685,22 +2569,18 @@ export class CustomFeaturesRowEditor extends LitElement {
 							break;
 						}
 						rangeMin ??=
-							this.hass.states[entryEntityId]?.attributes?.min ??
-							RANGE_MIN;
+							this.hass.states[entryEntityId]?.attributes?.min ?? RANGE_MIN;
 						rangeMax ??=
-							this.hass.states[entryEntityId]?.attributes?.max ??
-							RANGE_MAX;
+							this.hass.states[entryEntityId]?.attributes?.max ?? RANGE_MAX;
 						entry.range = [rangeMin as number, rangeMax as number];
 
 						if (!entry.step) {
 							const defaultStep =
-								this.hass.states[entryEntityId as string]
-									?.attributes?.step;
+								this.hass.states[entryEntityId as string]?.attributes?.step;
 							if (defaultStep) {
 								entry.step = defaultStep;
 							} else {
-								const entryContext =
-									this.getEntryContext(entry);
+								const entryContext = this.getEntryContext(entry);
 								entry.step =
 									((this.renderTemplate(
 										entry.range[1],
@@ -2749,14 +2629,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 				option = this.updateDeprecatedEntryFields(option);
 			}
 			if (entry.increment) {
-				entry.increment = this.updateDeprecatedEntryFields(
-					entry.increment,
-				);
+				entry.increment = this.updateDeprecatedEntryFields(entry.increment);
 			}
 			if (entry.decrement) {
-				entry.decrement = this.updateDeprecatedEntryFields(
-					entry.decrement,
-				);
+				entry.decrement = this.updateDeprecatedEntryFields(entry.decrement);
 			}
 		}
 
@@ -2773,9 +2649,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			delete updatedConfig['style' as keyof IConfig];
 		}
 		if (updatedConfig['hide' as keyof IConfig]) {
-			let styles = `\n{% if ${(
-				updatedConfig['hide' as keyof IConfig] as string
-			)
+			let styles = `\n{% if ${(updatedConfig['hide' as keyof IConfig] as string)
 				.replace('{{', '')
 				.replace('}}', '')} %}`;
 			styles += '\n:host {\n  display: none;\n}';
@@ -2816,8 +2690,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 		for (const actionKey of actionKeys) {
 			if (actionKey in entry) {
 				updateTapAction = true;
-				(tapAction as unknown as Record<string, string>)[actionKey] =
-					entry[actionKey as keyof IEntry] as string;
+				(tapAction as unknown as Record<string, string>)[actionKey] = entry[
+					actionKey as keyof IEntry
+				] as string;
 				delete (entry as unknown as Record<string, string>)[actionKey];
 			}
 		}
@@ -2837,8 +2712,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 						} else if (action['service' as 'perform_action']) {
 							// Deprecated in 2024.8
 							action.action = 'perform-action';
-							action.perform_action =
-								action['service' as 'perform_action'];
+							action.perform_action = action['service' as 'perform_action'];
 							delete action['service' as 'perform_action'];
 						} else if (action.navigation_path) {
 							action.action = 'navigate';
@@ -2846,20 +2720,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 							action.action = 'url';
 						} else if (action.browser_mod) {
 							action.action = 'fire-dom-event';
-						} else if (
-							action.pipeline_id ||
-							action.start_listening
-						) {
+						} else if (action.pipeline_id || action.start_listening) {
 							action.action = 'assist';
 						} else {
 							action.action = 'none';
 						}
-					} else if (
-						action.action == ('call-service' as 'perform-action')
-					) {
+					} else if (action.action == ('call-service' as 'perform-action')) {
 						action.action = 'perform-action';
-						action.perform_action =
-							action['service' as 'perform_action'] ?? '';
+						action.perform_action = action['service' as 'perform_action'] ?? '';
 						delete action['service' as 'perform_action'];
 					}
 
@@ -2905,10 +2773,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 		if (entry['style' as keyof IEntry]) {
 			let styles = ':host {';
-			const style = entry['style' as keyof IEntry] as Record<
-				string,
-				string
-			>;
+			const style = entry['style' as keyof IEntry] as Record<string, string>;
 			for (const field in style) {
 				styles += `\n  ${field}: ${style[field]};`;
 			}
@@ -2926,18 +2791,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 		};
 		for (const field in deprecatedStyles) {
 			if (entry[field as keyof IEntry]) {
-				const style = entry[field as keyof IEntry] as Record<
-					string,
-					string
-				>;
+				const style = entry[field as keyof IEntry] as Record<string, string>;
 				let styles = `\n${deprecatedStyles[field]} {`;
 				for (const key in style) {
 					styles += `\n  ${key}: ${style[key]};`;
 				}
-				if (
-					field == 'tooltip_style' &&
-					entry['tooltip' as keyof IEntry]
-				) {
+				if (field == 'tooltip_style' && entry['tooltip' as keyof IEntry]) {
 					styles += `  display: ${
 						entry['tooltip' as keyof IEntry] ? 'initial' : 'none'
 					};`;
