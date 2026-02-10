@@ -401,6 +401,11 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					color: var(--icon-color, var(--feature-color));
 				}
 
+				:host(.tile-icon) .label {
+					position: absolute;
+					font-size: 10px;
+				}
+
 				:host(.tile-icon) .background::before {
 					background: var(--color, var(--state-inactive-color));
 					transition:
