@@ -94,8 +94,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			const sensitivity = 40;
 			if (
 				Math.abs((this.currentX ?? 0) - (this.initialX ?? 0)) <
-				Math.abs((this.currentY ?? 0) - (this.initialY ?? 0)) -
-					sensitivity
+				Math.abs((this.currentY ?? 0) - (this.initialY ?? 0)) - sensitivity
 			) {
 				this.swiping = true;
 				this.getValueFromHass = true;
@@ -121,8 +120,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		this.thumbOffset = Math.min(
 			Math.max(
 				Math.round(
-					((this.width - thumbWidth) /
-						(this.range[1] - this.range[0])) *
+					((this.width - thumbWidth) / (this.range[1] - this.range[0])) *
 						(((this.value as number) ?? this.range[0]) -
 							(this.range[0] + this.range[1]) / 2),
 				),
@@ -225,8 +223,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					${this.buildIcon(this.icon)} ${this.buildLabel(this.label)}
 				</div>
 			</div>
-			${this.buildTooltip()}${this.buildMD3Thumb()}
-			${buildStyles(this.styles)}
+			${this.buildTooltip()}${this.buildMD3Thumb()} ${buildStyles(this.styles)}
 		`;
 	}
 
@@ -272,13 +269,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			let thumbType = this.renderTemplate(
 				this.config.thumb as string,
 			) as SliderThumbType;
-			thumbType = SliderThumbTypes.includes(thumbType)
-				? thumbType
-				: 'default';
+			thumbType = SliderThumbTypes.includes(thumbType) ? thumbType : 'default';
 
 			const ticks =
-				String(this.renderTemplate(this.config.ticks ?? 'false')) ==
-				'true';
+				String(this.renderTemplate(this.config.ticks ?? 'false')) == 'true';
 
 			rangeChanged =
 				min != this.range[0] ||
@@ -329,8 +323,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 		// Set readonly if action is none
 		if (
-			this.renderTemplate(this.config.tap_action?.action as string) ==
-			'none'
+			this.renderTemplate(this.config.tap_action?.action as string) == 'none'
 		) {
 			this.setAttribute('readonly', '');
 		} else {
@@ -370,9 +363,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			this.getValueFromHass = false;
 			this._value =
 				parseFloat((this.value ?? this.range[0]) as unknown as string) +
-				((e.key == 'ArrowLeft') != this.rtl || e.key == 'ArrowDown'
-					? -1
-					: 1) *
+				((e.key == 'ArrowLeft') != this.rtl || e.key == 'ArrowDown' ? -1 : 1) *
 					this.step;
 		}
 	}
@@ -395,17 +386,13 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 					--thumb-translate: var(--thumb-offset) 0;
 					--thumb-transition:
-						translate 180ms ease-in-out,
-						background 180ms ease-in-out;
+						translate 180ms ease-in-out, background 180ms ease-in-out;
 				}
 
 				.background {
 					background: var(
 						--background,
-						var(
-							--color,
-							var(--feature-color, var(--state-inactive-color))
-						)
+						var(--color, var(--feature-color, var(--state-inactive-color)))
 					);
 				}
 
@@ -492,9 +479,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				.default .thumb::after {
 					content: '';
 					position: absolute;
-					height: 22px;
+					height: 50%;
 					width: 4px;
-					top: 25%;
+					top: 0;
+					bottom: 0;
+					margin: auto;
 					inset-inline-end: 6px;
 					border-radius: 4px;
 					background: #ffffff;
@@ -517,10 +506,12 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				.line .thumb::after {
 					content: '';
 					position: absolute;
-					height: 22px;
+					height: 50%;
 					width: 4px;
 					border-radius: 4px;
-					top: 25%;
+					top: 0;
+					bottom: 0;
+					margin: auto;
 					inset-inline-end: 4px;
 					background: #c6c6d0;
 				}
@@ -544,8 +535,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				/* Material Design 3 Slider */
 				:host:has(.md3-slider) {
 					--thumb-transition:
-						translate
-							var(--md-sys-motion-expressive-spatial-default),
+						translate var(--md-sys-motion-expressive-spatial-default),
 						scale var(--md-sys-motion-expressive-spatial-default),
 						background 180ms ease-in-out;
 				}
@@ -643,10 +633,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				.md3-thumb-active-track-corner,
 				:host([dir='rtl']) .md3-thumb-inactive-track-corner {
 					box-shadow: 2px 0 0
-						var(
-							--ha-card-background,
-							var(--card-background-color, #fff)
-						);
+						var(--ha-card-background, var(--card-background-color, #fff));
 				}
 				.md3-thumb-inactive-track-corner {
 					inset-inline-end: -6px;
@@ -656,10 +643,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				.md3-thumb-inactive-track-corner,
 				:host([dir='rtl']) .md3-thumb-active-track-corner {
 					box-shadow: -2px 0 0
-						var(
-							--ha-card-background,
-							var(--card-background-color, #fff)
-						);
+						var(--ha-card-background, var(--card-background-color, #fff));
 				}
 				.md3-slider .icon-label {
 					flex-direction: row;
@@ -700,18 +684,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					padding: 12px 16px;
 					border-radius: 24px;
 					font-size: var(--md-sys-typescale-label-large-size, 14px);
-					font-weight: var(
-						--md-sys-typescale-label-large-weight,
-						400
-					);
-					line-height: var(
-						--md-sys-typescale-label-large-line-height,
-						20px
-					);
-					letter-spacing: var(
-						--md-sys-typescale-label-large-tracking,
-						0.5px
-					);
+					font-weight: var(--md-sys-typescale-label-large-weight, 400);
+					line-height: var(--md-sys-typescale-label-large-line-height, 20px);
+					letter-spacing: var(--md-sys-typescale-label-large-tracking, 0.5px);
 					transform: var(
 						--tooltip-transform,
 						translate(
@@ -736,10 +711,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						--tooltip-transform,
 						translate(
 							var(--thumb-offset),
-							calc(
-								-0.5 * var(--feature-height, 40px) - 0.4em -
-									10px
-							)
+							calc(-0.5 * var(--feature-height, 40px) - 0.4em - 10px)
 						)
 					);
 					transition: opacity 180ms ease-in-out 0s;
