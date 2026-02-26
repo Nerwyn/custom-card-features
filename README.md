@@ -1335,6 +1335,34 @@ features:
         step: 1
   - type: custom:service-call
     entries:
+      - type: button
+        entity_id: cover.sunroom_curtains
+        icon: mdi:curtains-closed
+        momentary_end_action:
+          action: perform-action
+          perform_action: cover.stop_cover
+          target:
+            entity_id: cover.sunroom_curtains
+        momentary_start_action:
+          action: perform-action
+          perform_action: cover.close_cover
+          target:
+            entity_id: cover.sunroom_curtains
+      - type: button
+        entity_id: cover.sunroom_curtains
+        icon: mdi:curtains
+        momentary_end_action:
+          action: perform-action
+          perform_action: cover.stop_cover
+          target:
+            entity_id: cover.sunroom_curtains
+        momentary_start_action:
+          action: perform-action
+          perform_action: cover.open_cover
+          target:
+            entity_id: cover.sunroom_curtains
+  - type: custom:service-call
+    entries:
       - type: slider
         entity_id: media_player.spotify
         tap_action:
