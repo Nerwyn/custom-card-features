@@ -66,7 +66,33 @@ export const ButtonThumbTypes = [
 	'md3-tonal',
 	'md3-outlined',
 	'md3-text',
-];
+	'md3-fab-primary',
+	'md3-fab-secondary',
+	'md3-fab-tertiary',
+] as const;
+
+export const DropdownThumbTypes = [
+	'default',
+	'md3-baseline',
+	'md3-standard',
+	'md3-vibrant',
+	'md3-fab-primary',
+	'md3-fab-secondary',
+	'md3-fab-tertiary',
+] as const;
+
+export const InputTypes = [
+	'text',
+	'number',
+	'date',
+	'time',
+	'datetime-local',
+	'week',
+	'month',
+	'password',
+	'color',
+] as const;
+
 export const SelectorThumbTypes = [
 	'default',
 	'md3-elevated',
@@ -81,34 +107,28 @@ export const SliderThumbTypes = [
 	'round',
 	'md3-slider',
 ] as const;
+
 export const ToggleThumbTypes = [
 	'default',
 	'md2-switch',
 	'md3-switch',
 	'checkbox',
 ] as const;
+
 export type ButtonThumbType = (typeof ButtonThumbTypes)[number];
+export type DropdownThumbType = (typeof DropdownThumbTypes)[number];
+export type InputType = (typeof InputTypes)[number];
 export type SelectorThumbType = (typeof SelectorThumbTypes)[number];
 export type SliderThumbType = (typeof SliderThumbTypes)[number];
 export type ToggleThumbType = (typeof ToggleThumbTypes)[number];
-export const InputTypes = [
-	'text',
-	'number',
-	'date',
-	'time',
-	'datetime-local',
-	'week',
-	'month',
-	'password',
-	'color',
-] as const;
-export type InputType = (typeof InputTypes)[number];
+
 export const ThumbTypes = [
 	...ButtonThumbTypes,
+	...DropdownThumbTypes,
+	...InputTypes,
 	...SelectorThumbTypes,
 	...SliderThumbTypes,
 	...ToggleThumbTypes,
-	...InputTypes,
 ] as const;
 export type ThumbType = (typeof ThumbTypes)[number];
 
