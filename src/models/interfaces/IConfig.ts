@@ -100,6 +100,7 @@ export const SelectorThumbTypes = [
 	'md3-tonal',
 	'md3-outlined',
 ];
+
 export const SliderThumbTypes = [
 	'default',
 	'line',
