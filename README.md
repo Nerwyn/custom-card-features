@@ -2102,9 +2102,14 @@ features:
       - type: button
         value_attribute: elapsed
         label: >-
-          {% set minutes = (value / 60) | int %} {% set seconds = (value - 60 *
-          minutes) | int %} {{ minutes }}:{{ 0 if seconds < 10 else "" }}{{
-          seconds | int }}
+          {% set t = as_timedelta(state_attr(config.entity, "duration")).seconds -
+          value %}
+
+          {% set minutes = (t/ 60) | int %}
+
+          {% set seconds = (t- 60 * minutes) | int %}
+
+          {{ minutes }}:{{ 0 if seconds < 10 else "" }}{{ seconds | int }}
         styles: |-
           :host {
             overflow: visible;
@@ -2122,8 +2127,9 @@ features:
         range:
           - 0
           - >-
-            {% set hms = state_attr(config.entity, "duration").split(":") %} {{
-            (hms[0] |int ) * 3600 + (hms[1] | int) * 60 + (hms[2] | int) }}
+            {% set hms = (state_attr(config.entity, "duration") or
+            '0:0:0').split(":") %} {{ (hms[0] |int ) * 3600 + (hms[1] | int) * 60 +
+            (hms[2] | int) }}
         styles: |-
           :host {
             flex-basis: 1200%;
