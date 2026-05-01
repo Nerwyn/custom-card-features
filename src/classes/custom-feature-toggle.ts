@@ -107,17 +107,14 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		if (this.getValueFromHass) {
 			// Allow vs block list flag
 			const allow =
-				String(
-					this.renderTemplate(String(this.config.allow_list ?? true)),
-				) == 'true';
+				String(this.renderTemplate(String(this.config.allow_list ?? true))) ==
+				'true';
 
 			let values: string[];
 			if ((this.config.checked_values ?? []).length) {
 				// User defined list of values
 				values = (this.config.checked_values ?? []).map((value) =>
-					(
-						(this.renderTemplate(value) as string) ?? ''
-					).toLowerCase(),
+					((this.renderTemplate(value) as string) ?? '').toLowerCase(),
 				);
 			} else if (allow) {
 				// Allow list
@@ -130,9 +127,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 			// Value > 0 check flag
 			const checkNumeric =
 				String(
-					this.renderTemplate(
-						String(this.config.check_numeric ?? true),
-					),
+					this.renderTemplate(String(this.config.check_numeric ?? true)),
 				) == 'true';
 
 			this.checked =
@@ -245,9 +240,10 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		}
 		return html`
 			<div
-				class="container default ${this.fullSwipe
-					? 'full-swipe'
-					: ''} ${this.checked ? 'on' : 'off'}"
+				class="container default ${this.fullSwipe ? 'full-swipe' : ''} ${this
+					.checked
+					? 'on'
+					: 'off'}"
 				part="default-switch"
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}
@@ -307,25 +303,17 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 			) as string;
 
 			const fullSwipe =
-				String(
-					this.renderTemplate(
-						String(this.config.full_swipe ?? false),
-					),
-				) == 'true';
+				String(this.renderTemplate(String(this.config.full_swipe ?? false))) ==
+				'true';
 
 			const swipeOnly =
-				String(
-					this.renderTemplate(
-						String(this.config.swipe_only ?? false),
-					),
-				) == 'true';
+				String(this.renderTemplate(String(this.config.swipe_only ?? false))) ==
+				'true';
 
 			let thumbType = this.renderTemplate(
 				this.config.thumb as string,
 			) as ToggleThumbType;
-			thumbType = ToggleThumbTypes.includes(thumbType)
-				? thumbType
-				: 'default';
+			thumbType = ToggleThumbTypes.includes(thumbType) ? thumbType : 'default';
 
 			if (
 				checkedIcon != this.checkedIcon ||
@@ -368,9 +356,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 			// Allow ripples to overflow
 			this.style.setProperty('overflow', 'visible');
 
-			if (
-				!this.shadowRoot?.querySelector('.icon-label')?.children.length
-			) {
+			if (!this.shadowRoot?.querySelector('.icon-label')?.children.length) {
 				// Makes checkboxes and toggles take up minimal space if they don't have an icon or label
 				this.style.setProperty('flex', '0 0 min-content');
 			}
@@ -384,57 +370,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		const thumb = this.shadowRoot?.querySelector('.thumb');
 		if (thumb) {
 			this.thumbWidth = parseFloat(
-				getComputedStyle(thumb)
-					.getPropertyValue('width')
-					.replace('px', ''),
+				getComputedStyle(thumb).getPropertyValue('width').replace('px', ''),
 			);
-		}
-
-		// md3-switch fix for themes that don't set different button and track colors
-		if (
-			this.renderTemplate(this.config.thumb ?? 'default') == 'md3-switch'
-		) {
-			const background = this.shadowRoot?.querySelector(
-				'.background',
-			) as HTMLElement;
-			try {
-				const style = getComputedStyle(background);
-
-				const buttonChecked = style.getPropertyValue(
-					'--switch-checked-button-color',
-				);
-				const trackChecked = style.getPropertyValue(
-					'--switch-checked-track-color',
-				);
-				const trackUnchecked = style.getPropertyValue(
-					'--switch-unchecked-track-color',
-				);
-				const buttonUnchecked = style.getPropertyValue(
-					'--switch-unchecked-button-color',
-				);
-				if (
-					trackChecked == buttonChecked ||
-					trackUnchecked == buttonUnchecked
-				) {
-					if (this.checked) {
-						background?.style.removeProperty('background');
-						background?.style.setProperty('opacity', '54%');
-					} else {
-						background?.style.removeProperty('opacity');
-						background?.style.setProperty(
-							'background',
-							'rgba(from var(--switch-unchecked-track-color) r g b / 38%)',
-						);
-					}
-				} else {
-					background?.style.removeProperty('background');
-					background?.style.removeProperty('opacity');
-				}
-			} catch (e) {
-				console.error(e);
-				background?.style.removeProperty('background');
-				background?.style.removeProperty('opacity');
-			}
 		}
 	}
 
@@ -460,14 +397,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				.container {
 					justify-content: space-around;
 					border-radius: var(--feature-border-radius, 12px);
-					--md-ripple-hover-opacity: var(
-						--ha-ripple-hover-opacity,
-						0.08
-					);
-					--md-ripple-pressed-opacity: var(
-						--ha-ripple-pressed-opacity,
-						0.12
-					);
+					--md-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
+					--md-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.12);
 					--md-ripple-hover-color: var(
 						--ha-ripple-hover-color,
 						var(--ha-ripple-color)
@@ -481,10 +412,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					cursor: pointer;
 					background: var(
 						--background,
-						var(
-							--color,
-							var(--feature-color, var(--state-inactive-color))
-						)
+						var(--color, var(--feature-color, var(--state-inactive-color)))
 					);
 				}
 				.off > .background {
@@ -580,10 +508,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					background: transparent;
 					border-color: var(
 						--checkbox-unchecked-border-color,
-						var(
-							--mdc-checkbox-unchecked-color,
-							var(--secondary-text-color)
-						)
+						var(--mdc-checkbox-unchecked-color, var(--secondary-text-color))
 					);
 					cursor: pointer;
 					transition:
@@ -617,9 +542,12 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					}
 				}
 				.checkbox:focus-visible,
-				.md2-switch:focus-visible,
-				.md3-switch:focus-visible {
+				.md2-switch:focus-visible {
 					outline: none;
+				}
+				.md3-switch:focus-visible {
+					outline: solid 3px var(--md-sys-color-secondary);
+					outline-offset: 2px;
 				}
 
 				:host:has(.icon-label:empty) {
@@ -666,15 +594,15 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				.md2-switch > .background {
 					border-radius: 32px;
 					opacity: 0.38;
-					background: var(--switch-unchecked-track-color);
+					background: var(--state-inactive-color);
 					transition:
 						opacity 90ms cubic-bezier(0.4, 0, 0.2, 1),
 						background-color 90ms cubic-bezier(0.4, 0, 0.2, 1),
 						border-color 90ms cubic-bezier(0.4, 0, 0.2, 1);
 				}
 				.md2-switch.on > .background {
-					background: var(--switch-checked-track-color);
-					border-color: var(--switch-checked-track-color);
+					background: var(--primary-color);
+					border-color: var(--ha-switch-checked-background-color);
 					opacity: 0.54;
 				}
 				.md2-switch > .thumb {
@@ -698,17 +626,20 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					position: absolute;
 					height: 20px;
 					width: 20px;
-					border: 10px solid;
 					border-radius: 28px;
-					background: var(--switch-unchecked-button-color);
-					border-color: var(--switch-unchecked-button-color);
+					background: var(
+						--ha-switch-thumb-background-color,
+						var(--ha-color-on-neutral-normal)
+					);
 				}
 				.md2-switch.on > .thumb {
 					translate: 18px;
 				}
 				.md2-switch.on > .thumb::before {
-					background: var(--switch-checked-button-color);
-					border-color: var(--switch-checked-button-color);
+					background: var(
+						--ha-switch-checked-thumb-background-color,
+						var(--ha-color-on-primary-normal)
+					);
 				}
 				.md2-switch > .thumb::after {
 					content: '';
@@ -740,19 +671,27 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				}
 				.md3-switch > .background {
 					border-radius: 52px;
-					background: var(--switch-unchecked-track-color);
-					border: 2px solid var(--switch-unchecked-button-color);
+					background: var(
+						--ha-switch-background-color,
+						var(--ha-color-fill-disabled-quiet-resting)
+					);
+					border: 2px solid
+						var(--ha-switch-border-color, var(--ha-color-border-neutral-normal));
 					opacity: 1;
 					transition:
 						opacity var(--md-sys-motion-expressive-effects-default),
-						background-color
-							var(--md-sys-motion-expressive-effects-fast),
-						border-color
-							var(--md-sys-motion-expressive-effects-fast);
+						background-color var(--md-sys-motion-expressive-effects-fast),
+						border-color var(--md-sys-motion-expressive-effects-fast);
 				}
 				.md3-switch.on > .background {
-					background: var(--switch-checked-track-color);
-					border-color: var(--switch-checked-track-color);
+					background: var(
+						--ha-switch-checked-background-color,
+						var(--ha-color-fill-primary-normal-resting)
+					);
+					border-color: var(
+						--ha-switch-checked-border-color,
+						var(--ha-color-border-primary-loud)
+					);
 				}
 				.md3-switch > .thumb {
 					background: 0 0;
@@ -762,23 +701,21 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					left: -4px;
 					transition:
 						translate var(--md-sys-motion-expressive-spatial-fast),
-						background-color
-							var(--md-sys-motion-expressive-effects-fast),
-						border-color
-							var(--md-sys-motion-expressive-effects-fast);
+						background-color var(--md-sys-motion-expressive-effects-fast),
+						border-color var(--md-sys-motion-expressive-effects-fast);
 				}
 				.md2-switch:has(.icon),
 				.md3-switch:has(.icon) {
 					--mdc-icon-size: 16px;
 					--icon-color: var(
-						--switch-unchecked-icon-color,
+						--ha-switch-icon-color,
 						var(--input-background-color)
 					);
 				}
 				.md2-switch.on:has(.icon),
 				.md3-switch.on:has(.icon) {
 					--icon-color: var(
-						--switch-checked-icon-color,
+						--ha-switch-checked-icon-color,
 						var(--input-background-color)
 					);
 				}
@@ -792,50 +729,54 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					height: 16px;
 					width: 16px;
 					border-radius: 28px;
-					background: var(--switch-unchecked-button-color);
-					transition: scale
-						var(--md-sys-motion-expressive-spatial-fast);
+					background: var(
+						--ha-switch-thumb-background-color,
+						var(--ha-color-on-neutral-normal)
+					);
+					transition: scale var(--md-sys-motion-expressive-spatial-fast);
 				}
 				.md3-switch.off:has(.icon) > .thumb::before {
 					scale: 1.5;
 				}
 				@media (hover: hover) {
 					.md3-switch.off:hover > .thumb::before {
-						scale: 1.75;
 						background: var(
-							--switch-unchecked-button-state-layer,
-							var(--secondary-text-color)
+							--ha-switch-thumb-background-color-hover,
+							var(--ha-color-on-neutral-normal)
 						);
 					}
 				}
 				.md3-switch.off:focus-visible > .thumb::before,
-				.md3-switch.off:active > .thumb::before {
-					scale: 1.75;
+				:host([pressed]) .md3-switch.off > .thumb::before {
 					background: var(
-						--switch-unchecked-button-state-layer,
-						var(--secondary-text-color)
+						--ha-switch-thumb-background-color-hover,
+						var(--ha-color-on-neutral-normal)
 					);
 				}
 				.md3-switch.on > .thumb::before {
-					background: var(--switch-checked-button-color);
+					background: var(
+						--ha-switch-checked-thumb-background-color,
+						var(--ha-color-on-primary-normal)
+					);
 					scale: 1.5;
 				}
 				@media (hover: hover) {
 					.md3-switch.on:hover > .thumb::before {
-						scale: 1.75;
 						background: var(
-							--switch-checked-button-state-layer,
-							var(--accent-color)
+							--ha-switch-checked-thumb-background-color-hover,
+							var(--ha-color-on-primary-normal)
 						);
 					}
 				}
 				.md3-switch.on:focus-visible > .thumb::before,
-				.md3-switch.on:active > .thumb::before {
-					scale: 1.75;
+				:host([pressed]) .md3-switch.on > .thumb::before {
 					background: var(
-						--switch-checked-button-state-layer,
-						var(--accent-color)
+						--ha-switch-checked-thumb-background-color-hover,
+						var(--ha-color-on-primary-normal)
 					);
+				}
+				:host([pressed]) .md3-switch > .thumb::before {
+					scale: 1.75;
 				}
 
 				.md3-switch > .background::after {
@@ -850,14 +791,28 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					z-index: 1;
 					opacity: 0;
 					background: var(
-						--switch-unchecked-track-state-layer,
-						var(--primary-text-color)
+						--ha-switch-track-state-layer,
+						var(
+							--ha-switch-background-color-hover,
+							var(
+								--ha-switch-background-color,
+								var(--ha-color-fill-disabled-quiet-hover)
+							)
+						)
 					);
-					transition: opacity
-						var(--md-sys-motion-expressive-effects-fast);
+					transition: opacity var(--md-sys-motion-expressive-effects-fast);
 				}
 				.md3-switch.on:hover > .background::after {
-					background: var(--switch-checked-track-color);
+					background: var(
+						--ha-switch-checked-track-state-layer,
+						var(
+							--ha-switch-checked-background-color-hover,
+							var(
+								--ha-switch-checked-background-color,
+								var(--ha-color-fill-primary-normal-hover)
+							)
+						)
+					);
 				}
 				@media (hover: hover) {
 					.md3-switch:hover > .background::after {
@@ -865,7 +820,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					}
 				}
 				.md3-switch:focus-visible > .background::after,
-				.md3-switch:active > .background::after {
+				:host([pressed]) .md3-switch > .background::after {
 					opacity: 0.1;
 				}
 				:host([dir='rtl']) .md3-switch,
