@@ -552,7 +552,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-secondary,
-						var(--text-accent-color)
+						var(--text-primary-color)
 					);
 				}
 
@@ -678,7 +678,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-tertiary,
-						#000
+						var(--primary-text-color)
 					);
 				}
 				:host(.md3-fab-primary-container) {
@@ -704,7 +704,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host(.md3-fab-tertiary-container) {
 					--md-button-background-color: var(
 						--md-sys-color-tertiary-container,
-						#000
+						var(--primary-text-color)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-tertiary-container,
