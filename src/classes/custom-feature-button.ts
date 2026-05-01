@@ -652,33 +652,63 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 
 				:host(.md3-fab-primary) {
-					--md-button-background-color: var(--md-sys-color-primary);
-					--md-button-on-background-color: var(--md-sys-color-on-primary);
+					--md-button-background-color: var(
+						--md-sys-color-primary,
+						var(--primary-color)
+					);
+					--md-button-on-background-color: var(
+						--md-sys-color-on-primary,
+						var(--primary-background-color)
+					);
 				}
 				:host(.md3-fab-secondary) {
-					--md-button-background-color: var(--md-sys-color-secondary);
-					--md-button-on-background-color: var(--md-sys-color-on-secondary);
+					--md-button-background-color: var(
+						--md-sys-color-secondary,
+						var(--accent-color)
+					);
+					--md-button-on-background-color: var(
+						--md-sys-color-on-secondary,
+						var(--secondary-background-color)
+					);
 				}
 				:host(.md3-fab-tertiary) {
-					--md-button-background-color: var(--md-sys-color-tertiary);
-					--md-button-on-background-color: var(--md-sys-color-on-tertiary);
+					--md-button-background-color: var(
+						--md-sys-color-tertiary,
+						var(--error-color)
+					);
+					--md-button-on-background-color: var(
+						--md-sys-color-on-tertiary,
+						#000
+					);
 				}
 				:host(.md3-fab-primary-container) {
-					--md-button-background-color: var(--md-sys-color-primary-container);
+					--md-button-background-color: var(
+						--md-sys-color-primary-container,
+						var(--primary-background-color)
+					);
 					--md-button-on-background-color: var(
-						--md-sys-color-on-primary-container
+						--md-sys-color-on-primary-container,
+						var(--primary-color)
 					);
 				}
 				:host(.md3-fab-secondary-container) {
-					--md-button-background-color: var(--md-sys-color-secondary-container);
+					--md-button-background-color: var(
+						--md-sys-color-secondary-container,
+						var(--secondary-background-color)
+					);
 					--md-button-on-background-color: var(
-						--md-sys-color-on-secondary-container
+						--md-sys-color-on-secondary-container,
+						var(--accent-color)
 					);
 				}
 				:host(.md3-fab-tertiary-container) {
-					--md-button-background-color: var(--md-sys-color-tertiary-container);
+					--md-button-background-color: var(
+						--md-sys-color-tertiary-container,
+						#000
+					);
 					--md-button-on-background-color: var(
-						--md-sys-color-on-tertiary-container
+						--md-sys-color-on-tertiary-container,
+						var(--error-color)
 					);
 				}
 			`,
