@@ -268,7 +268,9 @@ export class CustomFeatureButton extends BaseCustomFeature {
 			if (thumbType != this.thumbType || toggleStyles != this.toggleStyles) {
 				this.thumbType = thumbType;
 				this.classList.add(thumbType);
-				if (thumbType.startsWith('md3')) {
+				if (thumbType.startsWith('md3-fab')) {
+					this.classList.add('md3-fab');
+				} else if (thumbType.startsWith('md3')) {
 					this.classList.add('md3');
 				} else {
 					this.classList.remove(
@@ -450,7 +452,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 						border-end-end-radius var(--md-sys-motion-expressive-spatial-fast),
 						outline var(--md-sys-motion-expressive-spatial-fast);
 				}
-				:host(.md3) button::before {
+				:host(.md3) button::before,
+				:host(.md3-fab) button::before {
 					opacity: var(--opacity, 1);
 					background: var(
 						--color,
@@ -458,14 +461,16 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 					transition: background var(--md-sys-motion-expressive-effects-fast);
 				}
-				:host(.md3) .icon {
+				:host(.md3) .icon,
+				:host(.md3-fab) .icon {
 					color: var(
 						--icon-color,
 						var(--md-button-on-background-color, inherit)
 					);
 					transition: color var(--md-sys-motion-expressive-effects-fast);
 				}
-				:host(.md3) .label {
+				:host(.md3) .label,
+				:host(.md3-fab) .label {
 					color: var(
 						--label-color,
 						var(--md-button-on-background-color, inherit)
@@ -608,6 +613,73 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host(.md3:focus-visible) button {
 					outline: 3px solid var(--md-sys-color-secondary, var(--accent-color));
 					outline-offset: 2px;
+				}
+
+				/* Material Design 3 FAB */
+				:host(.md3-fab) {
+					flex-direction: row;
+					justify-content: center;
+					gap: 8px;
+					padding: 0 16px;
+					overflow: visible;
+
+					--mdc-icon-size: 24px;
+				}
+				:host(.md3-fab) button {
+					border-radius: 16px;
+					box-shadow: var(
+						--md-sys-elevation-level3,
+						var(--ha-button-box-shadow)
+					);
+				}
+				:host(.md3-fab) button:not(:has(~ .label)) {
+					flex: none;
+					width: var(--feature-height);
+				}
+				:host(.md3-fab) button:focus-visible {
+					box-shadow: var(
+						--md-sys-elevation-level4,
+						var(--ha-button-box-shadow)
+					);
+				}
+				@media (hover: hover) {
+					:host(.md3-fab) button:hover {
+						box-shadow: var(
+							--md-sys-elevation-level4,
+							var(--ha-button-box-shadow)
+						);
+					}
+				}
+
+				:host(.md3-fab-primary) {
+					--md-button-background-color: var(--md-sys-color-primary);
+					--md-button-on-background-color: var(--md-sys-color-on-primary);
+				}
+				:host(.md3-fab-secondary) {
+					--md-button-background-color: var(--md-sys-color-secondary);
+					--md-button-on-background-color: var(--md-sys-color-on-secondary);
+				}
+				:host(.md3-fab-tertiary) {
+					--md-button-background-color: var(--md-sys-color-tertiary);
+					--md-button-on-background-color: var(--md-sys-color-on-tertiary);
+				}
+				:host(.md3-fab-primary-container) {
+					--md-button-background-color: var(--md-sys-color-primary-container);
+					--md-button-on-background-color: var(
+						--md-sys-color-on-primary-container
+					);
+				}
+				:host(.md3-fab-secondary-container) {
+					--md-button-background-color: var(--md-sys-color-secondary-container);
+					--md-button-on-background-color: var(
+						--md-sys-color-on-secondary-container
+					);
+				}
+				:host(.md3-fab-tertiary-container) {
+					--md-button-background-color: var(--md-sys-color-tertiary-container);
+					--md-button-on-background-color: var(
+						--md-sys-color-on-tertiary-container
+					);
 				}
 			`,
 		];

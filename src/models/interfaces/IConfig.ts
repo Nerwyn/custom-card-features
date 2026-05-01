@@ -69,6 +69,9 @@ export const ButtonThumbTypes = [
 	'md3-fab-primary',
 	'md3-fab-secondary',
 	'md3-fab-tertiary',
+	'md3-fab-primary-container',
+	'md3-fab-secondary-container',
+	'md3-fab-tertiary-container',
 ] as const;
 
 export const DropdownThumbTypes = [
@@ -79,6 +82,9 @@ export const DropdownThumbTypes = [
 	'md3-fab-primary',
 	'md3-fab-secondary',
 	'md3-fab-tertiary',
+	'md3-fab-primary-container',
+	'md3-fab-secondary-container',
+	'md3-fab-tertiary-container',
 ] as const;
 
 export const InputTypes = [

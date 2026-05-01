@@ -1085,6 +1085,30 @@ export class CustomFeaturesRowEditor extends LitElement {
 												value: 'md3-text',
 												label: 'Material Design 3 Text',
 											},
+											{
+												value: 'md3-fab-primary',
+												label: 'Material Design 3 FAB Primary',
+											},
+											{
+												value: 'md3-fab-secondary',
+												label: 'Material Design 3 FAB Secondary',
+											},
+											{
+												value: 'md3-fab-tertiary',
+												label: 'Material Design 3 FAB Tertiary',
+											},
+											{
+												value: 'md3-fab-primary-container',
+												label: 'Material Design 3 FAB Primary Container',
+											},
+											{
+												value: 'md3-fab-secondary-container',
+												label: 'Material Design 3 FAB Secondary Container',
+											},
+											{
+												value: 'md3-fab-tertiary-container',
+												label: 'Material Design 3 FAB Tertiary Container',
+											},
 										],
 										reorder: false,
 									},
