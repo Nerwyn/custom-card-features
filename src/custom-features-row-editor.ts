@@ -1347,7 +1347,47 @@ export class CustomFeaturesRowEditor extends LitElement {
 								},
 								'default',
 							)
-						: ''}
+						: this.buildSelector(
+								'Type',
+								'thumb',
+								{
+									select: {
+										mode: 'dropdown',
+										options: [
+											{
+												value: 'default',
+												label: 'Default',
+											},
+											{
+												value: 'md3-baseline',
+												label: 'Material Design 3 Baseline',
+											},
+											{
+												value: 'md3-standard',
+												label: 'Material Design 3 Standard',
+											},
+											{
+												value: 'md3-vibrant',
+												label: 'Material Design 3 Vibrant',
+											},
+											{
+												value: 'md3-fab-primary',
+												label: 'Material Design 3 FAB Primary',
+											},
+											{
+												value: 'md3-fab-secondary',
+												label: 'Material Design 3 FAB Secondary',
+											},
+											{
+												value: 'md3-fab-tertiary',
+												label: 'Material Design 3 FAB Tertiary',
+											},
+										],
+										reorder: false,
+									},
+								},
+								'default',
+							)}
 					${this.buildCodeEditor('jinja2')}`;
 				break;
 			default:
