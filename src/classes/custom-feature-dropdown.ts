@@ -282,7 +282,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					cursor: pointer;
 					-webkit-tap-highlight-color: transparent;
 					-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-					--md-ripple-hover-opacity: 0.2;
+					--md-ripple-hover-opacity: 0.12;
 					--md-ripple-pressed-opacity: 0;
 					--ha-ripple-color: var(--secondary-text-color);
 					--md-ripple-hover-color: var(
@@ -322,8 +322,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				.dropdown {
 					position: fixed;
 					z-index: 8;
-					color: var(--mdc-theme-on-surface);
-					background: var(--mdc-theme-surface);
+					color: var(--primary-text-color);
+					background: var(--card-background-color);
 					border: var(--wa-border-style) var(--wa-border-width-s)
 						var(--wa-color-surface-border);
 					border-radius: var(--wa-border-radius-m, 8px);
@@ -351,7 +351,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 				.option {
 					min-width: 100px;
-					--md-ripple-hover-opacity: 0.04;
+					--md-ripple-hover-opacity: 0.12;
 					--md-ripple-pressed-opacity: 0;
 				}
 				.selected {
