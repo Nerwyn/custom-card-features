@@ -8,6 +8,9 @@ import { BaseCustomFeature } from './base-custom-feature';
 @customElement('custom-feature-dropdown')
 export class CustomFeatureDropdown extends BaseCustomFeature {
 	@state() open: boolean = false;
+	resizeObserver: ResizeObserver = new ResizeObserver(() => {
+		this.style.setProperty('--dropdown-width', `${this.clientWidth}px`);
+	});
 
 	selectedIcon: string = '';
 	selectedLabel: string = '';
@@ -28,10 +31,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 		const sensitivity = 8;
 		const totalDeltaX = (this.currentX ?? 0) - (this.initialX ?? 0);
 		const totalDeltaY = (this.currentY ?? 0) - (this.initialY ?? 0);
-		if (
-			Math.abs(Math.abs(totalDeltaX) - Math.abs(totalDeltaY)) >
-			sensitivity
-		) {
+		if (Math.abs(Math.abs(totalDeltaX) - Math.abs(totalDeltaY)) > sensitivity) {
 			this.endAction();
 			this.swiping = true;
 		}
@@ -55,13 +55,10 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 		const options = this.config.options ?? [];
 		for (const option0 of options) {
 			const option = structuredClone(option0);
-			const optionName = String(
-				this.renderTemplate(option.option as string),
-			);
+			const optionName = String(this.renderTemplate(option.option as string));
 
 			option.haptics = option.haptics ?? this.config.haptics;
-			option.label =
-				option.label || option.icon ? option.label : option.option;
+			option.label = option.label || option.icon ? option.label : option.option;
 
 			dropdownOptions.push(html`
 				<custom-feature-dropdown-option
@@ -97,11 +94,10 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				@contextmenu=${this.onContextMenu}
 			>
 				${this.selectedIcon || this.selectedLabel || this.selectedStyles
-					? html`${this.buildIcon(
-							this.selectedIcon,
-						)}${this.buildLabel(this.selectedLabel)}${buildStyles(
-							this.selectedStyles,
-						)}`
+					? html`${this.buildIcon(this.selectedIcon) ||
+						html`<div class="icon"></div>`}${this.buildLabel(
+							this.selectedLabel,
+						)}${buildStyles(this.selectedStyles)}`
 					: ''}
 				${this.buildRipple()}
 			</div>
@@ -124,9 +120,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 		) {
 			let selectedOption: IEntry | undefined = undefined;
 			for (const option of this.config.options ?? []) {
-				const optionName = String(
-					this.renderTemplate(option.option as string),
-				);
+				const optionName = String(this.renderTemplate(option.option as string));
 				if (String(this.value) == optionName) {
 					selectedOption = option;
 					break;
@@ -159,11 +153,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					return true;
 				}
 			} else {
-				if (
-					this.selectedIcon ||
-					this.selectedLabel ||
-					this.selectedStyles
-				) {
+				if (this.selectedIcon || this.selectedLabel || this.selectedStyles) {
 					this.selectedIcon = '';
 					this.selectedLabel = '';
 					this.selectedStyles = '';
@@ -197,12 +187,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				if (!changedProperties.get('open') && this.open) {
 					const selected =
 						String(this.value) ==
-						String(
-							this.renderTemplate(options[i].option as string),
-						);
-					optionElements[i].className = `${
-						selected ? 'selected' : ''
-					} option`;
+						String(this.renderTemplate(options[i].option as string));
+					optionElements[i].className = `${selected ? 'selected' : ''} option`;
 					optionElements[i].setAttribute('tabindex', '0');
 					if (selected) {
 						optionElements[i].focus();
@@ -230,8 +216,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				let down = true;
 				if (
 					// If dropdown is too large
-					dropdownHeight0 >
-						window.innerHeight - edgeOffset - rect.bottom &&
+					dropdownHeight0 > window.innerHeight - edgeOffset - rect.bottom &&
 					// If dropdown is on lower half of window
 					rect.top + rect.bottom > window.innerHeight
 				) {
@@ -272,11 +257,13 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 	connectedCallback() {
 		super.connectedCallback();
 		document.body.addEventListener('click', this.handleExternalClick);
+		this.resizeObserver.observe(this);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		document.body.removeEventListener('click', this.handleExternalClick);
+		this.resizeObserver.disconnect();
 	}
 
 	static get styles() {
@@ -288,14 +275,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					cursor: pointer;
 					-webkit-tap-highlight-color: transparent;
 					-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-					--md-ripple-hover-opacity: var(
-						--ha-ripple-hover-opacity,
-						0.08
-					);
-					--md-ripple-pressed-opacity: var(
-						--ha-ripple-pressed-opacity,
-						0.12
-					);
+					--md-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
+					--md-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.12);
 					--ha-ripple-color: var(--secondary-text-color);
 					--md-ripple-hover-color: var(
 						--ha-ripple-hover-color,
@@ -326,19 +307,24 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 				.label {
 					justify-content: flex-start;
-					font: inherit;
-					opacity: 0.88;
+					font-size: var(--ha-font-size-m, 14px);
+					font-style: normal;
+					font-weight: var(--ha-font-weight-normal, 400);
+					letter-spacing: 0.25px;
 				}
 				.dropdown {
 					position: fixed;
 					z-index: 8;
 					color: var(--mdc-theme-on-surface);
 					background: var(--mdc-theme-surface);
-					border-radius: var(--mdc-shape-medium, 4px);
+					border: var(--wa-border-style) var(--wa-border-width-s)
+						var(--wa-color-surface-border);
+					border-radius: var(--wa-border-radius-m, 8px);
 					padding: 8px 0;
 					height: min-content;
+					width: var(--dropdown-width);
 					will-change: transform, opacity;
-					overflow-y: scroll;
+					overflow-y: auto;
 					transform: scale(1);
 					opacity: 1;
 					transition:
@@ -408,10 +394,7 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 		const sensitivity = 8;
 		const totalDeltaX = (this.currentX ?? 0) - (this.initialX ?? 0);
 		const totalDeltaY = (this.currentY ?? 0) - (this.initialY ?? 0);
-		if (
-			Math.abs(Math.abs(totalDeltaX) - Math.abs(totalDeltaY)) >
-			sensitivity
-		) {
+		if (Math.abs(Math.abs(totalDeltaX) - Math.abs(totalDeltaY)) > sensitivity) {
 			this.onPointerCancel(e);
 		}
 	}
@@ -478,7 +461,7 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 			super.styles as CSSResult,
 			css`
 				:host {
-					height: var(--mdc-menu-item-height, 48px);
+					min-height: var(--ha-space-10, 40px);
 					width: 100%;
 					overflow: visible;
 					--color: rgb(0, 0, 0, 0);
@@ -486,10 +469,7 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 				:host(:focus-visible) {
 					box-shadow: none;
 					--background: var(--ha-ripple-color);
-					--background-opacity: var(
-						--ha-ripple-pressed-opacity,
-						0.12
-					);
+					--background-opacity: var(--ha-ripple-pressed-opacity, 0.12);
 				}
 				.background {
 					pointer-events: none;
@@ -499,10 +479,7 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 					font: inherit;
 				}
 				.icon {
-					color: var(
-						--mdc-theme-text-icon-on-background,
-						rgba(0, 0, 0, 0.38)
-					);
+					color: var(--mdc-theme-text-icon-on-background, rgba(0, 0, 0, 0.38));
 				}
 				.content {
 					display: flex;
