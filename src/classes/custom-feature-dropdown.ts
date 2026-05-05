@@ -320,9 +320,10 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					border: var(--wa-border-style) var(--wa-border-width-s)
 						var(--wa-color-surface-border);
 					border-radius: var(--wa-border-radius-m, 8px);
-					padding: 8px 0;
+					padding: var(--ha-space-1, 4px);
 					height: min-content;
 					width: var(--dropdown-width);
+					box-sizing: border-box;
 					will-change: transform, opacity;
 					overflow-y: auto;
 					transform: scale(1);
@@ -346,12 +347,15 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					--md-ripple-pressed-opacity: 0.2;
 				}
 				.selected {
-					color: var(--mdc-theme-primary, #6200ee);
-					--ha-ripple-color: var(--mdc-theme-primary, #6200ee);
+					color: var(--primary-color);
+					--ha-ripple-color: var(
+						--ha-color-fill-primary-quiet-resting,
+						hsl(from var(--primary-color) h s 5)
+					);
 					--mdc-ripple-hover-color: var(--ha-ripple-color);
 					--md-ripple-pressed-color: var(--ha-ripple-color);
 					--background: var(--ha-ripple-color);
-					--background-opacity: 0.26;
+					--background-opacity: 1;
 					--md-ripple-hover-opacity: 0;
 					--md-ripple-pressed-opacity: 0.26;
 				}
@@ -461,9 +465,9 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 			super.styles as CSSResult,
 			css`
 				:host {
-					min-height: var(--ha-space-10, 40px);
+					height: var(--ha-space-10, 40px);
 					width: 100%;
-					overflow: visible;
+					border-radius: var(--wa-border-radius-s, 4px);
 					--color: rgb(0, 0, 0, 0);
 				}
 				:host(:focus-visible) {
