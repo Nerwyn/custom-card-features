@@ -282,8 +282,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					cursor: pointer;
 					-webkit-tap-highlight-color: transparent;
 					-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-					--md-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
-					--md-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.12);
+					--md-ripple-hover-opacity: 0.2;
+					--md-ripple-pressed-opacity: 0;
 					--ha-ripple-color: var(--secondary-text-color);
 					--md-ripple-hover-color: var(
 						--ha-ripple-hover-color,
@@ -351,7 +351,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 				.option {
 					min-width: 100px;
-					--md-ripple-pressed-opacity: 0.2;
+					--md-ripple-hover-opacity: 0.04;
+					--md-ripple-pressed-opacity: 0;
 				}
 				.selected {
 					color: var(--primary-color);
@@ -363,8 +364,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					--md-ripple-pressed-color: var(--ha-ripple-color);
 					--background: var(--ha-ripple-color);
 					--background-opacity: 1;
-					--md-ripple-hover-opacity: 0;
-					--md-ripple-pressed-opacity: 0.26;
+					--md-ripple-hover-opacity: 0.24;
 				}
 
 				:host([dir='rtl']) .down-arrow {
@@ -475,10 +475,12 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 					height: var(--ha-space-10, 40px);
 					width: 100%;
 					border-radius: var(--wa-border-radius-s, 4px);
+
 					--color: rgb(0, 0, 0, 0);
 				}
 				:host(:focus-visible) {
 					box-shadow: none;
+
 					--background: var(--ha-ripple-color);
 					--background-opacity: var(--ha-ripple-pressed-opacity, 0.12);
 				}
