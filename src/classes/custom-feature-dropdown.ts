@@ -165,7 +165,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 	}
 
 	shouldUpdate(changedProperties: PropertyValues) {
-		const should = super.shouldUpdate(changedProperties);
+		let should = super.shouldUpdate(changedProperties);
 		if (
 			changedProperties.has('hass') ||
 			changedProperties.has('stateObj') ||
@@ -179,6 +179,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				: 'default';
 
 			if (thumbType != this.thumbType) {
+				should = true;
 				this.thumbType = thumbType;
 				this.classList.add(thumbType);
 				if (thumbType.startsWith('md3')) {
@@ -223,7 +224,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				if (
 					selectedIcon != this.selectedIcon ||
 					selectedLabel != this.selectedLabel ||
-					selectedStyles != this.selectedStyles
+					selectedStyles != this.selectedStyles ||
+					thumbType != this.thumbType
 				) {
 					this.selectedIcon = selectedIcon;
 					this.selectedLabel = selectedLabel;
