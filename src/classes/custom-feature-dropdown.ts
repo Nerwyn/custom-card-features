@@ -180,6 +180,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 
 			if (thumbType != this.thumbType) {
 				should = true;
+				this.shouldRenderRipple = true;
 				this.thumbType = thumbType;
 				this.classList.add(thumbType);
 				if (thumbType.startsWith('md3')) {
@@ -189,6 +190,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 						this.classList.add('md3');
 					}
 				} else {
+					this.shouldRenderRipple = false;
 					this.classList.remove(
 						...Array.from(this.classList.values()).filter((c) =>
 							c.startsWith('md3'),
@@ -425,12 +427,6 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					left: 10px;
 				}
 
-				:host(:not(.md3)),
-				:host(:not(.md3-baseline)) {
-					--md-ripple-hover-opacity: 0;
-					--md-ripple-pressed-opacity: 0;
-				}
-
 				@media (hover: hover) {
 					:host(:hover) .background {
 						--background: var(--ha-color-on-neutral-quiet);
@@ -450,8 +446,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 
 				/* Material Design 3 Dropdowns */
-				:host(.md3),
-				:host(.md3-baseline) {
+				:host {
 					--md-ripple-hover-opacity: 0.08;
 					--md-ripple-pressed-opacity: 0.1;
 				}
