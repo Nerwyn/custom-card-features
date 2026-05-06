@@ -367,9 +367,14 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					opacity: 0;
 					transform: scale(0);
 				}
-				.option {
-					min-width: 100px;
 
+				.option {
+					height: var(--ha-space-10, 40px);
+					width: 100%;
+					min-width: 100px;
+					border-radius: var(--wa-border-radius-s, 4px);
+
+					--color: rgb(0, 0, 0, 0);
 					--background: var(--wa-color-neutral-fill-normal);
 					--background-opacity: 0;
 				}
@@ -381,6 +386,36 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 						hsl(from var(--primary-color) h s 5)
 					);
 					--background-opacity: 1;
+				}
+				.option::part(background) {
+					pointer-events: none;
+				}
+				.option::part(label) {
+					justify-content: flex-start;
+					font: inherit;
+				}
+				.selected::part(label) {
+					font-weight: var(--ha-font-weight-medium, 500);
+				}
+				.option::part(icon) {
+					color: var(--mdc-theme-text-icon-on-background, rgba(0, 0, 0, 0.38));
+				}
+				.option::part(dropdown-option-content) {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					padding-left: var(
+						--mdc-list-side-padding-left,
+						var(--mdc-list-side-padding, 20px)
+					);
+					padding-right: var(
+						--mdc-list-side-padding-right,
+						var(--mdc-list-side-padding, 20px)
+					);
+					gap: var(--mdc-list-item-graphic-margin, 24px);
+					height: 100%;
+					width: 100%;
+					box-sizing: border-box;
 				}
 
 				:host([dir='rtl']) .down-arrow {
@@ -405,8 +440,18 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 						--background: var(--ha-color-fill-primary-quiet-hover);
 					}
 				}
+				.option:focus-visible {
+					box-shadow: none;
+
+					--background-opacity: var(--ha-ripple-pressed-opacity, 0.12);
+				}
 
 				/* Material Design 3 Dropdowns */
+				:host(.md3),
+				:host(.md3-baseline) {
+					--md-ripple-hover-opacity: 0.08;
+					--md-ripple-pressed-opacity: 0.1;
+				}
 			`,
 		];
 	}
@@ -501,52 +546,5 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 	firstUpdated(changedProperties: PropertyValues) {
 		super.firstUpdated(changedProperties);
 		this.removeAttribute('tabindex');
-	}
-
-	static get styles() {
-		return [
-			super.styles as CSSResult,
-			css`
-				:host {
-					height: var(--ha-space-10, 40px);
-					width: 100%;
-					border-radius: var(--wa-border-radius-s, 4px);
-
-					--color: rgb(0, 0, 0, 0);
-				}
-				:host(:focus-visible) {
-					box-shadow: none;
-
-					--background-opacity: var(--ha-ripple-pressed-opacity, 0.12);
-				}
-				.background {
-					pointer-events: none;
-				}
-				.label {
-					justify-content: flex-start;
-					font: inherit;
-				}
-				.icon {
-					color: var(--mdc-theme-text-icon-on-background, rgba(0, 0, 0, 0.38));
-				}
-				.content {
-					display: flex;
-					flex-direction: row;
-					align-items: center;
-					padding-left: var(
-						--mdc-list-side-padding-left,
-						var(--mdc-list-side-padding, 20px)
-					);
-					padding-right: var(
-						--mdc-list-side-padding-right,
-						var(--mdc-list-side-padding, 20px)
-					);
-					gap: var(--mdc-list-item-graphic-margin, 24px);
-					height: 100%;
-					width: 100%;
-					box-sizing: border-box;
-				}
-			`,
-		];
 	}
 }
