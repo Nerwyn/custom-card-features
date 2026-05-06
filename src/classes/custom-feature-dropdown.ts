@@ -18,6 +18,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 	});
 
 	thumbType: DropdownThumbType = 'default';
+	shouldRenderRipple: boolean = false;
 
 	selectedIcon: string = '';
 	selectedLabel: string = '';
