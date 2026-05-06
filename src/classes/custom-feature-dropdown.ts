@@ -180,10 +180,10 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 
 			if (thumbType != this.thumbType) {
 				should = true;
-				this.shouldRenderRipple = true;
 				this.thumbType = thumbType;
 				this.classList.add(thumbType);
 				if (thumbType.startsWith('md3')) {
+					this.shouldRenderRipple = true;
 					if (thumbType.startsWith('md3-fab')) {
 						this.classList.add('md3-fab');
 					} else if (thumbType.startsWith('md3')) {
