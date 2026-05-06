@@ -1,7 +1,12 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
-import { IEntry, IOption } from '../models/interfaces';
+import {
+	DropdownThumbType,
+	DropdownThumbTypes,
+	IEntry,
+	IOption,
+} from '../models/interfaces';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
@@ -11,6 +16,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 	resizeObserver: ResizeObserver = new ResizeObserver(() => {
 		this.style.setProperty('--dropdown-width', `${this.clientWidth}px`);
 	});
+
+	thumbType: DropdownThumbType = 'default';
 
 	selectedIcon: string = '';
 	selectedLabel: string = '';
@@ -164,6 +171,31 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 			changedProperties.has('stateObj') ||
 			changedProperties.has('value')
 		) {
+			let thumbType = this.renderTemplate(
+				this.config.thumb as string,
+			) as DropdownThumbType;
+			thumbType = DropdownThumbTypes.includes(thumbType)
+				? thumbType
+				: 'default';
+
+			if (thumbType != this.thumbType) {
+				this.thumbType = thumbType;
+				this.classList.add(thumbType);
+				if (thumbType.startsWith('md3')) {
+					if (thumbType.startsWith('md3-fab')) {
+						this.classList.add('md3-fab');
+					} else if (thumbType.startsWith('md3')) {
+						this.classList.add('md3');
+					}
+				} else {
+					this.classList.remove(
+						...Array.from(this.classList.values()).filter((c) =>
+							c.startsWith('md3'),
+						),
+					);
+				}
+			}
+
 			let selectedOption: IEntry | undefined = undefined;
 			for (const option of this.config.options ?? []) {
 				const optionName = String(this.renderTemplate(option.option as string));
@@ -282,17 +314,6 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					cursor: pointer;
 					-webkit-tap-highlight-color: transparent;
 					-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-					--md-ripple-hover-opacity: 0.12;
-					--md-ripple-pressed-opacity: 0;
-					--ha-ripple-color: var(--secondary-text-color);
-					--md-ripple-hover-color: var(
-						--ha-ripple-hover-color,
-						var(--ha-ripple-color, var(--secondary-text-color))
-					);
-					--md-ripple-pressed-color: var(
-						--ha-ripple-pressed-color,
-						var(--ha-ripple-color, var(--secondary-text-color))
-					);
 				}
 				.background {
 					pointer-events: none;
@@ -348,26 +369,44 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 				.option {
 					min-width: 100px;
-					--md-ripple-hover-opacity: 0.12;
-					--md-ripple-pressed-opacity: 0;
+
+					--background: var(--wa-color-neutral-fill-normal);
+					--background-opacity: 0;
 				}
 				.selected {
 					color: var(--primary-color);
-					--ha-ripple-color: var(
+
+					--background: var(
 						--ha-color-fill-primary-quiet-resting,
 						hsl(from var(--primary-color) h s 5)
 					);
-					--mdc-ripple-hover-color: var(--ha-ripple-color);
-					--md-ripple-pressed-color: var(--ha-ripple-color);
-					--background: var(--ha-ripple-color);
 					--background-opacity: 1;
-					--md-ripple-hover-opacity: 0.24;
 				}
 
 				:host([dir='rtl']) .down-arrow {
 					right: unset;
 					left: 10px;
 				}
+
+				:host(:not(.md3)),
+				:host(:not(.md3-baseline)) {
+					--md-ripple-hover-opacity: 0;
+					--md-ripple-pressed-opacity: 0;
+				}
+
+				@media (hover: hover) {
+					:host(:hover) .background {
+						--background: var(--ha-color-on-neutral-quiet);
+					}
+					.option:hover {
+						--background-opacity: 1;
+					}
+					.selected:hover {
+						--background: var(--ha-color-fill-primary-quiet-hover);
+					}
+				}
+
+				/* Material Design 3 Dropdowns */
 			`,
 		];
 	}
@@ -478,7 +517,6 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 				:host(:focus-visible) {
 					box-shadow: none;
 
-					--background: var(--ha-ripple-color);
 					--background-opacity: var(--ha-ripple-pressed-opacity, 0.12);
 				}
 				.background {
