@@ -442,8 +442,9 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 				.option:focus-visible {
 					box-shadow: none;
-
-					--background-opacity: var(--ha-ripple-pressed-opacity, 0.12);
+					z-index: 1;
+					outline: var(--wa-focus-ring);
+					background-color: var(--wa-color-neutral-fill-normal);
 				}
 
 				/* Material Design 3 Dropdowns */
