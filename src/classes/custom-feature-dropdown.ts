@@ -502,77 +502,71 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				:host(.md3-standard) .selected {
 					--background: var(
 						--md-sys-color-tertiary-container,
-						var(--error-color)
+						var(--ha-color-red-90)
 					);
 					--md-ripple-hover-color: var(
 						--md-sys-color-on-tertiary-container,
-						var(--disabled-text-color)
+						var(--ha-color-red-30)
 					);
 					--md-ripple-pressed-color: var(
 						--md-sys-color-on-tertiary-container,
-						var(--disabled-text-color)
+						var(--ha-color-red-30)
 					);
 				}
 				:host(.md3-standard) .selected::part(label) {
 					color: var(
 						--label-color,
-						var(
-							--md-sys-color-on-tertiary-container,
-							var(--disabled-text-color)
-						)
+						var(--md-sys-color-on-tertiary-container, var(--ha-color-red-30))
 					);
 				}
 				:host(.md3-standard) .selected::part(icon) {
 					color: var(
 						--icon-color,
-						var(
-							--md-sys-color-on-tertiary-container,
-							var(--disabled-text-color)
-						)
+						var(--md-sys-color-on-tertiary-container, var(--ha-color-red-30))
 					);
 				}
 
 				:host(.md3-vibrant) .dropdown {
 					background: var(
 						--md-sys-color-tertiary-container,
-						var(--error-color)
+						var(--ha-color-red-90)
 					);
 				}
 				:host(.md3-vibrant) .option {
 					--md-ripple-hover-color: var(
 						--md-sys-color-on-tertiary-container,
-						var(--primary-text-color)
+						var(--ha-color-red-30)
 					);
 					--md-ripple-pressed-color: var(
 						--md-sys-color-on-tertiary-container,
-						var(--primary-text-color)
+						var(--ha-color-red-30)
 					);
 				}
 				:host(.md3-vibrant) .option::part(label) {
 					color: var(
 						--label-color,
-						var(--md-sys-color-on-tertiary-container, var(--primary-text-color))
+						var(--md-sys-color-on-tertiary-container, var(--ha-color-red-30))
 					);
 				}
 				:host(.md3-vibrant) .option::part(icon) {
 					color: var(
 						--icon-color,
-						var(--md-sys-color-on-tertiary-container, var(--primary-text-color))
+						var(--md-sys-color-on-tertiary-container, var(--ha-color-red-30))
 					);
 				}
 				:host(.md3-vibrant) .selected {
-					--background: var(--md-sys-color-tertiary, var(--error-color));
+					--background: var(--md-sys-color-tertiary, var(--ha-color-red-40));
 				}
 				:host(.md3-vibrant) .selected::part(label) {
 					color: var(
 						--label-color,
-						var(--md-sys-color-on-tertiary, var(--primary-text-color))
+						var(--md-sys-color-on-tertiary, var(--ha-color-white))
 					);
 				}
 				:host(.md3-vibrant) .selected::part(icon) {
 					color: var(
 						--icon-color,
-						var(--md-sys-color-on-tertiary, var(--primary-text-color))
+						var(--md-sys-color-on-tertiary, var(--ha-color-white))
 					);
 				}
 			`,
