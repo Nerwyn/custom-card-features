@@ -76,7 +76,6 @@ export const ButtonThumbTypes = [
 
 export const DropdownThumbTypes = [
 	'default',
-	'md3-baseline',
 	'md3-standard',
 	'md3-vibrant',
 	'md3-fab-primary',

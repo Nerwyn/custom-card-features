@@ -429,13 +429,13 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 
 				@media (hover: hover) {
-					:host(:not(.md3, .md3-baseline):hover) .background {
+					:host(:not(.md3):hover) .background {
 						--background: var(--ha-color-on-neutral-quiet);
 					}
-					:host(:not(.md3, .md3-baseline):hover) .option:hover {
+					:host(:not(.md3):hover) .option:hover {
 						--background-opacity: 1;
 					}
-					:host(:not(.md3, .md3-baseline):hover) .selected:hover {
+					:host(:not(.md3):hover) .selected:hover {
 						--background: var(--ha-color-fill-primary-quiet-hover);
 					}
 				}
@@ -469,6 +469,12 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 				:host(.md3) .selected {
 					border-radius: var(--md-sys-shape-corner-medium, 12px);
+				}
+				:host(.md3) .option::part(label) {
+					font-size: var(--md-sys-typescale-label-large-size, 14px);
+					font-weight: var(--md-sys-typescale-label-large-weight, 500);
+					line-height: var(--md-sys-typescale-label-large-line-height, 20px);
+					letter-spacing: var(--md-sys-typescale-label-large-tracking, 0.1px);
 				}
 
 				:host(.md3-standard) .dropdown {

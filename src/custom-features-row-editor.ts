@@ -1359,10 +1359,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 												label: 'Default',
 											},
 											{
-												value: 'md3-baseline',
-												label: 'Material Design 3 Baseline',
-											},
-											{
 												value: 'md3-standard',
 												label: 'Material Design 3 Standard',
 											},
