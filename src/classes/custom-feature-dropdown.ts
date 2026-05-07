@@ -403,7 +403,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					font-weight: var(--ha-font-weight-medium, 500);
 				}
 				.option::part(icon) {
-					color: var(--mdc-theme-text-icon-on-background, rgba(0, 0, 0, 0.38));
+					color: var(--icon-color, var(--secondary-text-color));
 				}
 				.option::part(dropdown-option-content) {
 					display: flex;
@@ -447,9 +447,99 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 
 				/* Material Design 3 Dropdowns */
+				@media (hover: hover) {
+					:host(:not(.md3, .md3-baseline):hover) .background {
+						--background: var(--ha-color-on-neutral-quiet);
+					}
+					:host(:not(.md3, .md3-baseline):hover) .option:hover {
+						--background-opacity: 1;
+					}
+					:host(:not(.md3, .md3-baseline):hover) .selected:hover {
+						--background: var(--ha-color-fill-primary-quiet-hover);
+					}
+				}
 				:host {
 					--md-ripple-hover-opacity: 0.08;
 					--md-ripple-pressed-opacity: 0.1;
+				}
+				:host(.md3) .dropdown {
+					border: none;
+					border-radius: var(--md-sys-shape-corner-large, 16px);
+					box-shadow: var(--md-sys-elevation-level2, var(--wa-shadow-m));
+				}
+				:host(.md3) .option {
+					border-radius: var(--md-sys-shape-corner-extra-small, 4px);
+				}
+				:host(.md3) .option:first-of-type {
+					border-top-left-radius: var(--md-sys-shape-corner-medium, 12px);
+					border-top-right-radius: var(--md-sys-shape-corner-medium, 12px);
+				}
+				:host(.md3) .option:last-of-type {
+					border-bottom-left-radius: var(--md-sys-shape-corner-medium, 12px);
+					border-bottom-right-radius: var(--md-sys-shape-corner-medium, 12px);
+				}
+				:host(.md3) .selected {
+					border-radius: var(--md-sys-shape-corner-medium, 12px);
+				}
+				:host(.md3-standard) .dropdown {
+					background: var(
+						--md-sys-color-surface-container-low,
+						var(--ha-card-background, var(--card-background-color))
+					);
+				}
+				:host(.md3-standard) .option {
+					--md-ripple-hover-color: var(
+						--md-sys-color-on-surface,
+						var(--primary-text-color)
+					);
+					--md-ripple-pressed-color: var(
+						--md-sys-color-on-surface,
+						var(--primary-text-color)
+					);
+				}
+				:host(.md3-standard) .option::part(label) {
+					color: var(
+						--label-color,
+						var(--md-sys-color-on-surface, var(--primary-text-color))
+					);
+				}
+				:host(.md3-standard) .option::part(icon) {
+					color: var(
+						--icon-color,
+						var(--md-sys-color-on-surface-variant, var(--state-icon-color))
+					);
+				}
+				:host(.md3-standard) .selected {
+					--background: var(
+						--md-sys-color-tertiary-container,
+						var(--error-color)
+					);
+					--md-ripple-hover-color: var(
+						--md-sys-color-on-tertiary-container,
+						var(--disabled-text-color)
+					);
+					--md-ripple-pressed-color: var(
+						--md-sys-color-on-tertiary-container,
+						var(--disabled-text-color)
+					);
+				}
+				:host(.md3-standard) .selected::part(label) {
+					color: var(
+						--label-color,
+						var(
+							--md-sys-color-on-tertiary-container,
+							var(--disabled-text-color)
+						)
+					);
+				}
+				:host(.md3-standard) .selected::part(icon) {
+					color: var(
+						--icon-color,
+						var(
+							--md-sys-color-on-tertiary-container,
+							var(--disabled-text-color)
+						)
+					);
 				}
 			`,
 		];
