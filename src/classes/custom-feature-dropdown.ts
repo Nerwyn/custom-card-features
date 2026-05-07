@@ -429,13 +429,13 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 
 				@media (hover: hover) {
-					:host(:hover) .background {
+					:host(:not(.md3, .md3-baseline):hover) .background {
 						--background: var(--ha-color-on-neutral-quiet);
 					}
-					.option:hover {
+					:host(:not(.md3, .md3-baseline):hover) .option:hover {
 						--background-opacity: 1;
 					}
-					.selected:hover {
+					:host(:not(.md3, .md3-baseline):hover) .selected:hover {
 						--background: var(--ha-color-fill-primary-quiet-hover);
 					}
 				}
@@ -447,17 +447,6 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 
 				/* Material Design 3 Dropdowns */
-				@media (hover: hover) {
-					:host(:not(.md3, .md3-baseline):hover) .background {
-						--background: var(--ha-color-on-neutral-quiet);
-					}
-					:host(:not(.md3, .md3-baseline):hover) .option:hover {
-						--background-opacity: 1;
-					}
-					:host(:not(.md3, .md3-baseline):hover) .selected:hover {
-						--background: var(--ha-color-fill-primary-quiet-hover);
-					}
-				}
 				:host {
 					--md-ripple-hover-opacity: 0.08;
 					--md-ripple-pressed-opacity: 0.1;
@@ -481,6 +470,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				:host(.md3) .selected {
 					border-radius: var(--md-sys-shape-corner-medium, 12px);
 				}
+
 				:host(.md3-standard) .dropdown {
 					background: var(
 						--md-sys-color-surface-container-low,
@@ -539,6 +529,50 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 							--md-sys-color-on-tertiary-container,
 							var(--disabled-text-color)
 						)
+					);
+				}
+
+				:host(.md3-vibrant) .dropdown {
+					background: var(
+						--md-sys-color-tertiary-container,
+						var(--error-color)
+					);
+				}
+				:host(.md3-vibrant) .option {
+					--md-ripple-hover-color: var(
+						--md-sys-color-on-tertiary-container,
+						var(--primary-text-color)
+					);
+					--md-ripple-pressed-color: var(
+						--md-sys-color-on-tertiary-container,
+						var(--primary-text-color)
+					);
+				}
+				:host(.md3-vibrant) .option::part(label) {
+					color: var(
+						--label-color,
+						var(--md-sys-color-on-tertiary-container, var(--primary-text-color))
+					);
+				}
+				:host(.md3-vibrant) .option::part(icon) {
+					color: var(
+						--icon-color,
+						var(--md-sys-color-on-tertiary-container, var(--primary-text-color))
+					);
+				}
+				:host(.md3-vibrant) .selected {
+					--background: var(--md-sys-color-tertiary, var(--error-color));
+				}
+				:host(.md3-vibrant) .selected::part(label) {
+					color: var(
+						--label-color,
+						var(--md-sys-color-on-tertiary, var(--primary-text-color))
+					);
+				}
+				:host(.md3-vibrant) .selected::part(icon) {
+					color: var(
+						--icon-color,
+						var(--md-sys-color-on-tertiary, var(--primary-text-color))
 					);
 				}
 			`,
