@@ -295,10 +295,10 @@ export class CustomFeaturesRow extends LitElement {
 				--ha-sys-color-on-primary: var(--ha-color-white);
 				--ha-sys-color-primary-container: var(--ha-color-primary-90);
 				--ha-sys-color-on-primary-container: var(--ha-color-primary-30);
-				--ha-sys-color-secondary: var(--ha-color-green-40);
+				--ha-sys-color-secondary: var(--ha-color-orange-40);
 				--ha-sys-color-on-secondary: var(--ha-color-white);
-				--ha-sys-color-secondary-container: var(--ha-color-green-90);
-				--ha-sys-color-on-secondary-container: var(--ha-color-green-30);
+				--ha-sys-color-secondary-container: var(--ha-color-orange-90);
+				--ha-sys-color-on-secondary-container: var(--ha-color-orange-30);
 				--ha-sys-color-tertiary: var(--ha-color-red-40);
 				--ha-sys-color-on-tertiary: var(--ha-color-white);
 				--ha-sys-color-tertiary-container: var(--ha-color-red-90);
@@ -313,10 +313,10 @@ export class CustomFeaturesRow extends LitElement {
 				--ha-sys-color-on-primary: var(--ha-color-primary-20);
 				--ha-sys-color-primary-container: var(--ha-color-primary-30);
 				--ha-sys-color-on-primary-container: var(--ha-color-primary-90);
-				--ha-sys-color-secondary: var(--ha-color-green-80);
-				--ha-sys-color-on-secondary: var(--ha-color-green-20);
-				--ha-sys-color-secondary-container: var(--ha-color-green-30);
-				--ha-sys-color-on-secondary-container: var(--ha-color-green-90);
+				--ha-sys-color-secondary: var(--ha-color-orange-80);
+				--ha-sys-color-on-secondary: var(--ha-color-orange-20);
+				--ha-sys-color-secondary-container: var(--ha-color-orange-30);
+				--ha-sys-color-on-secondary-container: var(--ha-color-orange-90);
 				--ha-sys-color-tertiary: var(--ha-color-red-80);
 				--ha-sys-color-on-tertiary: var(--ha-color-red-20);
 				--ha-sys-color-tertiary-container: var(--ha-color-red-30);
