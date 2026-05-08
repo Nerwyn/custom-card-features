@@ -630,6 +630,17 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 						box-shadow: var(--md-sys-elevation-level4, var(--ha-box-shadow-l));
 					}
 				}
+				:host([pressed].md3-fab) .container {
+					box-shadow: var(--md-sys-elevation-level3, var(--ha-box-shadow-m));
+				}
+				:host(.md3-fab:focus-visible) {
+					box-shadow: none;
+				}
+				:host(.md3-fab:focus-visible) .container {
+					outline: 3px solid
+						var(--md-sys-color-secondary, var(--ha-sys-color-secondary));
+					outline-offset: 2px;
+				}
 				:host([open].md3-fab) .container {
 					border-radius: var(--feature-height);
 				}
@@ -653,6 +664,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					background: transparent;
 					border: none;
 					box-shadow: none;
+					padding: 8px 0;
+					overflow: visible;
 					gap: 4px;
 					align-items: flex-end;
 					translate: calc(var(--feature-height) - 100%) 0px;
@@ -665,6 +678,11 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 
 					--background: var(--md-option-background-color);
 					--background-opacity: 1;
+				}
+				:host(.md3-fab) .option:focus-visible {
+					outline: 3px solid
+						var(--md-sys-color-secondary, var(--ha-sys-color-secondary));
+					outline-offset: 2px;
 				}
 				:host(.md3-fab) .option::part(dropdown-option-content) {
 					padding: 0 24px;
