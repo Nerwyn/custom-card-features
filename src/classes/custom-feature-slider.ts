@@ -679,8 +679,20 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					color: var(--label-color, var(--on-inactive-track-color));
 				}
 				.md3-slider ~ .tooltip {
-					background: var(--md-sys-color-inverse-surface, #2f3036);
-					color: var(--md-sys-color-inverse-on-surface, #f1f0f7);
+					background: var(
+						--md-sys-color-inverse-surface,
+						rgb(
+							from var(--ha-sys-color-surface) calc(255 - r) calc(255 - g)
+								calc(255 - b)
+						)
+					);
+					color: var(
+						--md-sys-color-inverse-on-surface,
+						rgb(
+							from var(--ha-sys-color-on-surface) calc(255 - r) calc(255 - g)
+								calc(255 - b)
+						)
+					);
 					padding: 12px 16px;
 					border-radius: 24px;
 					font-size: var(--md-sys-typescale-label-large-size, 14px);

@@ -489,23 +489,26 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				:host(.md3-standard) .option {
 					--md-ripple-hover-color: var(
 						--md-sys-color-on-surface,
-						var(--primary-text-color)
+						var(--ha-sys-color-on-surface)
 					);
 					--md-ripple-pressed-color: var(
 						--md-sys-color-on-surface,
-						var(--primary-text-color)
+						var(--ha-sys-color-on-surface)
 					);
 				}
 				:host(.md3-standard) .option::part(label) {
 					color: var(
 						--label-color,
-						var(--md-sys-color-on-surface, var(--primary-text-color))
+						var(--md-sys-color-on-surface, var(--ha-sys-color-on-surface))
 					);
 				}
 				:host(.md3-standard) .option::part(icon) {
 					color: var(
 						--icon-color,
-						var(--md-sys-color-on-surface-variant, var(--state-icon-color))
+						var(
+							--md-sys-color-on-surface-variant,
+							var(--ha-sys-color-on-surface)
+						)
 					);
 				}
 				:host(.md3-standard) .selected {

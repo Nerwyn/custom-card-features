@@ -303,8 +303,10 @@ export class CustomFeaturesRow extends LitElement {
 				--ha-sys-color-on-tertiary: var(--ha-color-white);
 				--ha-sys-color-tertiary-container: var(--ha-color-red-90);
 				--ha-sys-color-on-tertiary-container: var(--ha-color-red-30);
+				--ha-sys-color-surface: var(--ha-color-neutral-95);
+				--ha-sys-color-on-surface: var(--ha-color-neutral-10);
 				--ha-sys-color-surface-container: var(--ha-color-neutral-95);
-				--ha-sys-color-outline: var(--ha-color-neutral-80);
+				--ha-sys-color-outline: var(--ha-color-neutral-50);
 			}
 			:host([theme='dark']) {
 				--ha-sys-color-primary: var(--ha-color-primary-80);
@@ -319,8 +321,10 @@ export class CustomFeaturesRow extends LitElement {
 				--ha-sys-color-on-tertiary: var(--ha-color-red-20);
 				--ha-sys-color-tertiary-container: var(--ha-color-red-30);
 				--ha-sys-color-on-tertiary-container: var(--ha-color-red-90);
+				--ha-sys-color-surface: var(--ha-color-neutral-05);
+				--ha-sys-color-on-surface: var(--ha-color-neutral-90);
 				--ha-sys-color-surface-container: var(--ha-color-neutral-10);
-				--ha-sys-color-outline: var(--ha-color-neutral-30);
+				--ha-sys-color-outline: var(--ha-color-neutral-60);
 			}
 		`;
 	}

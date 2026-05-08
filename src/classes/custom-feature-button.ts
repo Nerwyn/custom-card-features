@@ -528,7 +528,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-surface-variant,
-						var(--secondary-text-color)
+						var(--ha-sys-color-on-surface)
 					);
 				}
 
@@ -558,7 +558,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					--md-button-background-color: transparent;
 					--md-button-on-background-color: var(
 						--md-sys-color-on-surface-variant,
-						var(--secondary-text-color)
+						var(--ha-sys-color-on-surface)
 					);
 				}
 				:host(.md3-outlined) button {
@@ -574,14 +574,14 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					--md-button-background-color: var(
 						--md-sys-color-inverse-surface,
 						rgb(
-							from var(--lovelace-background, var(--primary-background-color))
-								calc(255 - r) calc(255 - g) calc(255 - b)
+							from var(--ha-sys-color-surface) calc(255 - r) calc(255 - g)
+								calc(255 - b)
 						)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-inverse-on-surface,
 						rgb(
-							from var(--primary-text-color,) calc(255 - r) calc(255 - g)
+							from var(--ha-sys-color-on-surface) calc(255 - r) calc(255 - g)
 								calc(255 - b)
 						)
 					);
