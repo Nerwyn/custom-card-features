@@ -61,10 +61,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 	sizeAndPositionDropdown() {
 		if (this.open) {
 			// Calculate dropdown height without vertical scroll
-			let optionHeight = parseInt(
-				this.style.getPropertyValue('--ha-space-10').replace(/D/g, ''),
-			);
-			optionHeight = isNaN(optionHeight) ? 40 : optionHeight;
+			const optionHeight =
+				this.shadowRoot?.querySelector('.option')?.clientHeight ?? 40;
 			const dropdownHeight0 =
 				optionHeight * (this.config.options?.length ?? 0) + 8;
 
@@ -350,6 +348,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				.dropdown {
 					position: fixed;
 					z-index: 8;
+					display: flex;
+					flex-direction: column;
 					color: var(--primary-text-color);
 					background: var(--card-background-color);
 					border: var(--wa-border-style) var(--wa-border-width-s)
@@ -381,6 +381,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					width: 100%;
 					min-width: 100px;
 					border-radius: var(--wa-border-radius-s, 4px);
+					flex: 0 0 auto;
 
 					--color: rgb(0, 0, 0, 0);
 					--background: var(--wa-color-neutral-fill-normal);
@@ -581,7 +582,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				:host(.md3-vibrant) .selected {
 					--background: var(
 						--md-sys-color-tertiary,
-						var(--ha-sys-color-tertiary-container)
+						var(--ha-sys-color-tertiary)
 					);
 					--md-ripple-hover-color: var(
 						--md-sys-color-on-tertiary,
@@ -652,13 +653,15 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					background: transparent;
 					border: none;
 					box-shadow: none;
+					gap: 4px;
+					align-items: flex-end;
+					translate: calc(var(--feature-height) - 100%) 0px;
 				}
 				:host(.md3-fab) .option {
 					height: 56px;
 					min-width: fit-content;
 					max-width: fit-content;
 					border-radius: 56px;
-					margin: 4px 0;
 
 					--background: var(--md-option-background-color);
 					--background-opacity: 1;
@@ -668,6 +671,10 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 				:host(.md3-fab) .option::part(label) {
 					color: var(--label-color, var(--md-option-on-background-color));
+					font-size: var(--md-sys-typescale-title-medium-size, 16px);
+					font-weight: var(--md-sys-typescale-title-medium-weight, 500);
+					line-height: var(--md-sys-typescale-title-medium-line-height, 24px);
+					letter-spacing: var(--md-sys-typescale-title-medium-tracking, 0.15px);
 				}
 
 				:host(.md3-fab-primary) {
