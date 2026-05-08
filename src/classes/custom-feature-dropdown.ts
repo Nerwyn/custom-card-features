@@ -450,7 +450,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 
 				/* Material Design 3 Dropdowns */
-				:host {
+				:host(.md3) {
 					--md-ripple-hover-opacity: 0.08;
 					--md-ripple-pressed-opacity: 0.1;
 				}
@@ -583,6 +583,14 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 						--md-sys-color-tertiary,
 						var(--ha-sys-color-tertiary-container)
 					);
+					--md-ripple-hover-color: var(
+						--md-sys-color-on-tertiary,
+						var(--ha-sys-color-on-tertiary)
+					);
+					--md-ripple-pressed-color: var(
+						--md-sys-color-on-tertiary,
+						var(--ha-sys-color-on-tertiary)
+					);
 				}
 				:host(.md3-vibrant) .selected::part(label) {
 					color: var(
@@ -604,6 +612,10 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					border-radius: 0;
 
 					--background-opacity: 1;
+					--md-ripple-hover-opacity: 0.08;
+					--md-ripple-pressed-opacity: 0.1;
+					--md-ripple-hover-color: var(--md-button-on-background-color);
+					--md-ripple-pressed-color: var(--md-button-on-background-color);
 				}
 				:host(.md3-fab) .container {
 					border-radius: var(--md-sys-shape-corner-large, 16px);
@@ -622,6 +634,15 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				:host([open].md3-fab) .container {
 					border-radius: var(--feature-height);
 				}
+				:host(.md3-fab) .background {
+					background: var(
+						--background,
+						var(--color, var(--md-button-background-color))
+					);
+				}
+				:host(.md3-fab) .icon {
+					color: var(--icon-color, var(--md-button-on-background-color));
+				}
 				:host(.md3-fab) .label,
 				:host(.md3-fab) .down-arrow {
 					display: none;
@@ -629,60 +650,67 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				:host(.md3-fab) .select {
 					justify-content: center;
 				}
+
 				:host(.md3-fab-primary) {
-					--md-ripple-hover-color: var(
-						--md-sys-color-on-primary-container,
-						var(--ha-sys-color-on-primary-container)
+					--md-button-background-color: var(
+						--md-sys-color-primary-container,
+						var(--ha-sys-color-primary-container)
 					);
-					--md-ripple-pressed-color: var(
+					--md-button-on-background-color: var(
 						--md-sys-color-on-primary-container,
 						var(--ha-sys-color-on-primary-container)
 					);
 				}
 				:host([open].md3-fab-primary) {
-					--md-ripple-hover-color: var(
+					--md-button-background-color: var(
+						--md-sys-color-primary,
+						var(--ha-sys-color-primary)
+					);
+					--md-button-on-background-color: var(
 						--md-sys-color-on-primary,
 						var(--ha-sys-color-on-primary)
 					);
-					--md-ripple-pressed-color: var(
-						--md-sys-color-on-primary,
-						var(--ha-sys-color-on-primary)
+				}
+
+				:host(.md3-fab-secondary) {
+					--md-button-background-color: var(
+						--md-sys-color-secondary-container,
+						var(--ha-sys-color-secondary-container)
+					);
+					--md-button-on-background-color: var(
+						--md-sys-color-on-secondary-container,
+						var(--ha-sys-color-on-secondary-container)
 					);
 				}
-				:host(.md3-fab-primary) .background {
-					background: var(
-						--background,
-						var(
-							--color,
-							var(
-								--md-sys-color-primary-container,
-								var(--ha-sys-color-primary-container)
-							)
-						)
+				:host([open].md3-fab-secondary) {
+					--md-button-background-color: var(
+						--md-sys-color-secondary,
+						var(--ha-sys-color-secondary)
+					);
+					--md-button-on-background-color: var(
+						--md-sys-color-on-secondary,
+						var(--ha-sys-color-on-secondary)
 					);
 				}
-				:host([open].md3-fab-primary) .background {
-					background: var(
-						--background,
-						var(
-							--color,
-							var(--md-sys-color-primary, var(--ha-sys-color-primary))
-						)
+
+				:host(.md3-fab-tertiary) {
+					--md-button-background-color: var(
+						--md-sys-color-tertiary-container,
+						var(--ha-sys-color-tertiary-container)
+					);
+					--md-button-on-background-color: var(
+						--md-sys-color-on-tertiary-container,
+						var(--ha-sys-color-on-tertiary-container)
 					);
 				}
-				:host(.md3-fab-primary) .icon {
-					color: var(
-						--icon-color,
-						var(
-							--md-sys-color-on-primary-container,
-							var(--ha-sys-color-on-primary-container)
-						)
+				:host([open].md3-fab-tertiary) {
+					--md-button-background-color: var(
+						--md-sys-color-tertiary,
+						var(--ha-sys-color-tertiary)
 					);
-				}
-				:host([open].md3-fab-primary) .icon {
-					color: var(
-						--icon-color,
-						var(--md-sys-color-on-primary, var(--ha-sys-color-on-primary))
+					--md-button-on-background-color: var(
+						--md-sys-color-on-tertiary,
+						var(--ha-sys-color-on-tertiary)
 					);
 				}
 			`,
