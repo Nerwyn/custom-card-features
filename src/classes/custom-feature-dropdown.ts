@@ -146,11 +146,11 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				@contextmenu=${this.onContextMenu}
 			>
 				${this.selectedIcon || this.selectedLabel || this.selectedStyles
-					? html`${this.buildIcon(this.selectedIcon) ||
+					? html`${this.buildIcon(this.selectedIcon || this.icon) ||
 						html`<div class="icon"></div>`}${this.buildLabel(
 							this.selectedLabel,
 						)}${buildStyles(this.selectedStyles)}`
-					: ''}
+					: html`${this.buildIcon(this.icon)}${this.buildLabel(this.label)}`}
 				${this.buildRipple()}
 			</div>
 			<ha-icon

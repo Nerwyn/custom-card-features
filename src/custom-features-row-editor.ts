@@ -1314,7 +1314,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 						)}
 					</div>
 					${type == 'selector'
-						? this.buildSelector(
+						? html`${this.buildSelector(
 								'Type',
 								'thumb',
 								{
@@ -1346,45 +1346,46 @@ export class CustomFeaturesRowEditor extends LitElement {
 									},
 								},
 								'default',
-							)
-						: this.buildSelector(
-								'Type',
-								'thumb',
-								{
-									select: {
-										mode: 'dropdown',
-										options: [
-											{
-												value: 'default',
-												label: 'Default',
-											},
-											{
-												value: 'md3-standard',
-												label: 'Material Design 3 Standard',
-											},
-											{
-												value: 'md3-vibrant',
-												label: 'Material Design 3 Vibrant',
-											},
-											{
-												value: 'md3-fab-primary',
-												label: 'Material Design 3 FAB Primary',
-											},
-											{
-												value: 'md3-fab-secondary',
-												label: 'Material Design 3 FAB Secondary',
-											},
-											{
-												value: 'md3-fab-tertiary',
-												label: 'Material Design 3 FAB Tertiary',
-											},
-										],
-										reorder: false,
+							)}${this.buildCodeEditor('jinja2')}`
+						: this.buildAppearancePanel(
+								html`${this.buildCommonAppearanceOptions()}${this.buildSelector(
+									'Type',
+									'thumb',
+									{
+										select: {
+											mode: 'dropdown',
+											options: [
+												{
+													value: 'default',
+													label: 'Default',
+												},
+												{
+													value: 'md3-standard',
+													label: 'Material Design 3 Standard',
+												},
+												{
+													value: 'md3-vibrant',
+													label: 'Material Design 3 Vibrant',
+												},
+												{
+													value: 'md3-fab-primary',
+													label: 'Material Design 3 FAB Primary',
+												},
+												{
+													value: 'md3-fab-secondary',
+													label: 'Material Design 3 FAB Secondary',
+												},
+												{
+													value: 'md3-fab-tertiary',
+													label: 'Material Design 3 FAB Tertiary',
+												},
+											],
+											reorder: false,
+										},
 									},
-								},
-								'default',
-							)}
-					${this.buildCodeEditor('jinja2')}`;
+									'default',
+								)}`,
+							)}`;
 				break;
 			default:
 				switch (type) {
