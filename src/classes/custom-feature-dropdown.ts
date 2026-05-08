@@ -666,6 +666,10 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					--background: var(--md-option-background-color);
 					--background-opacity: 1;
 				}
+				:host(.md3-fab) .option::part(dropdown-option-content) {
+					padding: 0 24px;
+					gap: 8px;
+				}
 				:host(.md3-fab) .option::part(icon) {
 					color: var(--icon-color, var(--md-option-on-background-color));
 				}
