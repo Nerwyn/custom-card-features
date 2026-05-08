@@ -611,6 +611,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					flex: none;
 					border-radius: 0;
 
+					--mdc-icon-size: 24px;
 					--background-opacity: 1;
 					--md-ripple-hover-opacity: 0.08;
 					--md-ripple-pressed-opacity: 0.1;
@@ -623,8 +624,6 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					transition:
 						border-radius var(--md-sys-motion-expressive-spatial-fast),
 						box-shadow var(--md-sys-motion-expressive-effects-fast);
-
-					--mdc-icon-size: 24px;
 				}
 				@media (hover: hover) {
 					:host(.md3-fab) .container:hover {
@@ -650,6 +649,27 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				:host(.md3-fab) .select {
 					justify-content: center;
 				}
+				:host(.md3-fab) .dropdown {
+					background: transparent;
+					border: none;
+					box-shadow: none;
+				}
+				:host(.md3-fab) .option {
+					height: 56px;
+					min-width: fit-content;
+					max-width: fit-content;
+					border-radius: 56px;
+					margin: 4px 0;
+
+					--background: var(--md-option-background-color);
+					--background-opacity: 1;
+				}
+				:host(.md3-fab) .option::part(icon) {
+					color: var(--icon-color, var(--md-option-on-background-color));
+				}
+				:host(.md3-fab) .option::part(label) {
+					color: var(--label-color, var(--md-option-on-background-color));
+				}
 
 				:host(.md3-fab-primary) {
 					--md-button-background-color: var(
@@ -657,6 +677,14 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 						var(--ha-sys-color-primary-container)
 					);
 					--md-button-on-background-color: var(
+						--md-sys-color-on-primary-container,
+						var(--ha-sys-color-on-primary-container)
+					);
+					--md-option-background-color: var(
+						--md-sys-color-primary-container,
+						var(--ha-sys-color-primary-container)
+					);
+					--md-option-on-background-color: var(
 						--md-sys-color-on-primary-container,
 						var(--ha-sys-color-on-primary-container)
 					);
@@ -681,6 +709,14 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 						--md-sys-color-on-secondary-container,
 						var(--ha-sys-color-on-secondary-container)
 					);
+					--md-option-background-color: var(
+						--md-sys-color-secondary-container,
+						var(--ha-sys-color-secondary-container)
+					);
+					--md-option-on-background-color: var(
+						--md-sys-color-on-secondary-container,
+						var(--ha-sys-color-on-secondary-container)
+					);
 				}
 				:host([open].md3-fab-secondary) {
 					--md-button-background-color: var(
@@ -699,6 +735,14 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 						var(--ha-sys-color-tertiary-container)
 					);
 					--md-button-on-background-color: var(
+						--md-sys-color-on-tertiary-container,
+						var(--ha-sys-color-on-tertiary-container)
+					);
+					--md-option-background-color: var(
+						--md-sys-color-tertiary-container,
+						var(--ha-sys-color-tertiary-container)
+					);
+					--md-option-on-background-color: var(
 						--md-sys-color-on-tertiary-container,
 						var(--ha-sys-color-on-tertiary-container)
 					);
