@@ -609,7 +609,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				:host(.md3-fab) {
 					width: var(--feature-height);
 					flex: none;
-					border-radius: 0;
+					border-radius: var(--md-sys-shape-corner-large, 16px);
 
 					--mdc-icon-size: 24px;
 					--background-opacity: 1;
@@ -619,7 +619,6 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					--md-ripple-pressed-color: var(--md-button-on-background-color);
 				}
 				:host(.md3-fab) .container {
-					border-radius: var(--md-sys-shape-corner-large, 16px);
 					box-shadow: var(--md-sys-elevation-level3, var(--ha-box-shadow-m));
 					transition:
 						border-radius var(--md-sys-motion-expressive-spatial-fast),
