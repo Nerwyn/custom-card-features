@@ -433,8 +433,6 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					overflow: visible;
 
 					--md-button-border-radius: var(--feature-height, 40px);
-					--ha-card-box-shadow:
-						#000 0px 2px 1px -1px, #000 0px 1px 1px 0px, #000 0px 1px 3px 0px;
 					--md-ripple-hover-color: var(--md-button-on-background-color);
 					--md-ripple-pressed-color: var(--md-button-on-background-color);
 					--md-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
@@ -490,43 +488,43 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host(.md3-elevated) {
 					--md-button-background-color: var(
 						--md-sys-color-surface-container-low,
-						var(--ha-card-background, var(--card-background-color))
+						var(--ha-sys-color-surface-container)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-primary,
-						var(--primary-color)
+						var(--ha-sys-color-primary)
 					);
 				}
 				:host(.md3-elevated) button {
-					box-shadow: var(--md-sys-elevation-level1, var(--ha-card-box-shadow));
+					box-shadow: var(--md-sys-elevation-level1, var(--ha-box-shadow-s));
 				}
 				:host(.md3-elevated.option.selected),
 				:host(.md3-elevated.toggle[value='on']) {
 					--md-button-background-color: var(
 						--md-sys-color-primary,
-						var(--primary-color)
+						var(--ha-sys-color-primary)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-primary,
-						var(--text-primary-color)
+						var(--ha-sys-color-on-primary)
 					);
 				}
 
 				:host(.md3-filled) {
 					--md-button-background-color: var(
 						--md-sys-color-primary,
-						var(--primary-color)
+						var(--ha-sys-color-primary)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-primary,
-						var(--text-primary-color)
+						var(--ha-sys-color-on-primary)
 					);
 				}
 				:host(.md3-filled.option:not(.selected)),
 				:host(.md3-filled.toggle[value='off']) {
 					--md-button-background-color: var(
 						--md-sys-color-surface-container,
-						var(--primary-background-color)
+						var(--ha-sys-color-surface-container)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-surface-variant,
@@ -537,22 +535,22 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host(.md3-tonal) {
 					--md-button-background-color: var(
 						--md-sys-color-secondary-container,
-						var(--secondary-background-color)
+						var(--ha-sys-color-secondary-container)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-secondary-container,
-						var(--text-primary-color)
+						var(--ha-sys-color-on-secondary-container)
 					);
 				}
 				:host(.md3-tonal.option.selected),
 				:host(.md3-tonal.toggle[value='on']) {
 					--md-button-background-color: var(
 						--md-sys-color-secondary,
-						var(--accent-color)
+						var(--ha-sys-color-secondary)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-secondary,
-						var(--text-primary-color)
+						var(--ha-sys-color-on-secondary)
 					);
 				}
 
@@ -566,7 +564,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host(.md3-outlined) button {
 					border-color: var(
 						--md-sys-color-outline-variant,
-						var(--divider-color)
+						var(--ha-sys-color-outline)
 					);
 					border-width: 1px;
 					border-style: solid;
@@ -593,7 +591,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					--md-button-background-color: transparent;
 					--md-button-on-background-color: var(
 						--md-sys-color-primary,
-						var(--primary-color)
+						var(--ha-sys-color-primary)
 					);
 				}
 
@@ -611,7 +609,8 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					z-index: 1;
 				}
 				:host(.md3:focus-visible) button {
-					outline: 3px solid var(--md-sys-color-secondary, var(--accent-color));
+					outline: 3px solid
+						var(--md-sys-color-secondary, var(--ha-sys-color-secondary));
 					outline-offset: 2px;
 				}
 
@@ -627,88 +626,79 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 				:host(.md3-fab) button {
 					border-radius: 16px;
-					box-shadow: var(
-						--md-sys-elevation-level3,
-						var(--ha-button-box-shadow)
-					);
+					box-shadow: var(--md-sys-elevation-level3, var(--ha-box-shadow-m));
 				}
 				:host(.md3-fab) button:not(:has(~ .label)) {
 					flex: none;
 					width: var(--feature-height);
 				}
 				:host(.md3-fab) button:focus-visible {
-					box-shadow: var(
-						--md-sys-elevation-level4,
-						var(--ha-button-box-shadow)
-					);
+					box-shadow: var(--md-sys-elevation-level4, var(--ha-box-shadow-l));
 				}
 				@media (hover: hover) {
 					:host(.md3-fab) button:hover {
-						box-shadow: var(
-							--md-sys-elevation-level4,
-							var(--ha-button-box-shadow)
-						);
+						box-shadow: var(--md-sys-elevation-level4, var(--ha-box-shadow-l));
 					}
 				}
 
 				:host(.md3-fab-primary) {
 					--md-button-background-color: var(
 						--md-sys-color-primary,
-						var(--primary-color)
+						var(--ha-sys-color-primary)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-primary,
-						var(--primary-text-color)
+						var(--ha-sys-color-on-primary)
 					);
 				}
 				:host(.md3-fab-secondary) {
 					--md-button-background-color: var(
 						--md-sys-color-secondary,
-						var(--accent-color)
+						var(--ha-sys-color-secondary)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-secondary,
-						var(--secondary-background-color)
+						var(--ha-sys-color-on-secondary)
 					);
 				}
 				:host(.md3-fab-tertiary) {
 					--md-button-background-color: var(
 						--md-sys-color-tertiary,
-						var(--ha-color-red-40)
+						var(--ha-sys-color-tertiary)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-tertiary,
-						var(--ha-color-white)
+						var(--ha-sys-color-on-tertiary)
 					);
 				}
 				:host(.md3-fab-primary-container) {
 					--md-button-background-color: var(
 						--md-sys-color-primary-container,
-						var(--primary-text-color)
+						var(--ha-sys-color-primary-container)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-primary-container,
-						var(--primary-color)
+						var(--ha-sys-color-on-primary-container)
 					);
 				}
 				:host(.md3-fab-secondary-container) {
 					--md-button-background-color: var(
 						--md-sys-color-secondary-container,
-						var(--secondary-background-color)
+						var(--ha-sys-color-secondary-container)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-secondary-container,
-						var(--accent-color)
+						var(--ha-sys-color-on-secondary-container)
 					);
 				}
 				:host(.md3-fab-tertiary-container) {
 					--md-button-background-color: var(
 						--md-sys-color-tertiary-container,
-						var(--ha-color-red-30)
+						var(--ha-sys-color-tertiary-container)
 					);
 					--md-button-on-background-color: var(
 						--md-sys-color-on-tertiary-container,
-						var(--ha-color-red-90)
+						var(--ha-sys-color-on-tertiary-container)
 					);
 				}
 			`,

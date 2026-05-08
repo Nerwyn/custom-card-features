@@ -546,11 +546,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					--mdc-icon-size: 24px;
 					--on-active-track-color: var(
 						--md-sys-color-on-primary,
-						var(--primary-background-color)
+						var(--ha-sys-color-on-primary)
 					);
 					--on-inactive-track-color: var(
 						--md-sys-color-on-secondary-container,
-						var(--primary-color)
+						var(--ha-sys-color-on-secondary-container)
 					);
 				}
 				.md3-slider .background {
@@ -561,7 +561,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							--color,
 							var(
 								--md-sys-color-secondary-container,
-								rgba(from var(--primary-color) r g b / 20%)
+								var(--ha-sys-color-secondary-container)
 							)
 						)
 					);
@@ -599,7 +599,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					border-radius: 4px;
 					background: var(
 						--color,
-						var(--md-sys-color-primary, var(--primary-color))
+						var(--md-sys-color-primary, var(--ha-sys-color-primary))
 					);
 					transition: var(--thumb-transition);
 				}
@@ -611,7 +611,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					height: 100%;
 					background: var(
 						--color,
-						var(--md-sys-color-primary, var(--primary-color))
+						var(--md-sys-color-primary, var(--ha-sys-color-primary))
 					);
 					inset-inline-end: 6px;
 				}

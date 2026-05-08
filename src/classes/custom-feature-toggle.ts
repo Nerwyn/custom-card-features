@@ -546,7 +546,8 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					outline: none;
 				}
 				.md3-switch:focus-visible {
-					outline: solid 3px var(--md-sys-color-secondary);
+					outline: solid 3px
+						var(--md-sys-color-secondary, var(--ha-sys-color-secondary));
 					outline-offset: 2px;
 				}
 

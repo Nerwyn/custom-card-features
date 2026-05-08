@@ -62,9 +62,7 @@ export class CustomFeaturesRow extends LitElement {
 		// Rename buttons to entries
 		config.entries = config.entries ?? [];
 		if ('buttons' in config) {
-			config.entries.push(
-				...(config as Record<'buttons', IEntry[]>).buttons,
-			);
+			config.entries.push(...(config as Record<'buttons', IEntry[]>).buttons);
 		}
 
 		this.config = config;
@@ -195,6 +193,8 @@ export class CustomFeaturesRow extends LitElement {
 			changedProperties.has('context') ||
 			changedProperties.has('stateObj')
 		) {
+			this.setAttribute('theme', this.hass.themes.darkMode ? 'dark' : 'light');
+
 			const context = {
 				config: { ...this.config, entity: this.stateObj?.entity_id },
 				stateObj: this.stateObj,
@@ -225,8 +225,7 @@ export class CustomFeaturesRow extends LitElement {
 
 				entryTypes.push(
 					String(
-						this.renderTemplate(entry.type as string, context) ??
-							'button',
+						this.renderTemplate(entry.type as string, context) ?? 'button',
 					).toLowerCase() as CardFeatureType,
 				);
 			}
@@ -288,6 +287,40 @@ export class CustomFeaturesRow extends LitElement {
 			}
 			.row.no-padding {
 				padding: 0;
+			}
+
+			/* Material Design 3 Backups */
+			:host([theme='light']) {
+				--ha-sys-color-primary: var(--ha-color-primary-40);
+				--ha-sys-color-on-primary: var(--ha-color-white);
+				--ha-sys-color-primary-container: var(--ha-color-primary-90);
+				--ha-sys-color-on-primary-container: var(--ha-color-primary-30);
+				--ha-sys-color-secondary: var(--ha-color-green-40);
+				--ha-sys-color-on-secondary: var(--ha-color-white);
+				--ha-sys-color-secondary-container: var(--ha-color-green-90);
+				--ha-sys-color-on-secondary-container: var(--ha-color-green-30);
+				--ha-sys-color-tertiary: var(--ha-color-red-40);
+				--ha-sys-color-on-tertiary: var(--ha-color-white);
+				--ha-sys-color-tertiary-container: var(--ha-color-red-90);
+				--ha-sys-color-on-tertiary-container: var(--ha-color-red-30);
+				--ha-sys-color-surface-container: var(--ha-color-neutral-95);
+				--ha-sys-color-outline: var(--ha-color-neutral-80);
+			}
+			:host([theme='dark']) {
+				--ha-sys-color-primary: var(--ha-color-primary-80);
+				--ha-sys-color-on-primary: var(--ha-color-primary-20);
+				--ha-sys-color-primary-container: var(--ha-color-primary-30);
+				--ha-sys-color-on-primary-container: var(--ha-color-primary-90);
+				--ha-sys-color-secondary: var(--ha-color-green-80);
+				--ha-sys-color-on-secondary: var(--ha-color-green-20);
+				--ha-sys-color-secondary-container: var(--ha-color-green-30);
+				--ha-sys-color-on-secondary-container: var(--ha-color-green-90);
+				--ha-sys-color-tertiary: var(--ha-color-red-80);
+				--ha-sys-color-on-tertiary: var(--ha-color-red-20);
+				--ha-sys-color-tertiary-container: var(--ha-color-red-30);
+				--ha-sys-color-on-tertiary-container: var(--ha-color-red-90);
+				--ha-sys-color-surface-container: var(--ha-color-neutral-10);
+				--ha-sys-color-outline: var(--ha-color-neutral-30);
 			}
 		`;
 	}
