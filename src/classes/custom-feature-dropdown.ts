@@ -103,10 +103,17 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 			);
 			dropdownElement.style.removeProperty(down ? 'bottom' : 'top');
 			if (this.thumbType.includes('md3')) {
-				dropdownElement.style.setProperty(
-					'transform-origin',
-					down ? 'top' : 'bottom',
-				);
+				if (this.thumbType.includes('md3-fab')) {
+					dropdownElement.style.setProperty(
+						'transform-origin',
+						this.rtl ? 'left' : 'right',
+					);
+				} else {
+					dropdownElement.style.setProperty(
+						'transform-origin',
+						down ? 'top' : 'bottom',
+					);
+				}
 			}
 		}
 	}
@@ -467,10 +474,11 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					border-radius: var(--md-sys-shape-corner-large, 16px);
 					box-shadow: var(--md-sys-elevation-level2, var(--ha-box-shadow-m));
 					transform: scale(1, 0);
-					transition: transform var(--md-sys-motion-expressive-spatial-fast);
+					transition: none;
 				}
 				:host([open].md3) .dropdown {
 					transform: scale(1, 1);
+					transition: transform var(--md-sys-motion-expressive-spatial-fast);
 				}
 				:host(.md3) .option {
 					border-radius: var(--md-sys-shape-corner-extra-small, 4px);
@@ -681,6 +689,12 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					gap: 4px;
 					align-items: flex-end;
 					translate: calc(var(--feature-height) - 100%) 0px;
+					transform: scale(0, 1);
+					transition: none;
+				}
+				:host([open].md3-fab) .dropdown {
+					transform: scale(1, 1);
+					transition: transform var(--md-sys-motion-expressive-spatial-fast);
 				}
 				:host(.md3-fab) .option {
 					height: 56px;
