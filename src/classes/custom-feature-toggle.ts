@@ -458,40 +458,36 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					border-radius: 0;
 				}
 				.container:has(.checkbox) {
-					height: var(--mdc-checkbox-touch-target-size, 40px);
-					width: var(--mdc-checkbox-touch-target-size, 40px);
-					border-radius: var(--mdc-checkbox-touch-target-size, 40px);
+					height: var(--checkbox-target-size);
+					width: var(--checkbox-target-size);
+					border-radius: var(--checkbox-target-size);
 					justify-content: center;
 					flex-basis: auto;
 					flex-shrink: 0;
 					background: 0 0;
-					--mdc-icon-size: 18px;
+
+					--checkbox-target-size: calc(var(--ha-checkbox-size, 18px) + 22px);
+					--mdc-icon-size: var(--ha-checkbox-size, 18px);
 					--ha-ripple-pressed-opacity: 0.1;
-					--ha-ripple-hover-color: var(
-						--checkbox-unchecked-icon-color,
-						var(--primary-text-color)
-					);
+					--ha-ripple-hover-color: var(--primary-text-color);
 					--ha-ripple-pressed-color: var(
-						--checkbox-checked-border-color,
-						var(--mdc-checkbox-checked-color, var(--primary-color))
+						--ha-checkbox-checked-background-color,
+						var(--primary-color)
 					);
 				}
 				.container.on:has(.checkbox) {
 					--ha-ripple-hover-color: var(
-						--checkbox-checked-border-color,
-						var(--mdc-checkbox-checked-color, var(--primary-color))
+						--ha-checkbox-checked-background-color,
+						var(--primary-color)
 					);
-					--ha-ripple-pressed-color: var(
-						--checkbox-unchecked-icon-color,
-						var(--primary-text-color)
-					);
+					--ha-ripple-pressed-color: var(--primary-text-color);
 				}
 				.container:has(.checkbox)::after {
 					content: '';
 					position: absolute;
-					height: var(--mdc-checkbox-touch-target-size, 40px);
-					width: var(--mdc-checkbox-touch-target-size, 40px);
-					border-radius: var(--mdc-checkbox-touch-target-size, 40px);
+					height: var(--checkbox-target-size);
+					width: var(--checkbox-target-size);
+					border-radius: var(--checkbox-size);
 					background: var(--ha-ripple-hover-color);
 					opacity: 0;
 					pointer-events: none;
@@ -501,44 +497,36 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 					opacity: var(--ha-ripple-pressed-opacity);
 				}
 				.checkbox {
-					height: 18px;
-					width: 18px;
+					height: var(--ha-checkbox-size, 18px);
+					width: var(--ha-checkbox-size, 18px);
 					border-radius: 2px;
 					border: solid 2px;
 					background: transparent;
 					border-color: var(
-						--checkbox-unchecked-border-color,
-						var(--mdc-checkbox-unchecked-color, var(--secondary-text-color))
+						--ha-checkbox-border-color,
+						var(--secondary-text-color)
 					);
 					cursor: pointer;
 					transition:
 						background 180ms ease-in-out,
 						box-shadow 180ms ease-in-out;
-					--icon-color: var(
-						--checkbox-unchecked-icon-color,
-						var(--primary-text-color)
-					);
+
+					--icon-color: var(--primary-text-color);
 				}
 				.on > .checkbox {
 					background: var(
-						--checkbox-checked-border-color,
-						var(--mdc-checkbox-checked-color, var(--primary-color))
+						--ha-checkbox-checked-background-color,
+						var(--primary-color)
 					);
 					border-color: var(
-						--checkbox-checked-border-color,
-						var(--mdc-checkbox-checked-color, var(--primary-color))
+						--ha-checkbox-checked-background-color,
+						var(--primary-color)
 					);
-					--icon-color: var(
-						--checkbox-checked-icon-color,
-						var(--mdc-checkbox-ink-color, #fff)
-					);
+					--icon-color: var(--ha-checkbox-checked-icon-color, #fff);
 				}
 				@media (hover: hover) {
 					.off:hover > .checkbox {
-						border-color: var(
-							--checkbox-unchecked-icon-color,
-							var(--primary-text-color)
-						);
+						border-color: var(--primary-text-color);
 					}
 				}
 				.checkbox:focus-visible,
