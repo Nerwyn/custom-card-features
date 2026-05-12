@@ -14,7 +14,10 @@ import { BaseCustomFeature } from './base-custom-feature';
 export class CustomFeatureDropdown extends BaseCustomFeature {
 	@state() open: boolean = false;
 	resizeObserver: ResizeObserver = new ResizeObserver(() => {
-		this.style.setProperty('--dropdown-width', `${this.clientWidth}px`);
+		const dropdownElement = this.shadowRoot?.querySelector(
+			'.dropdown',
+		) as HTMLElement;
+		dropdownElement.style.setProperty('width', `${this.clientWidth}px`);
 	});
 
 	thumbType: DropdownThumbType = 'default';
@@ -99,6 +102,12 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				`${down ? rect.bottom : window.innerHeight - rect.top}px`,
 			);
 			dropdownElement.style.removeProperty(down ? 'bottom' : 'top');
+			if (this.thumbType.includes('md3')) {
+				dropdownElement.style.setProperty(
+					'transform-origin',
+					down ? 'top' : 'bottom',
+				);
+			}
 		}
 	}
 
@@ -357,7 +366,6 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					border-radius: var(--wa-border-radius-m, 8px);
 					padding: var(--ha-space-1, 4px);
 					height: 0px;
-					width: 0px;
 					box-sizing: border-box;
 					will-change: transform, opacity;
 					overflow-y: auto;
@@ -372,7 +380,6 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				:host([open]) .dropdown {
 					height: min-content;
 					min-width: fit-content;
-					width: var(--dropdown-width);
 					transform: scale(1);
 				}
 
@@ -459,6 +466,11 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					border: none;
 					border-radius: var(--md-sys-shape-corner-large, 16px);
 					box-shadow: var(--md-sys-elevation-level2, var(--ha-box-shadow-m));
+					transform: scale(1, 0);
+					transition: transform var(--md-sys-motion-expressive-spatial-fast);
+				}
+				:host([open].md3) .dropdown {
+					transform: scale(1, 1);
 				}
 				:host(.md3) .option {
 					border-radius: var(--md-sys-shape-corner-extra-small, 4px);
