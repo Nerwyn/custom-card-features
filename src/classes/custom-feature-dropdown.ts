@@ -92,14 +92,14 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 			if (this.rtl) {
 				dropdownElement.style.setProperty(
 					'right',
-					`${window.innerWidth - rect.right}px`,
+					`${document.documentElement.clientWidth - rect.right}px`,
 				);
 			} else {
 				dropdownElement.style.setProperty('left', `${rect.left}px`);
 			}
 			dropdownElement.style.setProperty(
 				down ? 'top' : 'bottom',
-				`${down ? rect.bottom : window.innerHeight - rect.top}px`,
+				`${down ? rect.bottom : document.documentElement.clientHeight - rect.top}px`,
 			);
 			dropdownElement.style.removeProperty(down ? 'bottom' : 'top');
 			if (this.thumbType.includes('md3')) {
@@ -688,9 +688,12 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					overflow: visible;
 					gap: 4px;
 					align-items: flex-end;
-					translate: calc(var(--feature-height) - 100%) 0px;
+					translate: calc(var(--feature-height) - 100%) 0;
 					transform: scale(0, 1);
 					transition: none;
+				}
+				:host([dir='rtl'].md3-fab) .dropdown {
+					translate: calc(100% - var(--feature-height)) 0;
 				}
 				:host([open].md3-fab) .dropdown {
 					transform: scale(1, 1);
