@@ -631,10 +631,18 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					padding: 0 16px;
 					overflow: visible;
 
-					--mdc-icon-size: 24px;
+					--mdc-icon-size: clamp(
+						24px,
+						calc(0.5 * var(--feature-height, 40px) - 12px),
+						36px
+					);
 				}
 				:host(.md3-fab) button {
-					border-radius: 16px;
+					border-radius: clamp(
+						16px,
+						calc(0.5 * var(--feature-height, 40px) - 20px),
+						28px
+					);
 					box-shadow: var(--md-sys-elevation-level3, var(--ha-box-shadow-m));
 				}
 				:host(.md3-fab) button:not(:has(~ .label)) {
