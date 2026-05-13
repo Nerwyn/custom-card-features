@@ -540,7 +540,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						background 180ms ease-in-out;
 				}
 				.md3-slider {
-					max-height: 40px;
 					border-radius: 12px;
 
 					--mdc-icon-size: 24px;
@@ -581,7 +580,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					height: 52px;
+					height: calc(var(--feature-height) + 12px);
 					width: 16px;
 					position: absolute;
 					translate: var(--thumb-translate);
