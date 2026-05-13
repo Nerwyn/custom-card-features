@@ -162,11 +162,18 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				@contextmenu=${this.onContextMenu}
 			>
 				${this.selectedIcon || this.selectedLabel || this.selectedStyles
-					? html`${this.buildIcon(this.selectedIcon || this.icon) ||
-						html`<div class="icon"></div>`}${this.buildLabel(
+					? html`${this.buildIcon(
+							this.thumbType.includes('md3-fab') && this.open
+								? 'mdi:close'
+								: this.selectedIcon,
+						) || html`<div class="icon"></div>`}${this.buildLabel(
 							this.selectedLabel,
 						)}${buildStyles(this.selectedStyles)}`
-					: html`${this.buildIcon(this.icon)}${this.buildLabel(this.label)}`}
+					: html`${this.buildIcon(
+							this.thumbType.includes('md3-fab') && this.open
+								? 'mdi:close'
+								: this.icon,
+						)}${this.buildLabel(this.label)}`}
 				${this.buildRipple()}
 			</div>
 			<ha-icon
@@ -630,9 +637,19 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				:host(.md3-fab) {
 					width: var(--feature-height);
 					flex: none;
-					border-radius: var(--md-sys-shape-corner-large, 16px);
+					justify-content: flex-start;
+					align-items: flex-end;
+					border-radius: clamp(
+						16px,
+						calc(0.5 * var(--feature-height, 40px) - 20px),
+						28px
+					);
 
-					--mdc-icon-size: 24px;
+					--mdc-icon-size: clamp(
+						24px,
+						calc(0.5 * var(--feature-height, 40px) - 12px),
+						36px
+					);
 					--background-opacity: 1;
 					--md-ripple-hover-opacity: 0.08;
 					--md-ripple-pressed-opacity: 0.1;
@@ -642,6 +659,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				:host(.md3-fab) .container {
 					box-shadow: var(--md-sys-elevation-level3, var(--ha-box-shadow-m));
 					transition:
+						height var(--md-sys-motion-expressive-spatial-fast),
+						width var(--md-sys-motion-expressive-spatial-fast),
 						border-radius var(--md-sys-motion-expressive-spatial-fast),
 						box-shadow var(--md-sys-motion-expressive-effects-fast);
 				}
@@ -662,7 +681,22 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					outline-offset: 2px;
 				}
 				:host([open].md3-fab) .container {
+					height: min(var(--feature-height, 40px), 56px);
+					width: min(var(--feature-height, 40px), 56px);
 					border-radius: var(--feature-height);
+				}
+				:host([open].md3-fab) .container {
+					height: min(var(--feature-height, 40px), 56px);
+					width: min(var(--feature-height, 40px), 56px);
+					border-radius: var(--feature-height);
+				}
+				:host(.md3-fab) .select .icon {
+					transition:
+						height var(--md-sys-motion-expressive-spatial-fast),
+						width var(--md-sys-motion-expressive-spatial-fast);
+				}
+				:host([open].md3-fab) .select .icon {
+					--mdc-icon-size: 20px;
 				}
 				:host(.md3-fab) .background {
 					background: var(
