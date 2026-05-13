@@ -482,7 +482,11 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					transition: color var(--md-sys-motion-expressive-effects-fast);
 				}
 				:host(.md3.toggle[value='on']) {
-					--md-button-border-radius: var(--md-sys-shape-corner-medium, 12px);
+					--md-button-border-radius: clamp(
+						12px,
+						calc(0.3 * var(--feature-height, 40px) - 0.8px),
+						28px
+					);
 				}
 
 				:host(.md3-elevated) {
