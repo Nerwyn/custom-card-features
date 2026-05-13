@@ -437,6 +437,11 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					--md-ripple-pressed-color: var(--md-button-on-background-color);
 					--md-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
 					--md-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.1);
+					--mdc-icon-size: clamp(
+						20px,
+						calc(0.2 * var(--feature-height, 40px) + 12.8px),
+						40px
+					);
 				}
 				:host(.md3) button {
 					inset-inline-start: 0;
