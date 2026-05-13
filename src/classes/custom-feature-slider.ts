@@ -721,6 +721,43 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						)
 					);
 				}
+				.md3-slider.off {
+					--on-active-track-color: var(
+						--md-sys-color-inverse-on-surface,
+						rgb(
+							from var(--ha-sys-color-on-surface) calc(255 - r) calc(255 - g)
+								calc(255 - b)
+						)
+					);
+					--on-inactive-track-color: var(
+						--md-sys-color-on-surface,
+						var(--ha-sys-color-on-surface)
+					);
+				}
+				.md3-slider.off .background {
+					background: var(
+						--background,
+						var(
+							--color,
+							var(--md-sys-color-on-surface, var(--ha-sys-color-on-surface))
+						)
+					);
+					opacity: 0.12;
+				}
+				.md3-slider.off .thumb .active {
+					background: var(
+						--color,
+						var(--md-sys-color-on-surface, var(--ha-sys-color-on-surface))
+					);
+					opacity: 0.38;
+				}
+				.md3-slider.off ~ .md3-thumb .md3-thumb-line {
+					background: var(
+						--color,
+						var(--md-sys-color-on-surface, var(--ha-sys-color-on-surface))
+					);
+					opacity: 0.38;
+				}
 
 				.tooltip {
 					display: var(--tooltip-display);
