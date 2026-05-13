@@ -337,10 +337,13 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			) as HTMLElement;
 			if (iconlabel) {
 				const width = iconlabel.clientWidth ?? 0;
-				if (Math.floor(this.width / 2 + this.thumbOffset) < width) {
-					iconlabel.className = 'icon-label inactive';
-				} else {
+				if (
+					Math.floor(this.width / 2 + this.thumbOffset) >= width ||
+					Math.floor(this.width / 2) <= width
+				) {
 					iconlabel.className = 'icon-label active';
+				} else {
+					iconlabel.className = 'icon-label inactive';
 				}
 			}
 		}
