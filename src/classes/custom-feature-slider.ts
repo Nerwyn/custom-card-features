@@ -542,7 +542,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				.md3-slider {
 					border-radius: 12px;
 
-					--mdc-icon-size: 24px;
+					--mdc-icon-size: clamp(
+						24px,
+						calc(0.2 * var(--feature-height, 40px) + 12.8px),
+						32px
+					);
 					--on-active-track-color: var(
 						--md-sys-color-on-primary,
 						var(--ha-sys-color-on-primary)
@@ -574,8 +578,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 				.md3-thumb {
 					background: var(
-						--ha-card-background,
-						var(--card-background-color, #fff)
+						--md-slider-thumb-background,
+						var(--ha-card-background, var(--card-background-color, #fff))
 					);
 					display: flex;
 					justify-content: center;

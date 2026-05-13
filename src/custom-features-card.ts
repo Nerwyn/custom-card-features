@@ -64,8 +64,7 @@ export class CustomFeaturesCard extends LitElement {
 	}
 
 	render() {
-		return html`<ha-card
-				class=${classMap({ transparent: this.transparent })}
+		return html`<ha-card class=${classMap({ transparent: this.transparent })}
 				>${this.config.features.map(
 					(row) =>
 						html`<service-call
@@ -84,15 +83,12 @@ export class CustomFeaturesCard extends LitElement {
 			) as string;
 
 			const featureHeight = Number(
-				this.renderTemplate(
-					(this.config.feature_height ?? 42) as number,
-				),
+				this.renderTemplate((this.config.feature_height ?? 42) as number),
 			);
 
 			const transparent =
-				String(
-					this.renderTemplate(this.config.transparent as boolean),
-				) == 'true';
+				String(this.renderTemplate(this.config.transparent as boolean)) ==
+				'true';
 
 			const config = JSON.stringify(changedProperties.get('config'));
 
@@ -104,18 +100,14 @@ export class CustomFeaturesCard extends LitElement {
 			) {
 				this.styles = styles;
 				this.featureHeight = featureHeight;
-				this.style.setProperty(
-					'--feature-height',
-					`${this.featureHeight}px`,
-				);
+				this.style.setProperty('--feature-height', `${this.featureHeight}px`);
 				this.transparent = transparent;
 				return true;
 			}
 		}
 
 		// Update child hass objects if not updating
-		const children =
-			this.shadowRoot?.querySelectorAll('service-call') ?? [];
+		const children = this.shadowRoot?.querySelectorAll('service-call') ?? [];
 		for (const child of children) {
 			(child as CustomFeaturesRow).hass = this.hass;
 		}
@@ -141,6 +133,8 @@ export class CustomFeaturesCard extends LitElement {
 				all: unset;
 				display: flex;
 				flex-direction: column;
+
+				--md-slider-thumb-background: var(--lovelace-background);
 			}
 
 			service-call {
