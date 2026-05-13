@@ -580,12 +580,17 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					height: calc(var(--feature-height) + 12px);
+					height: var(--md-slider-thumb-height);
 					width: 16px;
 					position: absolute;
 					translate: var(--thumb-translate);
 					transition: var(--thumb-transition);
 					pointer-events: none;
+
+					--md-slider-thumb-height: max(
+						calc(var(--feature-height) + 12px),
+						44px
+					);
 				}
 				:host(:focus-visible) .md3-thumb,
 				:host([pressed]) .md3-thumb {
@@ -621,7 +626,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				.md3-thumb-inactive-track-corner {
 					position: relative;
 					overflow: hidden;
-					height: 40px;
+					height: var(--md-slider-thumb-height);
 					width: 4px;
 				}
 				.md3-thumb-active-track-corner {
