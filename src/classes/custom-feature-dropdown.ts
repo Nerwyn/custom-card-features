@@ -761,6 +761,16 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					line-height: var(--md-sys-typescale-title-medium-line-height, 24px);
 					letter-spacing: var(--md-sys-typescale-title-medium-tracking, 0.15px);
 				}
+				:host(.md3-fab) .selected {
+					--background: var(--md-button-background-color);
+					--background-opacity: 1;
+				}
+				:host(.md3-fab) .selected::part(icon) {
+					color: var(--icon-color, var(--md-button-on-background-color));
+				}
+				:host(.md3-fab) .selected::part(label) {
+					color: var(--label-color, var(--md-button-on-background-color));
+				}
 
 				:host(.md3-fab-primary) {
 					--md-button-background-color: var(
