@@ -672,6 +672,14 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 				.md3-slider .label {
 					width: min-content;
+					font-size: var(--md-font-size);
+					line-height: calc(var(--md-font-size) + 8px);
+
+					--md-font-size: clamp(
+						14px,
+						calc(0.2 * var(--feature-height, 40px) + 4.8px),
+						32px
+					);
 				}
 				.md3-slider .icon-label.inactive {
 					inset-inline-start: unset;

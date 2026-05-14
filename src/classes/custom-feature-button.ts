@@ -480,11 +480,17 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					);
 					width: fit-content;
 					font-family: var(--font-family);
-					font-size: var(--md-sys-typescale-label-large-size, 14px);
+					font-size: var(--md-font-size);
+					line-height: calc(var(--md-font-size) + 8px);
 					font-weight: var(--md-sys-typescale-label-large-weight, 500);
-					line-height: var(--md-sys-typescale-label-large-line-height, 20px);
 					letter-spacing: var(--md-sys-typescale-label-large-tracking, 0.1px);
 					transition: color var(--md-sys-motion-expressive-effects-fast);
+
+					--md-font-size: clamp(
+						14px,
+						calc(0.2 * var(--feature-height, 40px) + 4.8px),
+						32px
+					);
 				}
 				:host(.md3.toggle[value='on']) {
 					--md-button-border-radius: clamp(
