@@ -784,7 +784,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 					${this.buildAlertBox(
 						"Change the feature appearance based on its value using a template like '{{ value | float }}'.",
 					)}
-					${appearanceOptions}${this.buildCodeEditor('jinja2')}
+					<div class="form">
+						${appearanceOptions}${this.buildCodeEditor('jinja2')}
+					</div>
 				</div>
 			</ha-expansion-panel>
 		`;
@@ -792,15 +794,13 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	buildCommonAppearanceOptions() {
 		return html`${this.buildSelector('Label', 'label', {
-				text: { multiline: true },
-			})}
-			<div class="form">
-				${this.buildSelector('Icon', 'icon', {
-					icon: {},
-				})}${this.buildSelector('Units', 'unit_of_measurement', {
-					text: {},
-				})}
-			</div>`;
+			text: { multiline: true },
+		})}
+		${this.buildSelector('Icon', 'icon', {
+			icon: {},
+		})}${this.buildSelector('Units', 'unit_of_measurement', {
+			text: {},
+		})}`;
 	}
 
 	buildInteractionsPanel(actionSelectors: TemplateResult<1>) {
@@ -1042,10 +1042,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 				)}
 			</div>
 			${this.buildAppearancePanel(
-				html` ${this.buildCommonAppearanceOptions()}
-				${parentEntry
-					? ''
-					: html`<div class="form">
+				parentEntry
+					? html``
+					: html`
 							${this.buildSelector(
 								'Type',
 								'thumb',
@@ -1125,7 +1124,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 										false,
 									)
 								: ''}
-						</div>`}`,
+							${this.buildCommonAppearanceOptions()}
+						`,
 			)}
 			${this.buildInteractionsPanel(actionSelectors)}
 		`;
@@ -1209,50 +1209,48 @@ export class CustomFeaturesRowEditor extends LitElement {
 				)}
 			</div>
 			${this.buildAppearancePanel(html`
+				${this.buildSelector(
+					'Type',
+					'thumb',
+					{
+						select: {
+							mode: 'dropdown',
+							options: [
+								{
+									value: 'default',
+									label: 'Default',
+								},
+								{
+									value: 'line',
+									label: 'Line',
+								},
+								{
+									value: 'flat',
+									label: 'Flat',
+								},
+								{
+									value: 'round',
+									label: 'Round',
+								},
+								{
+									value: 'md3-slider',
+									label: 'Material Design 3',
+								},
+							],
+							reorder: false,
+						},
+					},
+					'default',
+				)}
 				${this.buildCommonAppearanceOptions()}
-				<div class="form">
-					${this.buildSelector(
-						'Type',
-						'thumb',
-						{
-							select: {
-								mode: 'dropdown',
-								options: [
-									{
-										value: 'default',
-										label: 'Default',
-									},
-									{
-										value: 'line',
-										label: 'Line',
-									},
-									{
-										value: 'flat',
-										label: 'Flat',
-									},
-									{
-										value: 'round',
-										label: 'Round',
-									},
-									{
-										value: 'md3-slider',
-										label: 'Material Design 3',
-									},
-								],
-								reorder: false,
-							},
-						},
-						'default',
-					)}
-					${this.buildSelector(
-						'Ticks',
-						'ticks',
-						{
-							boolean: {},
-						},
-						false,
-					)}
-				</div>
+				${this.buildSelector(
+					'Ticks',
+					'ticks',
+					{
+						boolean: {},
+					},
+					false,
+				)}
 			`)}
 			${this.buildInteractionsPanel(html`
 				${this.buildAlertBox()}
@@ -1308,47 +1306,42 @@ export class CustomFeaturesRowEditor extends LitElement {
 							HAPTICS,
 						)}
 					</div>
-					<div class="">
-						${this.buildEntryList('option')}${this.buildAddEntryButton(
-							'option',
-						)}
-					</div>
-					${type == 'selector'
-						? html`${this.buildSelector(
-								'Type',
-								'thumb',
-								{
-									select: {
-										mode: 'dropdown',
-										options: [
-											{
-												value: 'default',
-												label: 'Default',
-											},
-											{
-												value: 'md3-elevated',
-												label: 'Material Design 3 Elevated',
-											},
-											{
-												value: 'md3-filled',
-												label: 'Material Design 3 Filled',
-											},
-											{
-												value: 'md3-tonal',
-												label: 'Material Design 3 Tonal',
-											},
-											{
-												value: 'md3-outlined',
-												label: 'Material Design 3 Outlined',
-											},
-										],
-										reorder: false,
+					${this.buildAppearancePanel(
+						html`${type == 'selector'
+							? html`${this.buildSelector(
+									'Type',
+									'thumb',
+									{
+										select: {
+											mode: 'dropdown',
+											options: [
+												{
+													value: 'default',
+													label: 'Default',
+												},
+												{
+													value: 'md3-elevated',
+													label: 'Material Design 3 Elevated',
+												},
+												{
+													value: 'md3-filled',
+													label: 'Material Design 3 Filled',
+												},
+												{
+													value: 'md3-tonal',
+													label: 'Material Design 3 Tonal',
+												},
+												{
+													value: 'md3-outlined',
+													label: 'Material Design 3 Outlined',
+												},
+											],
+											reorder: false,
+										},
 									},
-								},
-								'default',
-							)}${this.buildCodeEditor('jinja2')}`
-						: this.buildAppearancePanel(
-								html`${this.buildCommonAppearanceOptions()}${this.buildSelector(
+									'default',
+								)}`
+							: html`${this.buildSelector(
 									'Type',
 									'thumb',
 									{
@@ -1384,8 +1377,13 @@ export class CustomFeaturesRowEditor extends LitElement {
 										},
 									},
 									'default',
-								)}`,
-							)}`;
+								)}${this.buildCommonAppearanceOptions()}`}`,
+					)}
+					<div class="">
+						${this.buildEntryList('option')}${this.buildAddEntryButton(
+							'option',
+						)}
+					</div>`;
 				break;
 			default:
 				switch (type) {
@@ -1720,22 +1718,16 @@ export class CustomFeaturesRowEditor extends LitElement {
 					},
 					'default',
 				)}
-				${this.buildSelector('Label', 'label', {
-					text: { multiline: true },
+				${this.buildCommonAppearanceOptions()}${this.buildSelector(
+					'Unchecked icon',
+					'unchecked_icon',
+					{
+						icon: {},
+					},
+				)}
+				${this.buildSelector('Checked icon', 'checked_icon', {
+					icon: {},
 				})}
-				<div class="form">
-					${this.buildSelector('Icon', 'icon', {
-						icon: {},
-					})}
-					${this.buildSelector('Units', 'unit_of_measurement', {
-						text: {},
-					})}${this.buildSelector('Unchecked icon', 'unchecked_icon', {
-						icon: {},
-					})}
-					${this.buildSelector('Checked icon', 'checked_icon', {
-						icon: {},
-					})}
-				</div>
 			`)}
 			${this.buildInteractionsPanel(html`
 				${this.buildActionOption('Behavior', 'tap_action', {
@@ -3059,6 +3051,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 					minmax(var(--form-grid-min-width, 200px), 1fr)
 				);
 				gap: 24px 8px;
+			}
+			#thumb,
+			#label,
+			.yaml-editor {
+				grid-column: 1 / -1;
 			}
 		`;
 	}
