@@ -47,9 +47,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	}
 
 	async onBlur(_e: FocusEvent) {
-		const input = this.shadowRoot?.querySelector(
-			'input',
-		) as HTMLInputElement;
+		const input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
 		if (input) {
 			if (
 				this.shouldFire &&
@@ -67,9 +65,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	}
 
 	onChange(e: Event) {
-		const input = this.shadowRoot?.querySelector(
-			'input',
-		) as HTMLInputElement;
+		const input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
 
 		if (input) {
 			this.validate(input.value);
@@ -86,9 +82,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					break;
 				case 'number':
 					if (this.precision) {
-						input.value = Number(input.value).toFixed(
-							this.precision,
-						);
+						input.value = Number(input.value).toFixed(this.precision);
 					}
 					break;
 				case 'text':
@@ -106,9 +100,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			e.preventDefault();
 			e.stopImmediatePropagation();
 
-			const input = this.shadowRoot?.querySelector(
-				'input',
-			) as HTMLInputElement;
+			const input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
 			this.shouldFire = e.key == 'Enter';
 			input?.blur();
 		}
@@ -116,9 +108,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 
 	async onKeyUp(e: KeyboardEvent) {
 		if (!e.repeat) {
-			const input = this.shadowRoot?.querySelector(
-				'input',
-			) as HTMLInputElement;
+			const input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
 			if (input) {
 				this.validate(input.value);
 			}
@@ -127,7 +117,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 
 	validate(value: string | number) {
 		let valid = true;
-		if (valid == undefined) {
+		if (value == undefined) {
 			valid = false;
 		} else {
 			switch (this.thumb) {
@@ -150,10 +140,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					const time = new Date(`1970-01-01T${value}Z`).getTime();
 					valid =
 						time >= (this.rangeTs ? this.rangeTs[0] : 0) &&
-						time <
-							(this.rangeTs
-								? this.rangeTs[1]
-								: 1000 * 60 * 60 * 24);
+						time < (this.rangeTs ? this.rangeTs[1] : 1000 * 60 * 60 * 24);
 					break;
 				}
 				case 'month':
@@ -209,12 +196,8 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				autocomplete="off"
 				min="${this.rangeIsLength ? nothing : this.range[0]}"
 				max="${this.rangeIsLength ? nothing : this.range[1]}"
-				minlength="${this.rangeIsLength
-					? (this.range[0] as number)
-					: nothing}"
-				maxlength="${this.rangeIsLength
-					? (this.range[1] as number)
-					: nothing}"
+				minlength="${this.rangeIsLength ? (this.range[0] as number) : nothing}"
+				maxlength="${this.rangeIsLength ? (this.range[1] as number) : nothing}"
 				step="${this.step}"
 				value="${value}"
 				.value="${value as string}"
@@ -226,9 +209,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 		`;
 
 		const unit = this.unitOfMeasurement
-			? html`<span class="unit" part="unit"
-					>${this.unitOfMeasurement}</span
-				>`
+			? html`<span class="unit" part="unit">${this.unitOfMeasurement}</span>`
 			: '';
 
 		return html`
@@ -243,9 +224,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	}
 
 	willUpdate() {
-		const input = this.shadowRoot?.querySelector(
-			'input',
-		) as HTMLInputElement;
+		const input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
 		if (input) {
 			this.validate(input.value);
 		}
@@ -305,9 +284,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			}
 
 			let step = parseFloat(
-				this.renderTemplate(
-					this.config.step as unknown as string,
-				) as string,
+				this.renderTemplate(this.config.step as unknown as string) as string,
 			);
 			if (!step || isNaN(step) || step <= 0) {
 				switch (this.thumb) {
@@ -359,19 +336,9 @@ export class CustomFeatureInput extends BaseCustomFeature {
 							const [maxYear, maxWeek] = max.split('-W');
 							this.rangeTs = [
 								new Date(`${minYear}-01-01`).getTime() +
-									(parseInt(minWeek) - 1) *
-										7 *
-										24 *
-										60 *
-										60 *
-										1000,
+									(parseInt(minWeek) - 1) * 7 * 24 * 60 * 60 * 1000,
 								new Date(`${maxYear}-01-01`).getTime() +
-									(parseInt(maxWeek) - 1) *
-										7 *
-										24 *
-										60 *
-										60 *
-										1000,
+									(parseInt(maxWeek) - 1) * 7 * 24 * 60 * 60 * 1000,
 							];
 							break;
 						}
@@ -456,7 +423,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				.background {
 					background: var(
 						--background,
-						var(--color, var(--mdc-text-field-fill-color, #f5f5f5))
+						var(--color, var(--ha-color-form-background, #f5f5f5))
 					);
 					opacity: var(--background-opacity, 1);
 					pointer-events: none;
@@ -469,23 +436,17 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					left: 0;
 					right: 0;
 					bottom: 0;
-					background: var(--mdc-ripple-color, rgba(0, 0, 0, 0.87));
+					background: var(--ha-color-form-background-hover);
 					opacity: 0;
 				}
 				@media (hover: hover) {
 					:host(:hover) .background::before {
-						opacity: var(--mdc-ripple-hover-opacity, 0.04);
+						opacity: var(--md-ripple-hover-opacity, 0.18);
 					}
 				}
 
 				.icon {
-					color: var(
-						--icon-color,
-						var(
-							--mdc-text-field-label-ink-color,
-							rgba(0, 0, 0, 0.6)
-						)
-					);
+					color: var(--icon-color, var(--secondary-text-color));
 					inset-inline-start: -4px;
 				}
 
@@ -499,46 +460,20 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				}
 				.label {
 					justify-content: flex-start;
-					color: var(
-						--label-color,
-						var(
-							--mdc-text-field-label-ink-color,
-							rgba(0, 0, 0, 0.6)
-						)
-					);
-					font-family: var(
-						--mdc-typography-subtitle1-font-family,
-						var(--mdc-typography-font-family, Roboto, sans-serif)
-					);
-					font-size: var(--mdc-typography-subtitle1-font-size, 10px);
-					font-weight: var(
-						--mdc-typography-subtitle1-font-weight,
-						400
-					);
-					letter-spacing: var(
-						--mdc-typography-subtitle1-letter-spacing,
-						0.009375em
-					);
-					text-decoration: var(
-						--mdc-typography-subtitle1-text-decoration,
-						inherit
-					);
-					text-transform: var(
-						--mdc-typography-subtitle1-text-transform,
-						inherit
-					);
+					color: var(--label-color, var(--secondary-text-color));
+					font-size: 12px;
+					font-weight: 400;
+					letter-spacing: 0.5px;
 					transform-origin: 0 50%;
 					transition:
 						scale 150ms cubic-bezier(0.4, 0, 0.2, 1),
 						color 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				}
 				:host(:focus-within) .label {
-					color: var(--mdc-theme-primary, #6200ee);
+					color: var(--primary-color);
 				}
-				:host(:not(:focus-within))
-					.label-input:has(input[value=''])
-					.label {
-					scale: 1.4;
+				:host(:not(:focus-within)) .label-input:has(input[value='']) .label {
+					scale: 1.333;
 				}
 				:host(:not(:focus-within)) .input-unit:has(input[value='']) {
 					height: 0;
@@ -548,39 +483,16 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					transform-origin: 100% 50%;
 				}
 				:host([invalid]) .label {
-					color: var(--mdc-theme-error, #b00020);
+					color: var(--error-color);
 				}
 
 				input {
-					font-family: var(
-						--mdc-typography-subtitle1-font-family,
-						var(--mdc-typography-font-family, Roboto, sans-serif)
-					);
-					font-size: var(--mdc-typography-subtitle1-font-size, 1rem);
-					font-weight: var(
-						--mdc-typography-subtitle1-font-weight,
-						400
-					);
-					letter-spacing: var(
-						--mdc-typography-subtitle1-letter-spacing,
-						0.009375em
-					);
-					text-decoration: var(
-						--mdc-typography-subtitle1-text-decoration,
-						inherit
-					);
-					text-transform: var(
-						--mdc-typography-subtitle1-text-transform,
-						inherit
-					);
-					color: var(--mdc-text-field-ink-color, rgba(0, 0, 0, 0.87));
-					caret-color: var(
-						--mdc-typography-subtitle1-text-transform,
-						inherit
-					);
-					max-height: calc(
-						var(--mdc-typography-subtitle1-font-size, 1rem) + 8px
-					);
+					font-family: inherit;
+					font-size: 16px;
+					font-weight: 400;
+					letter-spacing: 0.5px;
+					color: var(--primary-text-color);
+					max-height: 32px;
 					min-width: 0;
 					width: 100%;
 					background: transparent;
@@ -626,14 +538,8 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					min-width: 0;
 					padding-left: var(--text-field-suffix-padding-left, 12px);
 					padding-right: var(--text-field-suffix-padding-right, 0px);
-					padding-inline-start: var(
-						--text-field-suffix-padding-left,
-						12px
-					);
-					padding-inline-end: var(
-						--text-field-suffix-padding-right,
-						0px
-					);
+					padding-inline-start: var(--text-field-suffix-padding-left, 12px);
+					padding-inline-end: var(--text-field-suffix-padding-right, 0px);
 				}
 
 				.line-ripple {
