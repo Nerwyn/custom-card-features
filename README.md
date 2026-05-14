@@ -41,7 +41,7 @@ You can override the default behavior of each option by changing their action. T
 
 ## Inputs
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/input_tile.png" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/inputs_tile.png" width="600"/>
 
 Inputs allow you to create Home Assistant stylized and optimized [HTML input elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input). Visually they are similar to those found when you add an input text entity to an entities card. Technically they support all input types, although only a subset will be available through the configuration UI as most of the others are redundant or better handled by other custom card features.
 
@@ -49,7 +49,7 @@ You can provide it with an action, which will fire when you press the `Enter` or
 
 ## Selectors
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_tile_md3.png" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_tile.png" width="600"/>
 
 Selectors allow you to create a row of custom button features with no gaps of which the currently active one will be highlighted, similar to those available for alarm control panel and thermostat modes. Like all features in this project it can be used for any action. Selectors do not have an overall icon or label, but each option has their own appearance fields.
 
@@ -61,7 +61,7 @@ Since each selector option is a custom feature button, you can override its defa
 
 ## Sliders
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_tile.png" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/sliders_tile.png" width="600"/>
 
 Sliders are similar to the sliders found in Home Assistant default card features, like those available for light brightness and temperature. By default the slider will look like a normal tile light brightness or cover position slider, but you can change this to a few of other thumb styles using the `Thumb Type` appearance option. You can also add tickmarks which will appear at each step (just know that if you have a lot of steps they'll all blend together).
 
@@ -73,7 +73,7 @@ To prevent value bouncing, sliders will wait for one second before retreiving an
 
 ## Spinboxes
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/spinbox_tile.png" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/spinboxes_tile.png" width="600"/>
 
 Spinboxes allow you to create Home Assistant style number boxes with increment and decrement buttons, similar to the climate target temperature feature. By default the user can increment or decrement this feature's internal value using the corresponding buttons. Once the user stops pressing the buttons for a time period defined by `Debounce time` (default 1000ms), the user defined tap action will fire. Similar to sliders, spinboxes will wait one second before updating its internal value but this can be changed using `Update after action delay`.
 
@@ -95,7 +95,9 @@ Toggles feature three icons! There's the icon normally shown alongside the label
 
 ## Material Design 3 Variants
 
-Buttons, selectors, sliders, and toggles have Material Design 3 variants designed using the [Material Design 3 specifications](https://m3.material.io/). While they can be used with any theme, they work best with Material You [Theme](https://github.com/Nerwyn/material-you-theme) and [Utilities](https://github.com/Nerwyn/material-you-utilities). When used with this theme and its companion module, the Material Design 3 variants will follow theme colors rather than parent card colors.
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/material_design_features.png" width="600"/>
+
+Buttons, dropdowns, selectors, sliders, and toggles (and technically inputs which are already Material Design 3 friendly) have Material Design 3 variants designed using the [Material Design 3 specifications](https://m3.material.io/). While they can be used with any theme, they work best with Material You [Theme](https://github.com/Nerwyn/material-you-theme) and [Utilities](https://github.com/Nerwyn/material-you-utilities). When used with this theme and its companion module, the Material Design 3 variants will follow theme colors rather than parent card colors.
 
 ## Custom Features Card
 
@@ -158,6 +160,8 @@ Dropdowns and selectors are made up of options, which can be added to, reordered
 
 Like sliders and spinboxes, selectors have a one second delay before updating their internal values from Home Assistant, which can be adjusted using `Update after action delay`.
 
+Dropdowns can also be assigned their own default icon and label. When no option is selected, the default icon and label are used.
+
 ### Toggle General Options
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/toggle_general_options.png" width="600"/>
@@ -174,7 +178,7 @@ All features can have a `Label`, `Icon`, and `Units` (dropdowns and selectors su
 
 Toggles have two extra icons for checked and unchecked states. These icons appear in the background of the default toggle, within the box of the checkbox toggle, and on the thumb of the switch toggles.
 
-Buttons, selectors, sliders, and toggles have design variants that can be changed here. These are based off of variants found within Home Assistant and Material Design. Most Material Design 3 button variants also support toggle styles (not to be confused with toggles, which have more in depth boolean logic) to style the button differently if its state is `off` or `on`.
+Buttons, dropdowns, selectors, sliders, and toggles have design variants that can be changed here. These are based off of variants found within Home Assistant and Material Design. Some Material Design 3 button variants also support toggle styles (not to be confused with toggles, which have more in depth boolean logic) to style the button differently if its state is `off` or `on`.
 
 ### A Note on Templating
 
@@ -300,14 +304,12 @@ Most features have additional custom CSS attributes which can be used to style t
 
 #### Dropdown CSS Attributes and HTML
 
-| Name                                | Description                                            |
-| ----------------------------------- | ------------------------------------------------------ |
-| --mdc-menu-item-height              | Height of each dropdown option.                        |
-| --mdc-theme-text-icon-on-background | Color of dropdown option icon in list.                 |
-| --mdc-list-side-padding-left        | Left padding of option.                                |
-| --mdc-list-side-padding-right       | Right padding of option.                               |
-| --mdc-list-side-padding             | Side padding of option, lower priority than above two. |
-| --mdc-list-item-graphic-margin      | Gap between option icon and label.                     |
+| Name                           | Description                                            |
+| ------------------------------ | ------------------------------------------------------ |
+| --mdc-list-side-padding-left   | Left padding of option.                                |
+| --mdc-list-side-padding-right  | Right padding of option.                               |
+| --mdc-list-side-padding        | Side padding of option, lower priority than above two. |
+| --mdc-list-item-graphic-margin | Gap between option icon and label.                     |
 
 ```html
 <custom-feature-dropdown>
@@ -472,21 +474,28 @@ Most features have additional custom CSS attributes which can be used to style t
 
 #### Toggle CSS Attributes and HTML
 
-| Name                                  | Description                                                                             |
-| ------------------------------------- | --------------------------------------------------------------------------------------- |
-| --checkbox-checked-border-color       | Border color of checked checkboxes.                                                     |
-| --checkbox-unchecked-border-color     | Border color of unchecked checkboxes.                                                   |
-| --checkbox-checked-icon-color         | Icon color of checked checkboxes.                                                       |
-| --checkbox-unchecked-icon-color       | Icon color of unchecked checkboxes.                                                     |
-| --switch-checked-button-color         | Handle color of checked switches.                                                       |
-| --switch-unchecked-button-color       | Handle color of unchecked switches.                                                     |
-| --switch-checked-button-state-layer   | Hover/focused/pressed handle overlay color for checked Material Design 3 switches.      |
-| --switch-unchecked-button-state-layer | Hover/focused/pressed handle overlay color for unchecked Material Design 3 switches.    |
-| --switch-checked-track-color          | Background color of checked switches.                                                   |
-| --switch-unchecked-track-color        | Background color of unchecked switches.                                                 |
-| --switch-unchecked-track-state-layer  | Hover/focused/pressed background overlay color for unchecked Material Design 3 switches |
-| --switch-checked-icon-color           | Icon color of checked switches.                                                         |
-| --switch-unchecked-icon-color         | Icon color of unchecked switches.                                                       |
+##### Checkbox
+
+| Name                                   | Description                             |
+| -------------------------------------- | --------------------------------------- |
+| --ha-checkbox-checked-background-color | Background color of checked checkboxes. |
+| --ha-checkbox-checked-border-color     | Border color of checked checkboxes.     |
+| --ha-checkbox-border-color             | Border color of unchecked checkboxes.   |
+| --ha-checkbox-checked-icon-color       | Icon color of checked checkboxes.       |
+
+##### Switch
+
+| Name                                             | Description                                                                             |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| --ha-switch-checked-thumb-background-color       | Handle color of checked switches.                                                       |
+| --ha-switch-thumb-background-color               | Handle color of unchecked switches.                                                     |
+| --ha-switch-checked-thumb-background-color-hover | Hover/focused/pressed handle overlay color for checked Material Design 3 switches.      |
+| --ha-switch-thumb-background-color-hover         | Hover/focused/pressed handle overlay color for unchecked Material Design 3 switches.    |
+| --ha-switch-checked-background-color             | Background color of checked switches.                                                   |
+| --ha-switch-background-color                     | Background color of unchecked switches.                                                 |
+| --ha-switch-track-state-layer                    | Hover/focused/pressed background overlay color for unchecked Material Design 3 switches |
+| --ha-switch-checked-icon-color                   | Icon color of checked switches.                                                         |
+| --ha-switch-icon-color                           | Icon color of unchecked switches.                                                       |
 
 ```html
 <!-- Default -->
@@ -689,6 +698,18 @@ A light tile with a button for each bulb, a color selector and dropdown, brightn
 <summary>Config</summary>
 
 ```yaml
+type: tile
+layout_options:
+  grid_columns: 4
+  grid_rows: 5
+entity: light.chandelier
+vertical: false
+icon_tap_action:
+  action: perform-action
+  perform_action: light.toggle
+  target:
+    entity_id: light.chandelier
+  confirmation: true
 features:
   - type: custom:service-call
     entries:
@@ -1064,27 +1085,27 @@ features:
         thumb: default
       - type: slider
         thumb: line
-        value_attribute: color_temp
+        value_attribute: color_temp_kelvin
         tap_action:
-          action: call-service
-          service: light.turn_on
+          action: perform-action
           target:
             entity_id: light.chandelier
-          data:
-            color_temp: '{{ value }}'
           confirmation: true
+          perform_action: light.turn_on
+          data:
+            color_temp_kelvin: '{{ value }}'
         label: '{{ value }}{{ unit }}'
         unit_of_measurement: ' Mireds'
         icon: mdi:thermometer
         range:
-          - '{{ state_attr("light.chandelier", "min_mireds") }}'
-          - '{{ state_attr("light.chandelier", "max_mireds") }}'
+          - '{{ state_attr("light.chandelier", "min_color_temp_kelvin") }}'
+          - '{{ state_attr("light.chandelier", "max_color_temp_kelvin") }}'
         step: 1
         entity_id: light.chandelier
         styles: |-
           :host {
             --label-color: var(--disabled-color);
-            --background: linear-gradient(-90deg, rgb(255, 167, 87), rgb(255, 255, 251));
+            --background: linear-gradient(90deg, rgb(255, 167, 87), rgb(255, 255, 251));
             --background-opacity: 1;
           }
     styles: ''
@@ -1167,19 +1188,7 @@ features:
             --label-color: var(--on-color);
           }
         debounce_time: 1004
-type: tile
-entity: light.chandelier
-layout_options:
-  grid_columns: 4
-  grid_rows: 5
-icon_tap_action:
-  action: perform-action
-  perform_action: light.toggle
-  target:
-    entity_id: light.chandelier
-  confirmation: true
 features_position: bottom
-vertical: false
 ```
 
 </details>
@@ -1999,7 +2008,7 @@ type: custom:custom-features-card
 
 ## Example 6
 
-A better looking temperature spinbox with hold on repeat, tile color, and an icon and label. Also an XKCD button that opens a different comic based on how long you hold it using momentary button mode, and two buttons that change background color based on their state.
+A better looking temperature spinbox with hold on repeat, tile color, and an icon and label. Also an XKCD button that opens a different comic based on how long you hold it using momentary button mode, some momentary button test code, two buttons that change background color based on their state, and an example of how to use a button as a transparent label.
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/spinbox_tile.png" width="600"/>
 
@@ -2008,17 +2017,23 @@ A better looking temperature spinbox with hold on repeat, tile color, and an ico
 <summary>Config</summary>
 
 ```yaml
+type: tile
+layout_options:
+  grid_columns: 4
+  grid_rows: 4
+entity: climate.downstairs_thermostat
+vertical: false
 features:
   - type: custom:service-call
     entries:
       - type: spinbox
         icon: mdi:thermometer
-        label: '{{ value }}{{ unit }}'
-        step: 1
+        label: '{{ number_translated(value, 1) }}{{ unit }}'
+        step: 0.5
         debounceTime: 1000
         range:
-          - '{{ state_attr(config.entity, "min_temp") }}'
-          - '{{ state_attr(config.entity, "max_temp") }}'
+          - '{{ state_attr("climate.downstairs_thermostat", "min_temp") }}'
+          - '{{ state_attr("climate.downstairs_thermostat", "max_temp") }}'
         value_attribute: temperature
         unit_of_measurement: °F
         hold_action:
@@ -2026,29 +2041,109 @@ features:
         entity_id: climate.downstairs_thermostat
         styles: |-
           :host {
-            --background: var(--feature-color);
-            --icon-color: var(--feature-color);
+            --background: var(--tile-color);
+            --icon-color: var(--tile-color);
             flex-flow: row;
           }
         tap_action:
           action: perform-action
-          perform_action: climate.set_temperature
           target:
             entity_id: climate.downstairs_thermostat
           data:
-            temperature: '{{ value }}'
+            temperature: '{{ value | float }}'
+          perform_action: climate.set_temperature
+      - type: spinbox
+        icon: mdi:test-tube
+        step: 1
+        debounceTime: 1000
+        range:
+          - '{{ state_attr("climate.downstairs_thermostat", "min_temp") }}'
+          - '{{ state_attr("climate.downstairs_thermostat", "max_temp") }}'
+        value_attribute: temperature
+        hold_action:
+          action: repeat
+        styles: |-
+          :host {
+            --background: var(--primary-color);
+          }
+        tap_action:
+          action: none
+        decrement:
+          entity_id: climate.downstairs_thermostat
+          tap_action:
+            action: eval
+            eval: console.log('Going Down!');
+        increment:
+          tap_action:
+            action: eval
+            eval: console.log('Going Up');
+          entity_id: climate.downstairs_thermostat
+          hold_action:
+            action: repeat
+        entity_id: climate.downstairs_thermostat
+    styles: ''
   - type: custom:service-call
     entries:
       - type: button
+        label: Temperature
+        icon: mdi:thermometer
+        styles: |-
+          :host {
+            flex-direction: row;
+            flex-basis: 400%;
+            justify-content: left;
+            gap: 24px;
+            margin-left: 12px;
+          }
+          .label {
+            width: unset;
+          }
+        autofill_entity_id: false
+        thumb: transparent
+      - type: button
+        entity_id: sensor.downstairs_indoor_temperature
+        styles: |-
+          .label {
+            text-align: center;
+          }
+        label: |-
+          Indoors
+          {{ value }}{{ unit }}
+        unit_of_measurement: ' °F'
+        thumb: transparent
+      - type: button
+        entity_id: sensor.upstairs_thermostat_current_temperature
+        styles: |-
+          .label {
+            text-align: center;
+          }
+        label: |-
+          Upstairs
+          {{ value }}{{ unit }}
+        unit_of_measurement: ' °F'
+        thumb: transparent
+      - type: button
+        entity_id: sensor.downstairs_outdoor_temperature
+        styles: |-
+          .label {
+            text-align: center;
+          }
+        label: |-
+          Outdoors
+          {{ value }}{{ unit }}
+        unit_of_measurement: ' °F'
+        thumb: transparent
+    styles: ''
+  - type: custom:service-call
+    entries:
+      - type: button
+        entity_id: climate.downstairs_thermostat
         label: XKCD
         value_from_hass_delay: 5000
         momentary_end_action:
           action: url
-          url_path: https://xkcd.com/{{ 1000* hold_secs }}
-        entity_id: climate.downstairs_thermostat
+          url_path: https://xkcd.com/{{ (1000 * hold_secs) | int }}
         value_attribute: state
-  - type: custom:service-call
-    entries:
       - type: button
         entity_id: sensor.cold_flu_index_today
         label: |-
@@ -2056,6 +2151,55 @@ features:
           {{ value }}
         value_attribute: state
         styles: ''
+        icon: ''
+        autofill_entity_id: false
+        momentary_end_action:
+          action: eval
+          eval: >-
+            const actionType = 'momentary_end_action'
+
+            const message = `${actionType} - ${Math.floor(this.momentaryEnd -
+            this.momentaryStart)}ms`
+
+            console.log(message)
+
+            const event = new Event('hass-notification', { bubbles: true,
+            composed: true })
+
+            event.detail = { message }
+
+            this.dispatchEvent(event)
+        momentary_start_action:
+          action: eval
+          eval: >-
+            const actionType = 'momentary_start_action'
+
+            const message = `${actionType}`
+
+            console.log(message)
+
+            const event = new Event('hass-notification', { bubbles: true,
+            composed: true })
+
+            event.detail = { message }
+
+            this.dispatchEvent(event)
+        momentary_repeat_action:
+          action: eval
+          eval: >-
+            const actionType = 'momentary_repeat_action'
+
+            const message = `${actionType} - ${Math.floor(this.momentaryEnd -
+            this.momentaryStart)}ms`
+
+            console.log(message)
+
+            const event = new Event('hass-notification', { bubbles: true,
+            composed: true })
+
+            event.detail = { message }
+
+            this.dispatchEvent(event)
       - type: button
         entity_id: sensor.cold_flu_index_today
         label: |-
@@ -2072,15 +2216,14 @@ features:
           target:
             entity_id: sensor.cold_flu_index_today
           confirmation:
+            text: Show Cold & Flu Index?
             exemptions:
-              - user: 7e9bf9d73edc48df8ece5cec7e9a4f00
               - user: af773a442cd7493f8178f7c23b7882d7
-            text: Display Cold & Flu Index?
-type: tile
-entity: climate.downstairs_thermostat
-layout_options:
-  grid_columns: 4
-  grid_rows: 4
+              - user: 7e9bf9d73edc48df8ece5cec7e9a4f00
+          data: {}
+        autofill_entity_id: false
+    styles: ''
+features_position: bottom
 ```
 
 </details>
