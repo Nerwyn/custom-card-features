@@ -41,13 +41,15 @@ Buttons are the most basic type of custom feature, being based on the example pr
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/dropdowns_tile.png" width="600"/>
 
-Dropdowns allow you to create a dropdown window with multiple user provided options, similar to those available for select entities and climate attributes. Clicking on the dropdown will show you all of the available options. Like all features in this project each option can be used for any action. The Dropdown window itself does not have an icon or label, but each option has their own appearance fields and the currently selected option will be displayed in the dropdown window.
+Dropdowns allow you to create a dropdown window with multiple user provided options, similar to those available for select entities and climate attributes. Clicking on the dropdown will show you all of the available options. Like all features in this project each option can be used for any action. Each dropdown option has their own appearance fields and the currently selected option will be displayed in the dropdown window. The dropdown also has a default icon and label field which will be displayed if there is no selected option.
 
 You need to define the options to be listed out in the dropdown list manually. Each of these options is a custom element that supports an action and its own appearance fields. The currently selected option is the one whose `Option` field matches the state or attribute value of the dropdown parent entity.
 
 This feature works best with Home Assistant `select/input_select` entities. By setting the feature entity to one of these domains and leaving autofill enabled, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the `select_option` action information. If no icon or label is provided, the option will use its option as its label.
 
 You can override the default behavior of each option by changing their action. The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be displayed in the dropdown window. You can use a template in the parent attribute field for more advanced matching.
+
+You can also choose to not give any of the dropdown options `Option` values, so that none are ever marked as the selected option. This makes it so that the default dropdown icon and label are always displayed, and the dropdown feature becomes more of a menu for firing different actions rather than one for selecting an option.
 
 ## Inputs
 
