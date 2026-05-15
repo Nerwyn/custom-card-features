@@ -647,7 +647,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				.md3-thumb-active-track-corner,
 				:host([dir='rtl']) .md3-thumb-inactive-track-corner {
 					box-shadow: 2px 0 0
-						var(--ha-card-background, var(--card-background-color, #fff));
+						var(
+							--md-slider-thumb-background,
+							var(--ha-card-background, var(--card-background-color, #fff))
+						);
 				}
 				.md3-thumb-inactive-track-corner {
 					inset-inline-end: -6px;
@@ -657,7 +660,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				.md3-thumb-inactive-track-corner,
 				:host([dir='rtl']) .md3-thumb-active-track-corner {
 					box-shadow: -2px 0 0
-						var(--ha-card-background, var(--card-background-color, #fff));
+						var(
+							--md-slider-thumb-background,
+							var(--ha-card-background, var(--card-background-color, #fff))
+						);
 				}
 				.md3-slider .icon-label {
 					flex-direction: row;

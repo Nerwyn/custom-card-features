@@ -19,6 +19,16 @@ Call any [action](https://www.home-assistant.io/dashboards/actions/) via card fe
 
 This project also includes a custom card - custom features card. Think of it like a vertical stack for custom features rows. It doesn't have its own entity or actions, but can be used to create custom features rows without anything else in the card.
 
+## Custom Features Card
+
+If you want to use these features without a normal parent card, you can! Create a custom features card and then create custom features rows within that. You can go even further and increase feature height and set the card to transparent to use the custom features as cards themselves.
+
+## Material Design 3 Variants
+
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/material_design_features.png" width="600"/>
+
+Buttons, dropdowns, selectors, sliders, and toggles (and technically inputs which are already Material Design 3 friendly) have Material Design 3 variants designed using the [Material Design 3 specifications](https://m3.material.io/). While they can be used with any theme, they work best with Material You [Theme](https://github.com/Nerwyn/material-you-theme) and [Utilities](https://github.com/Nerwyn/material-you-utilities). These variants will follow theme palette colors rather than parent card colors.
+
 # Feature Types
 
 ## Buttons
@@ -92,16 +102,6 @@ Toggles have a special template variable `checked`. `checked` gives you the curr
 In addition to the default Home Assistant toggle feature style toggle, you can also make the toggle appear as a Material Design checkbox, a Material Design 2 switch, or a Material Design 3 switch. The Material Design checkbox and switch options use theme colors instead of the feature color, and have been carefully designed to follow the Material Design specifications. See the [styles section](#css-styles) below for more information on which variables they use. If you choose one of the checkbox or switch options and do not provide an icon or label, the feature will only use the minimum width necessary to show the toggle, instead of being equal width to any other features in the row.
 
 Toggles feature three icons! There's the icon normally shown alongside the label, and additional checked and unchecked icons. For the default toggle the normal icon and label will appear on the toggle thumb while the checked/unchecked icons will appear in the toggle background. For the Material Design toggle options, the normal icon and label will appear inline with the checkbox/switch, and the checked/unchecked icons will appear within the checkbox or on the switch thumb.
-
-## Material Design 3 Variants
-
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/material_design_features.png" width="600"/>
-
-Buttons, dropdowns, selectors, sliders, and toggles (and technically inputs which are already Material Design 3 friendly) have Material Design 3 variants designed using the [Material Design 3 specifications](https://m3.material.io/). While they can be used with any theme, they work best with Material You [Theme](https://github.com/Nerwyn/material-you-theme) and [Utilities](https://github.com/Nerwyn/material-you-utilities). When used with this theme and its companion module, the Material Design 3 variants will follow theme colors rather than parent card colors.
-
-## Custom Features Card
-
-If you want to use these features without a normal parent card, you can! Create a custom features card and then create custom features rows within that. You can go even further and increase feature height and set the card to transparent to use the custom features as cards themselves.
 
 # How To Use
 
