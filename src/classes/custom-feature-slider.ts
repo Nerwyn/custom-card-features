@@ -168,11 +168,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 	buildMD3Thumb() {
 		return this.thumbType == 'md3-slider'
-			? html`<div class="md3-thumb" part="md3-thumb">
-					<div class="md3-thumb-active-track-corner"></div>
-					<div class="md3-thumb-line"></div>
-					<div class="md3-thumb-inactive-track-corner"></div>
-				</div>`
+			? html`<div class="md3-thumb" part="md3-thumb"></div>`
 			: '';
 	}
 
@@ -575,6 +571,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						)
 					);
 					opacity: var(--background-opacity, 1);
+					translate: calc(var(--thumb-offset) + 50% + 8px) 0;
+					transition: var(--thumb-transition);
+					border-start-start-radius: 2px;
+					border-end-start-radius: 2px;
 				}
 				.md3-slider .tick.active {
 					background: var(--on-active-track-color);
@@ -584,42 +584,16 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 				.md3-thumb {
 					background: var(
-						--md-slider-thumb-background,
-						var(--ha-card-background, var(--card-background-color, #fff))
+						--color,
+						var(--md-sys-color-primary, var(--ha-sys-color-primary))
 					);
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					height: var(--md-slider-thumb-height);
-					width: 16px;
+					height: max(calc(var(--feature-height) + 12px), 44px);
+					width: 4px;
+					border-radius: 4px;
 					position: absolute;
 					translate: var(--thumb-translate);
 					transition: var(--thumb-transition);
 					pointer-events: none;
-
-					--md-slider-thumb-height: max(
-						calc(var(--feature-height) + 12px),
-						44px
-					);
-				}
-				:host(:focus-visible) .md3-thumb,
-				:host([pressed]) .md3-thumb {
-					scale: 0.66667 1;
-				}
-				.md3-thumb-line {
-					content: '';
-					height: 100%;
-					width: 4px;
-					border-radius: 4px;
-					background: var(
-						--color,
-						var(--md-sys-color-primary, var(--ha-sys-color-primary))
-					);
-					transition: var(--thumb-transition);
-				}
-				:host(:focus-visible) .md3-thumb-line,
-				:host([pressed]) .md3-thumb-line {
-					scale: 0.75 1;
 				}
 				.md3-slider .thumb .active {
 					height: 100%;
@@ -627,43 +601,25 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 						--color,
 						var(--md-sys-color-primary, var(--ha-sys-color-primary))
 					);
-					inset-inline-end: 6px;
+					border-start-end-radius: 2px;
+					border-end-end-radius: 2px;
+					translate: -8px 0;
+					transition: var(--thumb-transition);
+				}
+				:host(:focus-visible) .md3-thumb,
+				:host([pressed]) .md3-thumb {
+					scale: 0.5 1;
+				}
+				:host(:focus-visible) .md3-slider .background,
+				:host([pressed]) .md3-slider .background {
+					translate: calc(var(--thumb-offset) + 50% + 6px) 0;
+				}
+				:host(:focus-visible) .md3-slider .thumb .active,
+				:host([pressed]) .md3-slider .thumb .active {
+					translate: -6px 0;
 				}
 				:host(:focus-visible):has(.md3-slider) {
 					box-shadow: none;
-				}
-				.md3-thumb-active-track-corner,
-				.md3-thumb-inactive-track-corner {
-					position: relative;
-					overflow: hidden;
-					height: var(--md-slider-thumb-height);
-					width: 4px;
-				}
-				.md3-thumb-active-track-corner {
-					inset-inline-start: -6px;
-					border-start-end-radius: 2px;
-					border-end-end-radius: 2px;
-				}
-				.md3-thumb-active-track-corner,
-				:host([dir='rtl']) .md3-thumb-inactive-track-corner {
-					box-shadow: 2px 0 0
-						var(
-							--md-slider-thumb-background,
-							var(--ha-card-background, var(--card-background-color, #fff))
-						);
-				}
-				.md3-thumb-inactive-track-corner {
-					inset-inline-end: -6px;
-					border-start-start-radius: 2px;
-					border-end-start-radius: 2px;
-				}
-				.md3-thumb-inactive-track-corner,
-				:host([dir='rtl']) .md3-thumb-active-track-corner {
-					box-shadow: -2px 0 0
-						var(
-							--md-slider-thumb-background,
-							var(--ha-card-background, var(--card-background-color, #fff))
-						);
 				}
 				.md3-slider .icon-label {
 					flex-direction: row;
@@ -765,7 +721,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					);
 					opacity: 0.38;
 				}
-				.md3-slider.off ~ .md3-thumb .md3-thumb-line {
+				.md3-slider.off ~ .md3-thumb {
 					background: var(
 						--color,
 						var(--md-sys-color-on-surface, var(--ha-sys-color-on-surface))

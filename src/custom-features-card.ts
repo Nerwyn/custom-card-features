@@ -133,11 +133,6 @@ export class CustomFeaturesCard extends LitElement {
 				all: unset;
 				display: flex;
 				flex-direction: column;
-
-				--md-slider-thumb-background: var(
-					--lovelace-background,
-					var(--primary-background-color)
-				);
 			}
 
 			service-call {
