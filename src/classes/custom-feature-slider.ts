@@ -576,6 +576,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 					border-start-start-radius: 2px;
 					border-end-start-radius: 2px;
 				}
+				.md3-slider .ticks {
+					width: calc(100% - 8px);
+				}
 				.md3-slider .tick.active {
 					background: var(--on-active-track-color);
 				}
