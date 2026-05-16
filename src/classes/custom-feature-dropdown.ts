@@ -718,8 +718,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					background: transparent;
 					border: none;
 					box-shadow: none;
-					padding: 8px 0;
-					overflow: visible;
+					padding: 8px;
 					gap: 4px;
 					align-items: flex-end;
 					translate: calc(var(--feature-height) - 100%) 0;
