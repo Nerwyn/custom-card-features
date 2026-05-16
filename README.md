@@ -29,6 +29,8 @@ If you want to use these features without a normal parent card, you can! Create 
 
 Buttons, dropdowns, selectors, sliders, and toggles (and technically inputs which are already Material Design 3 friendly) have Material Design 3 variants designed using the [Material Design 3 specifications](https://m3.material.io/). While they can be used with any theme, they work best with Material You [Theme](https://github.com/Nerwyn/material-you-theme) and [Utilities](https://github.com/Nerwyn/material-you-utilities). These variants will follow theme palette colors rather than parent card colors.
 
+To select one of these variants, use the `Type` dropdown menu in the feature's appearance panel.
+
 # Feature Types
 
 ## Buttons
