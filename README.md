@@ -2455,4 +2455,3 @@ transparent: true
 ```
 
 </details>
-```
