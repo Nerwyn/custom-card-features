@@ -2366,6 +2366,8 @@ features:
             entity_id:
               - '{{ config.entity }}'
           data: {}
+        hold_action:
+          action: more-info
         styles: |-
           :host {
             justify-content: flex-start;

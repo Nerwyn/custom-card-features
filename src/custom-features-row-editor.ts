@@ -1042,7 +1042,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				)}
 			</div>
 			${this.buildAppearancePanel(
-				parentEntry
+				html`${parentEntry
 					? html``
 					: html`
 							${this.buildSelector(
@@ -1124,8 +1124,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 										false,
 									)
 								: ''}
-							${this.buildCommonAppearanceOptions()}
-						`,
+						`}${this.buildCommonAppearanceOptions()}`,
 			)}
 			${this.buildInteractionsPanel(actionSelectors)}
 		`;
