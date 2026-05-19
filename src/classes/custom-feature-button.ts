@@ -303,8 +303,15 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				'.hold-indicator',
 			) as HTMLElement;
 			if (holdIndicator) {
-				holdIndicator.style.setProperty('left', `${this.initialX ?? 0}px`);
-				holdIndicator.style.setProperty('top', `${this.initialY ?? 0}px`);
+				const rect = this.getBoundingClientRect();
+				holdIndicator.style.setProperty(
+					'left',
+					`${(this.initialX ?? 0) - rect.left}px`,
+				);
+				holdIndicator.style.setProperty(
+					'top',
+					`${(this.initialY ?? 0) - rect.top}px`,
+				);
 			}
 		} else {
 			this.removeAttribute('hold');
@@ -357,7 +364,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				}
 
 				.hold-indicator {
-					position: fixed;
+					position: absolute;
 					height: 50px;
 					width: 50px;
 					background: var(--primary-color);
