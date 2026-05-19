@@ -66,13 +66,19 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 			// Calculate dropdown height without vertical scroll
 			const optionHeight =
 				this.shadowRoot?.querySelector('.option')?.clientHeight ?? 40;
-			const dropdownHeight0 =
-				optionHeight * (this.config.options?.length ?? 0) + 8;
+			let dropdownHeight0: number;
+			const nOptions = this.config.options?.length ?? 0;
+			if (this.className.includes('md3-fab')) {
+				dropdownHeight0 = optionHeight * nOptions + 16 + (nOptions - 1) * 4;
+			} else {
+				dropdownHeight0 = optionHeight * nOptions + 10;
+			}
 
 			// Determine dropdown direction
 			const rect = this.getBoundingClientRect();
-			const edgeOffset = 32;
+			const edgeOffset = 10;
 			let down = true;
+			let dropdownHeight: number;
 			if (
 				// If dropdown is too large
 				dropdownHeight0 > window.innerHeight - edgeOffset - rect.bottom &&
@@ -80,41 +86,17 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				rect.top + rect.bottom > window.innerHeight
 			) {
 				down = false;
-			}
-
-			const dropdownElement = this.shadowRoot?.querySelector(
-				'.dropdown',
-			) as HTMLElement;
-			dropdownElement.style.setProperty(
-				'max-height',
-				`${(down ? window.innerHeight - rect.bottom : rect.top) - edgeOffset - 16}px`,
-			);
-			if (this.rtl) {
-				dropdownElement.style.setProperty(
-					'right',
-					`${document.documentElement.clientWidth - rect.right}px`,
-				);
+				dropdownHeight = rect.top - edgeOffset;
 			} else {
-				dropdownElement.style.setProperty('left', `${rect.left}px`);
+				dropdownHeight = window.innerHeight - rect.bottom - edgeOffset;
 			}
-			dropdownElement.style.setProperty(
-				down ? 'top' : 'bottom',
-				`${down ? rect.bottom : document.documentElement.clientHeight - rect.top}px`,
-			);
-			dropdownElement.style.removeProperty(down ? 'bottom' : 'top');
-			if (this.thumbType.includes('md3')) {
-				if (this.thumbType.includes('md3-fab')) {
-					dropdownElement.style.setProperty(
-						'transform-origin',
-						this.rtl ? 'left' : 'right',
-					);
-				} else {
-					dropdownElement.style.setProperty(
-						'transform-origin',
-						down ? 'top' : 'bottom',
-					);
-				}
-			}
+			dropdownHeight = Math.min(dropdownHeight, dropdownHeight0);
+
+			this.style.setProperty('--dropdown-height', `${dropdownHeight}px`);
+			this.setAttribute('menu-dir', down ? 'down' : 'up');
+		} else {
+			this.style.removeProperty('--dropdown-height');
+			this.removeAttribute('menu-dir');
 		}
 	}
 
@@ -369,7 +351,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					letter-spacing: 0.25px;
 				}
 				.dropdown {
-					position: fixed;
+					position: absolute;
 					z-index: 8;
 					display: flex;
 					flex-direction: column;
@@ -380,6 +362,9 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					border-radius: var(--wa-border-radius-m, 8px);
 					padding: var(--ha-space-1, 4px);
 					height: 0px;
+					max-height: var(--dropdown-height, 0px);
+					left: 0px;
+					top: var(--feature-height, 40px);
 					box-sizing: border-box;
 					will-change: transform, opacity;
 					overflow-y: auto;
@@ -390,6 +375,14 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 						transform 0.12s cubic-bezier(0, 0, 0.2, 1),
 						height 250ms cubic-bezier(0, 0, 0.2, 1);
 					box-shadow: var(--wa-shadow-m);
+				}
+				:host([dir='rtl']) .dropdown {
+					left: unset;
+					right: 0px;
+				}
+				:host([menu-dir='up']) .dropdown {
+					top: unset;
+					bottom: var(--feature-height, 40px);
 				}
 				:host([open]) .dropdown {
 					height: min-content;
@@ -481,7 +474,11 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					border-radius: var(--md-sys-shape-corner-large, 16px);
 					box-shadow: var(--md-sys-elevation-level2, var(--ha-box-shadow-m));
 					transform: scale(1, 0);
+					transform-origin: top;
 					transition: none;
+				}
+				:host([menu-dir='up'].md3) .dropdown {
+					transform-origin: bottom;
 				}
 				:host([open].md3) .dropdown {
 					transform: scale(1, 1);
@@ -724,10 +721,12 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					scrollbar-width: none;
 					translate: calc(var(--feature-height) - 100%) 0;
 					transform: scale(0, 1);
+					transform-origin: right;
 					transition: none;
 				}
 				:host([dir='rtl'].md3-fab) .dropdown {
 					translate: calc(100% - var(--feature-height)) 0;
+					transform-origin: left;
 				}
 				:host([open].md3-fab) .dropdown {
 					transform: scale(1, 1);
