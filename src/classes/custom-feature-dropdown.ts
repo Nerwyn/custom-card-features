@@ -719,13 +719,13 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 					gap: 4px;
 					align-items: flex-end;
 					scrollbar-width: none;
-					translate: calc(var(--feature-height) - 100%) 0;
+					translate: calc(var(--feature-height) - 100% + 8px) 0;
 					transform: scale(0, 1);
 					transform-origin: right;
 					transition: none;
 				}
 				:host([dir='rtl'].md3-fab) .dropdown {
-					translate: calc(100% - var(--feature-height)) 0;
+					translate: calc(100% - var(--feature-height) - 8px) 0;
 					transform-origin: left;
 				}
 				:host([open].md3-fab) .dropdown {
