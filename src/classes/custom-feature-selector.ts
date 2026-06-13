@@ -119,17 +119,6 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 		const should = super.shouldUpdate(changedProperties);
 		const optionsChanged = this.setOptions();
 		if (
-			optionsChanged &&
-			!changedProperties.has('hass') &&
-			!changedProperties.has('stateObj') &&
-			!changedProperties.has('value')
-		) {
-			// Options can rebuild on a config-only update, which the base class
-			// ignores, leaving the derived value stale. Refresh it so the correct
-			// option is highlighted in updated().
-			this.setValue();
-		}
-		if (
 			changedProperties.has('hass') ||
 			changedProperties.has('stateObj') ||
 			changedProperties.has('value')

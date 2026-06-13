@@ -172,23 +172,13 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 		const optionsChanged = this.setOptions();
 		if (optionsChanged) {
 			should = true;
-			// Options can rebuild on a config-only update, which the base class
-			// ignores, leaving the derived entity/attribute stale. Refresh them
-			// before they are used to render the selected option below.
-			if (
-				!changedProperties.has('hass') &&
-				!changedProperties.has('stateObj') &&
-				!changedProperties.has('value')
-			) {
-				this.setValue();
-			}
 		}
 		if (
 			changedProperties.has('hass') ||
 			changedProperties.has('stateObj') ||
 			changedProperties.has('value') ||
 			// Rebuilt options can change which option is selected and how its
-			// thumb renders, so recompute even on config-only updates.
+			// thumb renders, so recompute when they do.
 			optionsChanged
 		) {
 			let thumbType = this.renderTemplate(

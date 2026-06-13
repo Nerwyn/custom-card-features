@@ -317,7 +317,9 @@ export function buildTemplatedOption(
 	let icon: unknown;
 	if (item != null && typeof item == 'object') {
 		const record = item as Record<string, unknown>;
-		label = record.label ?? record.name ?? record.friendly_name ?? record.title;
+		// `||` so a blank string falls through to the next alias rather than
+		// becoming an empty label.
+		label = record.label || record.name || record.friendly_name || record.title;
 		// Fall back to the label aliases for the value so that an item providing
 		// only e.g. `name` is still selectable, not given an empty option value.
 		value =
@@ -326,7 +328,7 @@ export function buildTemplatedOption(
 	}
 
 	option.option = String(value);
-	if (label != undefined && option.label == undefined) {
+	if (label && option.label == undefined) {
 		option.label = String(label);
 	}
 	if (icon != undefined && option.icon == undefined) {

@@ -556,7 +556,7 @@ export class BaseCustomFeature extends LitElement {
 		}
 		this.optionsSignature = source.signature;
 		this.options = source.items
-			.filter((item) => item != null && item !== '')
+			.filter(Boolean)
 			.map((item) => this.buildOption(item, source.attribute));
 		return true;
 	}
@@ -570,18 +570,14 @@ export class BaseCustomFeature extends LitElement {
 	private resolveAttributeSource():
 		| { entityId: string; attribute: string }
 		| undefined {
-		// An explicit `options` template wins over leftover attribute-source
+		// No attribute source when no attribute fields are set, or when an explicit
+		// `options` template is present (it wins over leftover attribute-source
 		// fields, so a hand-written config containing both renders the template
-		// instead of silently reading the attribute.
+		// instead of silently reading the attribute).
 		if (
-			typeof this.config.options == 'string' &&
-			this.config.options.trim()
-		) {
-			return undefined;
-		}
-		if (
-			this.config.options_attribute === undefined &&
-			this.config.options_entity === undefined
+			(this.config.options_attribute === undefined &&
+				this.config.options_entity === undefined) ||
+			(typeof this.config.options == 'string' && this.config.options.trim())
 		) {
 			return undefined;
 		}

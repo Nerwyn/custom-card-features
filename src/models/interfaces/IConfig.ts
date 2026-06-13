@@ -55,6 +55,18 @@ export interface IOption extends IEntry {
 
 export interface IDropdownSelectorOptions {
 	/**
+	 * Which source the dropdown/selector builds its options from, set by the
+	 * editor's "Options source" picker:
+	 * - `list`: an explicit list of option objects in `options` (the default).
+	 * - `attribute`: a list read from `options_attribute`/`options_entity`.
+	 * - `template`: an `options` template string that renders to a list.
+	 *
+	 * When omitted (e.g. a hand-written config) the source is inferred from the
+	 * shape of the other option fields.
+	 */
+	optionType?: 'list' | 'attribute' | 'template';
+
+	/**
 	 * The options to list out: either an explicit list of options (the original
 	 * behavior) or a template string that renders to a list. To read a list from
 	 * an entity attribute, use {@link IDropdownSelectorOptions.options_attribute}.
