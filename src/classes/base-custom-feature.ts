@@ -555,8 +555,10 @@ export class BaseCustomFeature extends LitElement {
 			return false;
 		}
 		this.optionsSignature = source.signature;
+		// Drop only empty items — `0`/`false` are valid option values, so a plain
+		// truthiness check would wrongly discard them from numeric/boolean lists.
 		this.options = source.items
-			.filter(Boolean)
+			.filter((item) => item != null && item !== '')
 			.map((item) => this.buildOption(item, source.attribute));
 		return true;
 	}
@@ -570,14 +572,20 @@ export class BaseCustomFeature extends LitElement {
 	private resolveAttributeSource():
 		| { entityId: string; attribute: string }
 		| undefined {
-		// No attribute source when no attribute fields are set, or when an explicit
-		// `options` template is present (it wins over leftover attribute-source
-		// fields, so a hand-written config containing both renders the template
+		// An explicit `optionType` selects the source directly. Without it, infer
+		// from the option fields: no attribute source when no attribute fields are
+		// set, or when an `options` template is present (it wins over leftover
+		// attribute-source fields, so a config containing both renders the template
 		// instead of silently reading the attribute).
+		const optionType = this.config.optionType;
 		if (
-			(this.config.options_attribute === undefined &&
-				this.config.options_entity === undefined) ||
-			(typeof this.config.options == 'string' && this.config.options.trim())
+			optionType == 'list' ||
+			optionType == 'template' ||
+			(optionType != 'attribute' &&
+				((this.config.options_attribute === undefined &&
+					this.config.options_entity === undefined) ||
+					(typeof this.config.options == 'string' &&
+						this.config.options.trim())))
 		) {
 			return undefined;
 		}
@@ -665,8 +673,15 @@ export class BaseCustomFeature extends LitElement {
 			};
 		}
 
-		// Template source.
-		if (typeof config == 'string' && config.trim()) {
+		// Template source. Only when the source is a template (explicitly, or
+		// inferred when `optionType` is absent), so a stale `options` string left
+		// over from another mode is not rendered against the explicit contract.
+		if (
+			(this.config.optionType == undefined ||
+				this.config.optionType == 'template') &&
+			typeof config == 'string' &&
+			config.trim()
+		) {
 			const rendered = String(this.renderTemplate(config));
 			return {
 				items: parseOptionsList(rendered),

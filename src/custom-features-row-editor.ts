@@ -2676,6 +2676,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 		if (
 			!template.double_tap_action &&
 			!template.hold_action &&
+			!template.momentary_start_action &&
+			!template.momentary_repeat_action &&
+			!template.momentary_end_action &&
 			(!existing || managed)
 		) {
 			const action = defaultOptionAction(
