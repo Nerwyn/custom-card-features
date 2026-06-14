@@ -579,7 +579,7 @@ export class BaseCustomFeature extends LitElement {
 		// instead of silently reading the attribute).
 		const optionType = this.config.optionType;
 		if (
-			optionType == 'list' ||
+			optionType == 'default' ||
 			optionType == 'template' ||
 			(optionType != 'attribute' &&
 				((this.config.options_attribute === undefined &&

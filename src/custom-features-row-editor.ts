@@ -48,6 +48,7 @@ import {
 	InputType,
 	IOption,
 	ITarget,
+	OptionType,
 	ThumbType,
 	UncheckedValues,
 } from './models/interfaces';
@@ -338,7 +339,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	/** Which options source the active dropdown/selector is currently using. */
-	get optionsMode(): 'list' | 'attribute' | 'template' {
+	get optionsMode(): OptionType {
 		return this.activeEntry?.optionType ?? this.inferOptionType(this.activeEntry);
 	}
 
@@ -348,7 +349,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	 * `options` template wins over leftover attribute-source fields, matching the
 	 * runtime precedence in resolveAttributeSource().
 	 */
-	inferOptionType(entry?: IEntry): 'list' | 'attribute' | 'template' {
+	inferOptionType(entry?: IEntry): OptionType {
 		const options = entry?.options;
 		if (typeof options == 'string' && options.trim()) {
 			return 'template';
@@ -362,12 +363,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 		if (typeof options == 'string') {
 			return 'template';
 		}
-		return 'list';
+		return 'default';
 	}
 
 	/** Switch the options source, clearing the fields owned by the other modes. */
 	setOptionsMode(e: Event) {
-		const mode = (e.detail.value ?? 'list') as 'list' | 'attribute' | 'template';
+		const mode = (e.detail.value ?? 'default') as OptionType;
 		if (mode == this.optionsMode) {
 			return;
 		}
@@ -385,7 +386,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			case 'template':
 				entry.options = '';
 				break;
-			case 'list':
+			case 'default':
 			default:
 				entry.options = [];
 				break;
@@ -1546,7 +1547,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				select: {
 					mode: 'dropdown',
 					options: [
-						{ value: 'list', label: 'Manual list' },
+						{ value: 'default', label: 'Manual list' },
 						{ value: 'attribute', label: 'Entity attribute' },
 						{ value: 'template', label: 'Template' },
 					],
@@ -1558,7 +1559,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			@value-changed=${this.setOptionsMode}
 		></ha-selector>`;
 
-		if (mode == 'list') {
+		if (mode == 'default') {
 			return html`<div class="form">${modePicker}</div>
 				<div class="">
 					${this.buildEntryList('option')}${this.buildAddEntryButton('option')}
@@ -2734,7 +2735,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 						// label and a sensible default action so it works out of the box.
 						const optionType =
 							entry.optionType ?? this.inferOptionType(entry);
-						if (optionType != 'list') {
+						if (optionType != 'default') {
 							if (optionType == 'attribute') {
 								const sourceEntity = this.renderTemplate(
 									(entry.options_entity || entry.entity_id || '') as string,
