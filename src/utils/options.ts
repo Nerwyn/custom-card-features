@@ -4,7 +4,9 @@ import type { IOption } from '../models/interfaces';
 const SELECT_DOMAINS = ['select', 'input_select'];
 
 // Domains that provide a set_preset_mode service for the preset_modes attribute.
-const PRESET_MODE_DOMAINS = ['climate', 'fan', 'humidifier'];
+// Humidifiers are excluded: they expose modes via `available_modes`/`mode` and
+// `humidifier.set_mode`, not a preset-mode service.
+const PRESET_MODE_DOMAINS = ['climate', 'fan'];
 
 // List-valued attributes that describe capabilities/metadata rather than
 // selectable options, so they are not offered as an options source.
@@ -125,8 +127,8 @@ export function defaultOptionAction(
 	domain: string,
 	attribute: string,
 ): IOptionAction | undefined {
-	// preset_modes is shared by climate, fan, and humidifier. Only those domains
-	// provide set_preset_mode, so a feature controlling another domain (e.g. an
+	// preset_modes is shared by climate and fan. Only those domains provide
+	// set_preset_mode, so a feature controlling another domain (e.g. an
 	// input_select sourcing preset_modes via options_entity) gets no default.
 	if (attribute == 'preset_modes') {
 		return PRESET_MODE_DOMAINS.includes(domain)
@@ -170,7 +172,6 @@ const DEFAULT_ACTION_DATA_KEYS = new Map<string, string>([
 	),
 	['climate.set_preset_mode', 'preset_mode'],
 	['fan.set_preset_mode', 'preset_mode'],
-	['humidifier.set_preset_mode', 'preset_mode'],
 	['select.select_option', 'option'],
 	['input_select.select_option', 'option'],
 ]);
