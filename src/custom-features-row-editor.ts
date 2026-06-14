@@ -1609,22 +1609,15 @@ export class CustomFeaturesRowEditor extends LitElement {
 					})}`;
 
 		// The template applies to every generated option rather than identifying a
-		// single one, so show just a header and edit button — no per-option
-		// label/icon preview.
+		// single one, so show just the header and an edit button — no feature-list
+		// row or per-option label/icon preview.
 		return html`<div class="form">${modePicker}</div>
 			${sourceFields}
-			<div class="entry-list-header">Option Template</div>
-			<div class="features">
-				<div class="feature-list-item">
-					<div class="feature-list-item-content">
-						<div class="feature-list-item-label">
-							<span class="primary">Every generated option</span>
-						</div>
-					</div>
-					<ha-icon-button class="edit-icon" @click=${this.editOptionTemplate}>
-						<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
-					</ha-icon-button>
-				</div>
+			<div class="entry-list-header">
+				Option Template
+				<ha-icon-button class="edit-icon" @click=${this.editOptionTemplate}>
+					<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
+				</ha-icon-button>
 			</div>`;
 	}
 
