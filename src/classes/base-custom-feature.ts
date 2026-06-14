@@ -526,10 +526,21 @@ export class BaseCustomFeature extends LitElement {
 	setOptions(): boolean {
 		const config = this.config.options;
 
+		// An explicit dynamic source wins over a leftover `options` array, so a
+		// config that gained an attribute source (or a non-default optionType) but
+		// still carries the old array renders the configured dynamic list instead
+		// of the stale array. This mirrors how the editor classifies the source.
+		const hasDynamicSource =
+			this.config.optionType == 'attribute' ||
+			this.config.optionType == 'template' ||
+			(this.config.optionType == undefined &&
+				(this.config.options_attribute !== undefined ||
+					this.config.options_entity !== undefined));
+
 		// Explicit list of options (backwards compatible, unchanged behavior). The
 		// signature snapshot detects in-place edits to option objects, which a
 		// reference comparison would miss.
-		if (Array.isArray(config)) {
+		if (Array.isArray(config) && !hasDynamicSource) {
 			const signature = `list:${JSON.stringify(config)}`;
 			if (signature == this.optionsSignature) {
 				return false;
