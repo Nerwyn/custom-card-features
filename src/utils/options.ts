@@ -1,4 +1,3 @@
-import { load } from 'js-yaml';
 import type { IOption } from '../models/interfaces';
 
 const SELECT_DOMAINS = ['select', 'input_select'];
@@ -220,16 +219,13 @@ export function unescapeHtml(str: string): string {
 /**
  * Coerce the rendered result of an `options` template into an array of items.
  *
- * Templates that resolve to a list can be expressed in several ways, all of
- * which are supported here:
- * - A native array (when the renderer hands one back directly).
- * - A JSON or YAML array string, e.g. from `{{ my_list | dump }}` (with or
- *   without HTML escaping) or a hand written `["a", "b"]`.
- * - A plain delimited string, e.g. the default `{{ state_attr(...) }}` output
- *   `a,b,c`, or a newline separated list.
+ * - An attribute source hands back a native array, which is used as-is.
+ * - A template source renders to a string: either the default comma-joined list
+ *   output (e.g. `{{ state_attr(...) }}` → `a,b,c`) or a newline-separated list.
+ *   Newlines take precedence over commas, so values containing commas can be
+ *   expressed with a `join('\n')` template.
  *
- * Each returned item is either a primitive (string/number) or an object that
- * {@link buildTemplatedOption} maps into an option.
+ * Each returned item is a primitive (string/number).
  */
 export function parseOptionsList(rendered: unknown): unknown[] {
 	if (Array.isArray(rendered)) {
@@ -242,57 +238,17 @@ export function parseOptionsList(rendered: unknown): unknown[] {
 		return [rendered];
 	}
 
-	const trimmed = rendered.trim();
-	if (!trimmed) {
+	// Decode entities the templater autoescapes (e.g. `R&amp;B` → `R&B`) before
+	// splitting, so the separator and the values are the real characters.
+	const unescaped = unescapeHtml(rendered).trim();
+	if (!unescaped) {
 		return [];
 	}
-
-	// Structured list (JSON/YAML), optionally HTML escaped by the templater.
-	// JSON is attempted before YAML because YAML treats the `&` in HTML entities
-	// (e.g. `&quot;`) as an anchor and would mis-parse an escaped JSON array.
-	const unescaped = unescapeHtml(trimmed);
-	const looksJson = /^[[{]/.test(trimmed) || /^[[{]/.test(unescaped);
-	// A YAML block sequence starts each item with `- ` (e.g. `- Solid\n- Rainbow`).
-	const looksYamlSequence = /^-(\s|$)/m.test(trimmed);
-	if (looksJson || looksYamlSequence) {
-		const parsers = looksJson ? [tryParseJson, tryParseYaml] : [tryParseYaml];
-		for (const parser of parsers) {
-			for (const candidate of [unescaped, trimmed]) {
-				const parsed = parser(candidate);
-				if (Array.isArray(parsed)) {
-					return parsed;
-				}
-			}
-		}
-	}
-
-	// Plain delimited list, split on the decoded string so that autoescaped
-	// values (e.g. `R&amp;B`) become their real value. Newlines take precedence
-	// over commas so that values containing commas can still be expressed with a
-	// `join('\n')` template.
 	const separator = unescaped.includes('\n') ? '\n' : ',';
 	return unescaped
 		.split(separator)
 		.map((item) => item.trim())
 		.filter((item) => item.length);
-}
-
-/** Parse a string as JSON, returning undefined instead of throwing on failure. */
-function tryParseJson(str: string): unknown {
-	try {
-		return JSON.parse(str);
-	} catch {
-		return undefined;
-	}
-}
-
-/** Parse a string as YAML, returning undefined instead of throwing on failure. */
-function tryParseYaml(str: string): unknown {
-	try {
-		return load(str);
-	} catch {
-		return undefined;
-	}
 }
 
 /**
