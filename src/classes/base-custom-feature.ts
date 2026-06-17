@@ -10,10 +10,24 @@ import { CSSResult, LitElement, PropertyValues, css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
 import { load } from 'js-yaml';
-import { UPDATE_AFTER_ACTION_DELAY } from '../models/constants';
-import { ActionType, IAction, IActions, IEntry } from '../models/interfaces';
+import { AUTOFILL, UPDATE_AFTER_ACTION_DELAY } from '../models/constants';
+import {
+	ActionType,
+	IAction,
+	IActions,
+	IEntry,
+	IOption,
+} from '../models/interfaces';
 import { MdRipple } from '../models/interfaces/MdRipple';
-import { deepGet, deepSet, getDeepKeys } from '../utils';
+import {
+	buildTemplatedOption,
+	deepGet,
+	deepSet,
+	defaultOptionAction,
+	getDeepKeys,
+	parseOptionsList,
+	resolveOptionsAttribute,
+} from '../utils';
 import { handleConfirmation } from '../utils/cardHelpers';
 
 @customElement('base-custom-feature')
@@ -364,7 +378,8 @@ export class BaseCustomFeature extends LitElement {
 
 			this.valueAttribute = (
 				this.renderTemplate(
-					(this.config.value_attribute as string) ?? 'state',
+					(this.config.value_attribute as string) ??
+						this.defaultValueAttribute(),
 				) as string
 			).toLowerCase();
 			if (!this.hass.states[this.entityId]) {
@@ -491,6 +506,256 @@ export class BaseCustomFeature extends LitElement {
 		}
 	}
 
+	/**
+	 * Options resolved from `config.options`, used by dropdowns and selectors.
+	 * When `config.options` is a list it is used directly; when it is a template
+	 * string it is rendered, parsed into a list, and one option is generated per
+	 * item using `config.option_template`.
+	 */
+	options: IOption[] = [];
+	private optionsSignature?: string;
+
+	/**
+	 * Resolve `config.options` into the concrete `options` array.
+	 *
+	 * Returns whether the resolved options changed and an update is required.
+	 * Dynamic sources (attribute or template) are cached on a signature of the
+	 * source value so that the (potentially large) list is only rebuilt when the
+	 * source actually changes, keeping frequent hass updates cheap.
+	 */
+	setOptions(): boolean {
+		const config = this.config.options;
+
+		// An explicit dynamic source wins over a leftover `options` array, so a
+		// config that gained an attribute source (or a non-default optionType) but
+		// still carries the old array renders the configured dynamic list instead
+		// of the stale array. This mirrors how the editor classifies the source.
+		const hasDynamicSource =
+			this.config.optionType == 'attribute' ||
+			this.config.optionType == 'template' ||
+			(this.config.optionType == undefined &&
+				(this.config.options_attribute !== undefined ||
+					this.config.options_entity !== undefined));
+
+		// Explicit list of options (backwards compatible, unchanged behavior). The
+		// signature snapshot detects in-place edits to option objects, which a
+		// reference comparison would miss.
+		if (Array.isArray(config) && !hasDynamicSource) {
+			const signature = `list:${JSON.stringify(config)}`;
+			if (signature == this.optionsSignature) {
+				return false;
+			}
+			this.optionsSignature = signature;
+			// A shallow copy avoids aliasing the config array.
+			this.options = [...(config as IOption[])];
+			return true;
+		}
+
+		// Dynamic source: an entity attribute or a template that renders to a list.
+		const source = this.resolveDynamicOptions();
+		if (!source) {
+			this.optionsSignature = undefined;
+			if (this.options.length) {
+				this.options = [];
+				return true;
+			}
+			return false;
+		}
+
+		if (source.signature == this.optionsSignature) {
+			return false;
+		}
+		this.optionsSignature = source.signature;
+		// Drop only empty items — `0`/`false` are valid option values, so a plain
+		// truthiness check would wrongly discard them from numeric/boolean lists.
+		this.options = source.items
+			.filter((item) => item != null && item !== '')
+			.map((item) => this.buildOption(item, source.attribute));
+		return true;
+	}
+
+	/**
+	 * Resolve the `options_attribute`/`options_entity` source into the entity and
+	 * attribute to read. A blank `options_attribute:` in YAML is null (not
+	 * undefined), so a strict check is used to treat its presence — even when
+	 * empty — as opt-in. Returns undefined when no attribute source is configured.
+	 */
+	private resolveAttributeSource():
+		| { entityId: string; attribute: string }
+		| undefined {
+		// An explicit `optionType` selects the source directly. Without it, infer
+		// from the option fields: no attribute source when no attribute fields are
+		// set, or when an `options` template is present (it wins over leftover
+		// attribute-source fields, so a config containing both renders the template
+		// instead of silently reading the attribute).
+		const optionType = this.config.optionType;
+		if (
+			optionType == 'default' ||
+			optionType == 'template' ||
+			(optionType != 'attribute' &&
+				((this.config.options_attribute === undefined &&
+					this.config.options_entity === undefined) ||
+					(typeof this.config.options == 'string' &&
+						this.config.options.trim())))
+		) {
+			return undefined;
+		}
+		// Resolve from the current config (not the cached entityId, which is stale
+		// after a config-only entity change) and fall back to the feature entity
+		// when the source entity is unset or blank (`||`, so '' falls through).
+		const entityId = String(
+			this.renderTemplate(
+				(this.config.options_entity || this.config.entity_id || '') as string,
+			),
+		);
+		const attribute = resolveOptionsAttribute(
+			String(
+				this.renderTemplate((this.config.options_attribute || '') as string),
+			),
+			entityId,
+		);
+		return { entityId, attribute };
+	}
+
+	/**
+	 * Default value attribute to track for the current options source, so the
+	 * selected option is highlighted without configuring `value_attribute`. Falls
+	 * back to 'state' when there is no recognized attribute source.
+	 */
+	private defaultValueAttribute(): string {
+		const attrSource = this.resolveAttributeSource();
+		if (attrSource?.attribute) {
+			// Derive from the controlled (feature) entity's domain, not the source
+			// entity's, so a cross-domain source (e.g. an input_select reading a
+			// light's effect_list) tracks the feature entity's state instead of an
+			// attribute it does not have.
+			const featureEntity = String(
+				this.renderTemplate((this.config.entity_id ?? '') as string),
+			);
+			const action = defaultOptionAction(
+				featureEntity.split('.')[0],
+				attrSource.attribute,
+			);
+			if (action) {
+				return action.value_attribute;
+			}
+		}
+		return 'state';
+	}
+
+	/**
+	 * Resolve a dynamic options source into a raw list of items plus a cache
+	 * signature. Supports reading a list straight from an entity attribute
+	 * (`options_attribute`/`options_entity`) and rendering an `options` template
+	 * string. Returns undefined when no dynamic source is set.
+	 */
+	private resolveDynamicOptions():
+		| { items: unknown[]; signature: string; attribute?: string }
+		| undefined {
+		const config = this.config.options;
+
+		// The generated options also depend on the option template and the default
+		// action inputs, so they must be part of the cache signature — otherwise an
+		// option_template edit that leaves the source list unchanged would not
+		// rebuild the resolved options. The feature entity is rendered (not the raw
+		// template or the cached entityId) so changing the controlled entity — even
+		// via a template whose value changes — invalidates the cache.
+		const optionSignature = JSON.stringify([
+			this.config.option_template ?? null,
+			this.config.autofill_entity_id ?? null,
+			String(this.renderTemplate((this.config.entity_id ?? '') as string)),
+		]);
+
+		// Attribute source: `options_attribute`/`options_entity`.
+		const attrSource = this.resolveAttributeSource();
+		if (attrSource) {
+			const { entityId, attribute } = attrSource;
+			if (!attribute) {
+				return undefined;
+			}
+			const value =
+				entityId && this.hass?.states?.[entityId]
+					? deepGet(this.hass.states[entityId].attributes, attribute)
+					: undefined;
+			return {
+				items: parseOptionsList(value),
+				signature: `attr:${entityId}:${attribute}:${JSON.stringify(value ?? null)}:${optionSignature}`,
+				attribute,
+			};
+		}
+
+		// Template source. Only when the source is a template (explicitly, or
+		// inferred when `optionType` is absent), so a stale `options` string left
+		// over from another mode is not rendered against the explicit contract.
+		if (
+			(this.config.optionType == undefined ||
+				this.config.optionType == 'template') &&
+			typeof config == 'string' &&
+			config.trim()
+		) {
+			const rendered = String(this.renderTemplate(config));
+			return {
+				items: parseOptionsList(rendered),
+				signature: `tmpl:${rendered}:${optionSignature}`,
+			};
+		}
+
+		return undefined;
+	}
+
+	/**
+	 * Build a single generated option from a list item, applying the option
+	 * template and a default action derived from the source attribute, so that
+	 * generating options from common list attributes (effects, sources, modes,
+	 * select options, …) works with no action configuration.
+	 */
+	private buildOption(item: unknown, sourceAttribute?: string): IOption {
+		const option = buildTemplatedOption(item, this.config.option_template);
+
+		// The feature entity the action controls. Resolved from the current config
+		// (not the cached entityId, which is stale after a config-only change).
+		const featureEntity = String(
+			this.renderTemplate((this.config.entity_id ?? '') as string),
+		);
+
+		// Inherit the parent feature's entity, like the editor autofill does for
+		// manual options, so option templates can use `{{ config.entity }}`.
+		if (featureEntity && option.entity_id == undefined) {
+			option.entity_id = featureEntity;
+		}
+
+		// Provide a sensible default action so generating options is zero
+		// configuration (mirrors the editor autofill behavior for manual options).
+		// The option template can opt out per option with `autofill_entity_id: false`.
+		const autofill = this.renderTemplate(
+			(option.autofill_entity_id ??
+				this.config.autofill_entity_id ??
+				AUTOFILL) as unknown as string,
+		);
+		if (
+			autofill &&
+			!option.tap_action &&
+			!option.double_tap_action &&
+			!option.hold_action &&
+			!option.momentary_start_action &&
+			!option.momentary_repeat_action &&
+			!option.momentary_end_action
+		) {
+			const domain = featureEntity.split('.')[0];
+			const action = defaultOptionAction(domain, sourceAttribute ?? '');
+			if (action) {
+				option.tap_action = {
+					action: 'perform-action',
+					perform_action: action.perform_action,
+					data: { [action.data_key]: option.option },
+					target: { entity_id: featureEntity },
+				} as IAction;
+			}
+		}
+
+		return option;
+	}
+
 	renderTemplate(
 		str: string | number | boolean,
 		context?: object,
@@ -514,6 +779,9 @@ export class BaseCustomFeature extends LitElement {
 			currentY: this.currentY,
 			deltaX: this.deltaX,
 			deltaY: this.deltaY,
+			// Convenience alias for an option's own value (see issue #198), so that
+			// option templates can use `{{ option }}` as well as `{{ config.option }}`.
+			option: (this.config as IOption).option,
 			config: {
 				...this.config,
 				entity: this.entityId,

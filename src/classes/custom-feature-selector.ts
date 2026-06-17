@@ -23,10 +23,15 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 
 	render() {
 		const selector = [this.buildBackground()];
-		const options = this.config.options ?? [];
+		const options = this.options;
 		for (const option0 of options) {
 			const option = structuredClone(option0);
 			option.haptics = option.haptics ?? this.config.haptics;
+			// Fall back to the option value as the label when none is provided, so
+			// generated options (and manual ones without appearance) are visible.
+			if (!option.label && !option.icon) {
+				option.label = option.option;
+			}
 			selector.push(
 				html`<custom-feature-button
 					.hass=${this.hass}
@@ -88,7 +93,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 	}
 
 	onFocus(_e: FocusEvent) {
-		const options = this.config.options ?? [];
+		const options = this.options;
 		const optionElements = this.shadowRoot?.querySelectorAll(
 			'.option',
 		) as unknown as HTMLElement[];
@@ -112,6 +117,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 
 	shouldUpdate(changedProperties: PropertyValues) {
 		const should = super.shouldUpdate(changedProperties);
+		const optionsChanged = this.setOptions();
 		if (
 			changedProperties.has('hass') ||
 			changedProperties.has('stateObj') ||
@@ -140,7 +146,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 			}
 		}
 
-		if (should) {
+		if (should || optionsChanged) {
 			return true;
 		}
 
@@ -163,7 +169,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 
 	updated(changedProperties: PropertyValues) {
 		super.updated(changedProperties);
-		const options = this.config.options ?? [];
+		const options = this.options;
 		const optionElements = this.shadowRoot?.querySelectorAll(
 			'.option',
 		) as unknown as HTMLElement[];

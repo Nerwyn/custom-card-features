@@ -54,8 +54,52 @@ export interface IOption extends IEntry {
 }
 
 export interface IDropdownSelectorOptions {
-	options?: IOption[];
+	/**
+	 * Which source the dropdown/selector builds its options from, set by the
+	 * editor's "Options source" picker:
+	 * - `default`: an explicit list of option objects in `options`.
+	 * - `attribute`: a list read from `options_attribute`/`options_entity`.
+	 * - `template`: an `options` template string that renders to a list.
+	 *
+	 * When omitted (e.g. a hand-written config) the source is inferred from the
+	 * shape of the other option fields.
+	 */
+	optionType?: OptionType;
+
+	/**
+	 * The options to list out: either an explicit list of options (the original
+	 * behavior) or a template string that renders to a list. To read a list from
+	 * an entity attribute, use {@link IDropdownSelectorOptions.options_attribute}.
+	 *
+	 * When a template or attribute source is used, one option is generated per
+	 * list item using {@link IDropdownSelectorOptions.option_template}.
+	 */
+	options?: IOption[] | string;
+
+	/**
+	 * Read the options list directly from this attribute of the feature entity
+	 * (or {@link IDropdownSelectorOptions.options_entity}). A declarative
+	 * alternative to an `options` template, e.g. `options_attribute: effect_list`.
+	 * For select/input_select entities this defaults to `options`.
+	 */
+	options_attribute?: string;
+
+	/**
+	 * Entity to read {@link IDropdownSelectorOptions.options_attribute} from.
+	 * Defaults to the feature's `entity_id`.
+	 */
+	options_entity?: string;
+
+	/**
+	 * Template applied to every option generated from a template string,
+	 * attribute source, or a list of primitive values. Each item's value is
+	 * exposed to its templates as `option` (and `config.option`).
+	 */
+	option_template?: IOption;
 }
+
+export const OptionTypes = ['default', 'attribute', 'template'] as const;
+export type OptionType = (typeof OptionTypes)[number];
 
 export const ButtonThumbTypes = [
 	'default',

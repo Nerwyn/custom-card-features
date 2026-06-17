@@ -48,10 +48,18 @@ import {
 	InputType,
 	IOption,
 	ITarget,
+	OptionType,
 	ThumbType,
 	UncheckedValues,
 } from './models/interfaces';
-import { deepGet, deepSet } from './utils';
+import {
+	deepGet,
+	deepSet,
+	defaultOptionAction,
+	isManagedDefaultAction,
+	isOptionListAttribute,
+	resolveOptionsAttribute,
+} from './utils';
 
 export class CustomFeaturesRowEditor extends LitElement {
 	@property() hass!: HomeAssistant;
@@ -69,7 +77,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	yamlString?: string;
 	yamlStringsCache: Record<string, string> = {};
-	activeEntryType: 'entry' | 'option' | 'decrement' | 'increment' = 'entry';
+	// Reactive so that transitions which only change the active entry type (e.g.
+	// opening/closing the option template editor) trigger a re-render.
+	@state() activeEntryType:
+		| 'entry'
+		| 'option'
+		| 'option_template'
+		| 'decrement'
+		| 'increment' = 'entry';
 	people: Record<string, string>[] = [];
 
 	ACTIONS_TABS = ['default', 'momentary'];
@@ -111,7 +126,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		let updatedEntry: IEntry | IOption;
 		switch (this.activeEntryType) {
 			case 'option': {
-				const options = oldEntry.options ?? [];
+				const options = (oldEntry.options as IOption[]) ?? [];
 				options[this.optionIndex] = entry;
 				updatedEntry = {
 					...oldEntry,
@@ -119,6 +134,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 				};
 				break;
 			}
+			case 'option_template':
+				updatedEntry = {
+					...oldEntry,
+					option_template: entry,
+				};
+				break;
 			case 'decrement':
 				updatedEntry = {
 					...oldEntry,
@@ -159,7 +180,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		e.stopPropagation();
 		const { oldIndex, newIndex } = e.detail;
 		const entry = structuredClone(this.activeEntry) as IEntry;
-		const options = entry.options ?? [];
+		const options = (entry.options as IOption[]) ?? [];
 		options.splice(newIndex, 0, options.splice(oldIndex, 1)[0]);
 		entry.options = options;
 		this.entryChanged(entry);
@@ -176,7 +197,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	copyOption(e: Event) {
 		const entry = structuredClone(this.activeEntry) as IEntry;
-		const options = structuredClone(entry.options) ?? [];
+		const options = (structuredClone(entry.options) as IOption[]) ?? [];
 		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
 			.index;
 		const option = structuredClone(options[i]);
@@ -224,21 +245,20 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
 			.index;
 		this.activeEntryType = 'option';
+		const options = this.config.entries[this.entryIndex].options as IOption[];
 		this.actionsTabIndex =
 			i > -1 &&
 			(this.renderTemplate(
-				this.config.entries[this.entryIndex].options?.[i]
-					?.momentary_start_action?.action ?? 'none',
-				this.getEntryContext(
-					this.config.entries[this.entryIndex].options?.[i] as IEntry,
-				),
+				options?.[i]?.momentary_start_action?.action ?? 'none',
+				this.getEntryContext(options?.[i] as IEntry),
 			) != 'none' ||
 				this.renderTemplate(
-					this.config.entries[this.entryIndex].options?.[i]
-						?.momentary_end_action?.action ?? 'none',
-					this.getEntryContext(
-						this.config.entries[this.entryIndex].options?.[i] as IEntry,
-					),
+					options?.[i]?.momentary_repeat_action?.action ?? 'none',
+					this.getEntryContext(options?.[i] as IEntry),
+				) != 'none' ||
+				this.renderTemplate(
+					options?.[i]?.momentary_end_action?.action ?? 'none',
+					this.getEntryContext(options?.[i] as IEntry),
 				) != 'none')
 				? 1
 				: 0;
@@ -257,7 +277,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
 			.index;
 		const entry = structuredClone(this.activeEntry) as IOption;
-		const options = entry.options ?? [];
+		const options = (entry.options as IOption[]) ?? [];
 		options.splice(i, 1);
 		entry.options = options;
 		this.entryChanged(entry);
@@ -275,7 +295,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	addOption(_e: Event) {
 		const entry = structuredClone(this.activeEntry) as IOption;
-		const options = entry.options ?? [];
+		const options = (entry.options as IOption[]) ?? [];
 		options.push({});
 		entry.options = options;
 		this.entryChanged(entry);
@@ -303,6 +323,78 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.optionIndex = -1;
 	}
 
+	/** Open the editor for the option template shared by all generated options. */
+	editOptionTemplate(_e: Event) {
+		this.yamlStringsCache = {};
+		this.yamlString = undefined;
+		this.actionsTabIndex = 0;
+		this.activeEntryType = 'option_template';
+	}
+
+	/** Return from the option template editor to the dropdown/selector editor. */
+	exitOptionTemplate(_e: Event) {
+		this.activeEntryType = 'entry';
+		this.yamlStringsCache = {};
+		this.yamlString = undefined;
+	}
+
+	/** Which options source the active dropdown/selector is currently using. */
+	get optionsMode(): OptionType {
+		return this.activeEntry?.optionType ?? this.inferOptionType(this.activeEntry);
+	}
+
+	/**
+	 * Infer the options source from the option fields, for configs that predate
+	 * the explicit {@link IDropdownSelectorOptions.optionType} field. A non-blank
+	 * `options` template wins over leftover attribute-source fields, matching the
+	 * runtime precedence in resolveAttributeSource().
+	 */
+	inferOptionType(entry?: IEntry): OptionType {
+		const options = entry?.options;
+		if (typeof options == 'string' && options.trim()) {
+			return 'template';
+		}
+		if (
+			entry?.options_attribute !== undefined ||
+			entry?.options_entity !== undefined
+		) {
+			return 'attribute';
+		}
+		if (typeof options == 'string') {
+			return 'template';
+		}
+		return 'default';
+	}
+
+	/** Switch the options source, clearing the fields owned by the other modes. */
+	setOptionsMode(e: Event) {
+		const mode = (e.detail.value ?? 'default') as OptionType;
+		if (mode == this.optionsMode) {
+			return;
+		}
+		const entry = structuredClone(this.activeEntry) as IEntry;
+		// Record the chosen source explicitly and normalize the config to it,
+		// clearing the fields that belong to the other modes.
+		entry.optionType = mode;
+		delete entry.options_attribute;
+		delete entry.options_entity;
+		switch (mode) {
+			case 'attribute':
+				delete entry.options;
+				entry.options_attribute = '';
+				break;
+			case 'template':
+				entry.options = '';
+				break;
+			case 'default':
+			default:
+				entry.options = [];
+				break;
+		}
+		this.optionIndex = -1;
+		this.entryChanged(entry);
+	}
+
 	toggleGuiMode(_e: Event) {
 		this.yamlString = undefined;
 		this.configChanged(this.config);
@@ -319,8 +411,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 				return entry.decrement ?? {};
 			case 'increment':
 				return entry.increment ?? {};
+			case 'option_template':
+				return entry.option_template ?? {};
 			case 'option':
-				return entry.options?.[this.optionIndex] ?? {};
+				return (entry.options as IOption[])?.[this.optionIndex] ?? {};
 			case 'entry':
 			default:
 				return this.config.entries[this.entryIndex] ?? {};
@@ -485,7 +579,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		let listHeader: string;
 		switch (field) {
 			case 'option':
-				entries = this.activeEntry?.options ?? [];
+				entries = (this.activeEntry?.options as IOption[]) ?? [];
 				handlers = {
 					move: this.moveOption,
 					copy: this.copyOption,
@@ -658,6 +752,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 						break;
 				}
 				exitHandler = this.exitEditOption;
+				break;
+			case 'option_template':
+				title = 'Option Template';
+				exitHandler = this.exitOptionTemplate;
 				break;
 			case 'decrement':
 				title = 'Spinbox (Decrement)';
@@ -1271,6 +1369,25 @@ export class CustomFeaturesRowEditor extends LitElement {
 	buildDropdownSelectorGuiEditor(type: 'dropdown' | 'selector') {
 		let selectorGuiEditor: TemplateResult<1>;
 		let optionGuiEditor: TemplateResult<1>;
+
+		// Editing the template applied to every generated option, bound to
+		// `option_template` via `activeEntry`. Reuse the regular per-option editor
+		// (dropdown option or selector button) so it gets the same appearance and
+		// action fields, including the selector's momentary/hold/double-tap
+		// actions. The parent dropdown/selector supplies the autofill/haptics
+		// defaults.
+		if (this.activeEntryType == 'option_template') {
+			const parentEntry = this.config.entries[this.entryIndex];
+			return html`
+				${this.buildAlertBox(
+					"This template is applied to every generated option. Use the variable '{{ option }}' to reference each item's value, for example in the label or action data.",
+				)}
+				${type == 'dropdown'
+					? this.buildDropdownOptionGuiEditor(parentEntry)
+					: this.buildButtonGuiEditor(parentEntry)}
+			`;
+		}
+
 		switch (this.optionIndex) {
 			case -1:
 				selectorGuiEditor = html`${this.buildMainFeatureOptions()}
@@ -1378,11 +1495,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 									'default',
 								)}${this.buildCommonAppearanceOptions()}`}`,
 					)}
-					<div class="">
-						${this.buildEntryList('option')}${this.buildAddEntryButton(
-							'option',
-						)}
-					</div>`;
+					${this.buildOptionsSection(type)}`;
 				break;
 			default:
 				switch (type) {
@@ -1409,6 +1522,104 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 
 		return selectorGuiEditor;
+	}
+
+	/** Attribute names of an entity that are usable as an options source. */
+	optionListAttributes(entityId: string): string[] {
+		const attributes = this.hass.states[entityId]?.attributes ?? {};
+		return Object.keys(attributes).filter((key) =>
+			isOptionListAttribute(key, attributes[key]),
+		);
+	}
+
+	/**
+	 * Build the options source UI for a dropdown/selector: a source picker
+	 * (manual list / entity attribute / template) and the fields for the active
+	 * mode, plus the shared option template editor for the dynamic modes.
+	 */
+	buildOptionsSection(type: 'dropdown' | 'selector') {
+		const mode = this.optionsMode;
+		const noun = type == 'dropdown' ? 'dropdown' : 'selector';
+
+		const modePicker = html`<ha-selector
+			.hass=${this.hass}
+			.selector=${{
+				select: {
+					mode: 'dropdown',
+					options: [
+						{ value: 'default', label: 'Manual list' },
+						{ value: 'attribute', label: 'Entity attribute' },
+						{ value: 'template', label: 'Template' },
+					],
+					reorder: false,
+				},
+			}}
+			.label=${'Options source'}
+			.value=${mode}
+			@value-changed=${this.setOptionsMode}
+		></ha-selector>`;
+
+		if (mode == 'default') {
+			return html`<div class="form">${modePicker}</div>
+				<div class="">
+					${this.buildEntryList('option')}${this.buildAddEntryButton('option')}
+				</div>`;
+		}
+
+		// Only list-type attributes make sense as a source, so hide attributes
+		// that are not a usable option list from the attribute picker.
+		const sourceEntity = this.renderTemplate(
+			(this.activeEntry?.options_entity ||
+				this.activeEntry?.entity_id ||
+				'') as string,
+			this.getEntryContext(this.activeEntry ?? {}),
+		) as string;
+		const listAttributes = this.optionListAttributes(sourceEntity);
+		const hideAttributes = Object.keys(
+			this.hass.states[sourceEntity]?.attributes ?? {},
+		).filter((key) => !listAttributes.includes(key));
+
+		const sourceFields =
+			mode == 'attribute'
+				? html`${this.buildAlertBox(
+						`Generate one ${noun} option per item in an entity attribute that ` +
+							`contains a list, for example a light's 'effect_list'. Leave the ` +
+							`attribute blank for select/input_select entities to use their ` +
+							`'options' attribute.`,
+					)}
+					${this.buildSelector(
+						'Source entity (optional)',
+						'options_entity',
+						{ entity: {} },
+						this.activeEntry?.entity_id,
+					)}
+					${this.buildSelector('Source attribute', 'options_attribute', {
+						attribute: {
+							entity_id:
+								this.activeEntry?.options_entity || this.activeEntry?.entity_id,
+							hide_attributes: hideAttributes,
+						},
+					})}`
+				: html`${this.buildAlertBox(
+						`Set the options to a template that renders to a list, for example ` +
+							`"{{ state_attr('light.my_light', 'effect_list') }}". One ${noun} ` +
+							`option is generated per item.`,
+					)}
+					${this.buildSelector('Options template', 'options', {
+						template: {},
+					})}`;
+
+		// The template applies to every generated option rather than identifying a
+		// single one, so show just the header and an edit button — no feature-list
+		// row or per-option label/icon preview.
+		return html`<div class="form">${modePicker}</div>
+			${sourceFields}
+			<div class="entry-list-header">
+				Option Template
+				<ha-icon-button class="edit-icon" @click=${this.editOptionTemplate}>
+					<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
+				</ha-icon-button>
+			</div>`;
 	}
 
 	buildDropdownOptionGuiEditor(parentEntry: IEntry) {
@@ -2386,6 +2597,104 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return entry;
 	}
 
+	/**
+	 * Pre-fill the option template shared by every generated option with a label
+	 * and a sensible default action derived from the source attribute, so a
+	 * dynamic dropdown/selector works without configuring the template by hand.
+	 */
+	autofillOptionTemplate(entry: IEntry, entryEntityId: string): IOption {
+		const template = structuredClone(entry.option_template ?? {}) as IOption;
+		const context = this.getEntryContext(entry);
+		if (
+			!this.renderTemplate(
+				(template.autofill_entity_id ??
+					entry.autofill_entity_id ??
+					AUTOFILL) as unknown as string,
+				context,
+			)
+		) {
+			return template;
+		}
+
+		// The action targets the feature entity (the one being controlled), while
+		// the list is read from the source entity (which may differ via
+		// options_entity).
+		const featureEntity = this.renderTemplate(
+			(entry.entity_id || entryEntityId || '') as string,
+			context,
+		) as string;
+		const sourceEntity = this.renderTemplate(
+			(entry.options_entity ||
+				entry.entity_id ||
+				entryEntityId ||
+				'') as string,
+			context,
+		) as string;
+		// A template source has no source attribute, so derive the default action
+		// from the attribute only in attribute mode.
+		const optionType = entry.optionType ?? this.inferOptionType(entry);
+		const attribute =
+			optionType == 'template'
+				? ''
+				: resolveOptionsAttribute(
+						this.renderTemplate(
+							(entry.options_attribute || '') as string,
+							context,
+						) as string,
+						sourceEntity,
+					);
+
+		// Only default a missing label, never an intentionally blank one (kept for
+		// icon-only generated options).
+		if (template.label == null) {
+			template.label = '{{ option }}';
+		}
+
+		// (Re)generate the default action when the template has none or only a
+		// previously auto-filled default — so it follows the source attribute —
+		// but never overwrite a customized action. The default target is the
+		// `{{ config.entity }}` template (which resolves to the controlled entity
+		// at render time) rather than a resolved entity id, so it keeps following
+		// the entity, and a customized target is distinguishable from the default.
+		const existing = template.tap_action;
+		const defaultTarget =
+			!existing?.target ||
+			(Object.keys(existing.target).length == 1 &&
+				existing.target.entity_id == '{{ config.entity }}');
+		const managed =
+			defaultTarget &&
+			isManagedDefaultAction(
+				existing?.perform_action,
+				existing?.data as Record<string, unknown> | undefined,
+			);
+		if (
+			!template.double_tap_action &&
+			!template.hold_action &&
+			!template.momentary_start_action &&
+			!template.momentary_repeat_action &&
+			!template.momentary_end_action &&
+			(!existing || managed)
+		) {
+			const action = defaultOptionAction(
+				featureEntity.split('.')[0],
+				attribute,
+			);
+			if (action) {
+				template.tap_action = {
+					action: 'perform-action',
+					perform_action: action.perform_action,
+					target: { entity_id: '{{ config.entity }}' },
+					data: { [action.data_key]: '{{ option }}' },
+				} as IAction;
+			} else if (managed) {
+				// The previous default has no equivalent for the new source.
+				delete template.tap_action;
+			}
+		}
+
+		return template;
+	}
+
 	autofillDefaultFields(config: IConfig) {
 		const updatedConfig = structuredClone(config);
 		const updatedEntries: IEntry[] = [];
@@ -2421,8 +2730,48 @@ export class CustomFeaturesRowEditor extends LitElement {
 				switch (featureType) {
 					case 'dropdown':
 					case 'selector': {
+						// Options generated from an attribute/template are filled in
+						// at render time. Pre-fill the shared option template with a
+						// label and a sensible default action so it works out of the box.
+						const optionType =
+							entry.optionType ?? this.inferOptionType(entry);
+						if (optionType != 'default') {
+							if (optionType == 'attribute') {
+								const sourceEntity = this.renderTemplate(
+									(entry.options_entity || entry.entity_id || '') as string,
+									this.getEntryContext(entry),
+								) as string;
+								const sourceState = this.hass.states[sourceEntity];
+								const candidates = this.optionListAttributes(sourceEntity);
+								// Clear a stale attribute that no longer exists on the source
+								// entity (e.g. after changing the entity). Checks the entity's
+								// actual attributes, not the filtered candidates, so a valid
+								// but single-item list attribute is preserved. A templated
+								// attribute name is left alone, since it is resolved at render
+								// time and its raw text won't match a real attribute.
+								if (
+									sourceState &&
+									entry.options_attribute &&
+									!hasTemplate(entry.options_attribute) &&
+									!(entry.options_attribute in sourceState.attributes)
+								) {
+									entry.options_attribute = '';
+								}
+								// Auto-select the source attribute when none is chosen yet
+								// and exactly one usable list attribute exists.
+								if (!entry.options_attribute && candidates.length == 1) {
+									entry.options_attribute = candidates[0];
+								}
+							}
+							entry.option_template = this.autofillOptionTemplate(
+								entry,
+								entryEntityId,
+							);
+							break;
+						}
+
 						// Get option names from attributes if it exists
-						const options = entry.options ?? [];
+						const options = Array.isArray(entry.options) ? entry.options : [];
 						let optionNames: string[] = [];
 						if (entryEntityId) {
 							optionNames =
@@ -2681,8 +3030,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const updatedConfig = structuredClone(config);
 		for (let entry of updatedConfig.entries) {
 			entry = this.updateDeprecatedEntryFields(entry);
-			for (let option of entry.options ?? []) {
-				option = this.updateDeprecatedEntryFields(option);
+			if (Array.isArray(entry.options)) {
+				for (let option of entry.options) {
+					option = this.updateDeprecatedEntryFields(option);
+				}
 			}
 			if (entry.increment) {
 				entry.increment = this.updateDeprecatedEntryFields(entry.increment);

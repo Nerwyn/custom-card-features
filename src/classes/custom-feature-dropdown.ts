@@ -4,7 +4,6 @@ import { customElement, property, state } from 'lit/decorators.js';
 import {
 	DropdownThumbType,
 	DropdownThumbTypes,
-	IEntry,
 	IOption,
 } from '../models/interfaces';
 import { buildStyles } from '../utils/styles';
@@ -67,7 +66,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 			const optionHeight =
 				this.shadowRoot?.querySelector('.option')?.clientHeight ?? 40;
 			let dropdownHeight0: number;
-			const nOptions = this.config.options?.length ?? 0;
+			const nOptions = this.options.length;
 			if (this.className.includes('md3-fab')) {
 				dropdownHeight0 = optionHeight * nOptions + 16 + (nOptions - 1) * 4;
 			} else {
@@ -102,7 +101,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 
 	render() {
 		const dropdownOptions = [];
-		const options = this.config.options ?? [];
+		const options = this.options;
 		for (const option0 of options) {
 			const option = structuredClone(option0);
 			const optionName = String(this.renderTemplate(option.option as string));
@@ -170,10 +169,17 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 
 	shouldUpdate(changedProperties: PropertyValues) {
 		let should = super.shouldUpdate(changedProperties);
+		const optionsChanged = this.setOptions();
+		if (optionsChanged) {
+			should = true;
+		}
 		if (
 			changedProperties.has('hass') ||
 			changedProperties.has('stateObj') ||
-			changedProperties.has('value')
+			changedProperties.has('value') ||
+			// Rebuilt options can change which option is selected and how its
+			// thumb renders, so recompute when they do.
+			optionsChanged
 		) {
 			let thumbType = this.renderTemplate(
 				this.config.thumb as string,
@@ -203,8 +209,8 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 			}
 
-			let selectedOption: IEntry | undefined = undefined;
-			for (const option of this.config.options ?? []) {
+			let selectedOption: IOption | undefined = undefined;
+			for (const option of this.options) {
 				const optionName = String(this.renderTemplate(option.option as string));
 				if (String(this.value) == optionName) {
 					selectedOption = option;
@@ -213,18 +219,36 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 			}
 
 			if (selectedOption) {
+				// Render the selected option's appearance using the option's own
+				// context, so `option`/`config.option` resolve to its value (instead
+				// of the dropdown's, which has no option) when shown in the window.
+				// The parent config is merged first so templates can still reference
+				// other dropdown config fields; option fields override.
+				const optionContext = {
+					option: selectedOption.option,
+					config: {
+						...this.config,
+						...selectedOption,
+						entity: this.entityId,
+						attribute: this.valueAttribute,
+					},
+				};
+
 				const selectedIcon = this.renderTemplate(
 					selectedOption.icon as string,
+					optionContext,
 				) as string;
 
 				const selectedLabel = this.renderTemplate(
 					(selectedOption.label || selectedOption.icon
 						? selectedOption.label
-						: (selectedOption as IOption).option) as string,
+						: selectedOption.option) as string,
+					optionContext,
 				) as string;
 
 				const selectedStyles = this.renderTemplate(
 					selectedOption.styles as string,
+					optionContext,
 				) as string;
 
 				if (
@@ -264,11 +288,10 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 
 	updated(changedProperties: PropertyValues) {
 		super.updated(changedProperties);
+		const options = this.options;
+		const optionElements = (this.shadowRoot?.querySelectorAll('.option') ??
+			[]) as unknown as HTMLElement[];
 		if (changedProperties.has('open')) {
-			const options = this.config.options ?? [];
-			const optionElements = this.shadowRoot?.querySelectorAll(
-				'.option',
-			) as unknown as HTMLElement[];
 			for (const i in options) {
 				if (!changedProperties.get('open') && this.open) {
 					this.setAttribute('open', '');
@@ -286,6 +309,21 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 				}
 			}
 
+			this.sizeAndPositionDropdown();
+		} else if (this.open && optionElements.length) {
+			// Options or the selected value changed while the menu is open: refresh
+			// each item's selected/focus state and the menu height in place.
+			for (const i in options) {
+				const el = optionElements[i];
+				if (!el) {
+					continue;
+				}
+				const selected =
+					String(this.value) ==
+					String(this.renderTemplate(options[i].option as string));
+				el.className = `${selected ? 'selected' : ''} option`;
+				el.setAttribute('tabindex', '0');
+			}
 			this.sizeAndPositionDropdown();
 		}
 	}
