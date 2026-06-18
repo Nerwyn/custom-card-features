@@ -1,5 +1,5 @@
 import { css, CSSResult, html, nothing, PropertyValues } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, query } from 'lit/decorators.js';
 import {
 	COLOR_MAX,
 	COLOR_MIN,
@@ -26,6 +26,7 @@ import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-input')
 export class CustomFeatureInput extends BaseCustomFeature {
+	@query('input') input!: HTMLInputElement;
 	thumb: InputType = 'text';
 	range: [number, number] | [string, string] = [RANGE_MIN, RANGE_MAX];
 	rangeTs?: [number, number];
@@ -37,59 +38,52 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	async onPointerUp(e: PointerEvent) {
 		super.onPointerUp(e);
 		if (!this.swiping) {
-			this.shadowRoot?.querySelector('input')?.focus();
+			this.input.focus();
 		}
 		this.endAction();
 	}
 
 	onFocus(_e: FocusEvent) {
-		this.shadowRoot?.querySelector('input')?.focus();
+		this.input.focus();
 	}
 
 	async onBlur(_e: FocusEvent) {
-		const input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
-		if (input) {
-			if (
-				this.shouldFire &&
-				this.value?.toString() != input.value?.toString() &&
-				this.validate(input.value)
-			) {
-				this.value = input.value;
-				await this.sendAction('tap_action');
-			}
-			input.value = String(this.value ?? '');
-			this.validate(input.value);
+		if (
+			this.shouldFire &&
+			this.value?.toString() != this.input.value?.toString() &&
+			this.validate(this.input.value)
+		) {
+			this.value = this.input.value;
+			await this.sendAction('tap_action');
 		}
+		this.input.value = String(this.value ?? '');
+		this.validate(this.input.value);
 		this.resetGetValueFromHass();
 		this.shouldFire = true;
 	}
 
 	onChange(e: Event) {
-		const input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
+		this.validate(this.input.value);
 
-		if (input) {
-			this.validate(input.value);
-
-			switch (this.thumb) {
-				case 'date':
-				case 'time':
-				case 'datetime-local':
-				case 'week':
-				case 'month':
-				case 'color':
-					this.shouldFire = true;
-					this.onBlur(new FocusEvent('blur', { ...e }));
-					break;
-				case 'number':
-					if (this.precision) {
-						input.value = Number(input.value).toFixed(this.precision);
-					}
-					break;
-				case 'text':
-				case 'password':
-				default:
-					break;
-			}
+		switch (this.thumb) {
+			case 'date':
+			case 'time':
+			case 'datetime-local':
+			case 'week':
+			case 'month':
+			case 'color':
+				this.shouldFire = true;
+				this.onBlur(new FocusEvent('blur', { ...e }));
+				break;
+			case 'number':
+				if (this.precision) {
+					this.input.value = Number(this.input.value).toFixed(this.precision);
+				}
+				break;
+			case 'text':
+			case 'password':
+			default:
+				break;
 		}
 	}
 
@@ -100,18 +94,14 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			e.preventDefault();
 			e.stopImmediatePropagation();
 
-			const input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
 			this.shouldFire = e.key == 'Enter';
-			input?.blur();
+			this.input.blur();
 		}
 	}
 
 	async onKeyUp(e: KeyboardEvent) {
 		if (!e.repeat) {
-			const input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
-			if (input) {
-				this.validate(input.value);
-			}
+			this.validate(this.input.value);
 		}
 	}
 
@@ -224,9 +214,9 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	}
 
 	willUpdate() {
-		const input = this.shadowRoot?.querySelector('input') as HTMLInputElement;
-		if (input) {
-			this.validate(input.value);
+		// Does not exist before first render
+		if (this.input) {
+			this.validate(this.input.value);
 		}
 	}
 
@@ -386,7 +376,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	handleExternalClick = (e: MouseEvent) => {
 		// eslint-disable-next-line no-constant-binary-expression
 		if (typeof e.composedPath && !e.composedPath().includes(this)) {
-			this.shadowRoot?.querySelector('input')?.blur();
+			this.input.blur();
 		}
 	};
 

@@ -7,7 +7,7 @@ import {
 
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { CSSResult, LitElement, PropertyValues, css, html } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 
 import { load } from 'js-yaml';
 import { AUTOFILL, UPDATE_AFTER_ACTION_DELAY } from '../models/constants';
@@ -36,6 +36,7 @@ export class BaseCustomFeature extends LitElement {
 	@property() config!: IEntry;
 	@property() stateObj?: StateObj;
 
+	@query('md-ripple') ripple?: MdRipple;
 	@property() shouldRenderRipple = true;
 	rippleEndTimer?: ReturnType<typeof setTimeout>;
 
@@ -914,9 +915,8 @@ export class BaseCustomFeature extends LitElement {
 	onTouchStart(e: TouchEvent) {
 		// Stuck ripple fix
 		clearTimeout(this.rippleEndTimer);
-		const ripple = this.shadowRoot?.querySelector('md-ripple') as MdRipple;
-		ripple?.endPressAnimation?.();
-		ripple?.startPressAnimation?.(e);
+		this.ripple?.endPressAnimation?.();
+		this.ripple?.startPressAnimation?.(e);
 	}
 
 	onTouchEnd(e: TouchEvent) {
@@ -925,8 +925,10 @@ export class BaseCustomFeature extends LitElement {
 
 		// Stuck ripple fix
 		clearTimeout(this.rippleEndTimer);
-		const ripple = this.shadowRoot?.querySelector('md-ripple') as MdRipple;
-		this.rippleEndTimer = setTimeout(() => ripple?.endPressAnimation?.(), 15);
+		this.rippleEndTimer = setTimeout(
+			() => this.ripple?.endPressAnimation?.(),
+			15,
+		);
 	}
 
 	async onKeyDown(e: KeyboardEvent) {
