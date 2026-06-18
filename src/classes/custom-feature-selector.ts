@@ -1,13 +1,15 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, queryAll } from 'lit/decorators.js';
 
 import { SelectorThumbType, SelectorThumbTypes } from '../models/interfaces';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 import './custom-feature-button';
+import { CustomFeatureButton } from './custom-feature-button';
 
 @customElement('custom-feature-selector')
 export class CustomFeatureSelector extends BaseCustomFeature {
+	@queryAll('.option') optionElements!: CustomFeatureButton[];
 	thumbType: SelectorThumbType = 'default';
 
 	onPointerUp(e: PointerEvent) {
@@ -59,10 +61,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 		// Firefox focused selector box shadow fix
 		// Because :host:has() doesn't work with Firefox
 		if (this.firefox && !this.thumbType.startsWith('md3')) {
-			this.style.setProperty(
-				'box-shadow',
-				'0 0 0 2px var(--feature-color)',
-			);
+			this.style.setProperty('box-shadow', '0 0 0 2px var(--feature-color)');
 		}
 	}
 	async onKeyUp(e: KeyboardEvent) {
@@ -78,12 +77,10 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 				`${direction}ElementSibling`
 			] as HTMLElement | null;
 			if (!target?.className?.includes('option')) {
-				const optionElements =
-					this.shadowRoot?.querySelectorAll('.option');
-				if (optionElements) {
-					target = optionElements[
+				if (this.optionElements?.length) {
+					target = this.optionElements[
 						(e.key == 'ArrowLeft') != this.rtl
-							? optionElements.length - 1
+							? this.optionElements.length - 1
 							: 0
 					] as HTMLElement;
 				}
@@ -94,15 +91,12 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 
 	onFocus(_e: FocusEvent) {
 		const options = this.options;
-		const optionElements = this.shadowRoot?.querySelectorAll(
-			'.option',
-		) as unknown as HTMLElement[];
 		for (const i in options) {
 			const selected =
 				String(this.value) ==
 				String(this.renderTemplate(options[i].option as string));
 			if (selected) {
-				optionElements[i].focus();
+				this.optionElements[i].focus();
 			}
 		}
 	}
@@ -151,9 +145,7 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 		}
 
 		// Update child hass objects if not updating
-		const children = (this.shadowRoot?.querySelectorAll('.option') ??
-			[]) as BaseCustomFeature[];
-		for (const child of children) {
+		for (const child of this.optionElements) {
 			child.hass = this.hass;
 		}
 
@@ -169,30 +161,26 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 
 	updated(changedProperties: PropertyValues) {
 		super.updated(changedProperties);
-		const options = this.options;
-		const optionElements = this.shadowRoot?.querySelectorAll(
-			'.option',
-		) as unknown as HTMLElement[];
-		for (const i in options) {
+		for (const i in this.options) {
 			const selected =
 				String(this.value) ==
-				String(this.renderTemplate(options[i].option as string));
-			optionElements[i].classList.add('option');
+				String(this.renderTemplate(this.options[i].option as string));
+			this.optionElements[i].classList.add('option');
 			if (this.thumbType.startsWith('md3')) {
-				optionElements[i].classList.add('md3');
-				optionElements[i].classList.add(this.thumbType);
+				this.optionElements[i].classList.add('md3');
+				this.optionElements[i].classList.add(this.thumbType);
 			} else {
-				optionElements[i].classList.remove(
-					...Array.from(optionElements[i].classList.values()).filter(
-						(c) => c.startsWith('md3'),
+				this.optionElements[i].classList.remove(
+					...Array.from(this.optionElements[i].classList.values()).filter((c) =>
+						c.startsWith('md3'),
 					),
 				);
 			}
-			optionElements[i].classList.add('option');
+			this.optionElements[i].classList.add('option');
 			if (selected) {
-				optionElements[i].classList.add('selected');
+				this.optionElements[i].classList.add('selected');
 			} else {
-				optionElements[i].classList.remove('selected');
+				this.optionElements[i].classList.remove('selected');
 			}
 		}
 	}
@@ -259,58 +247,29 @@ export class CustomFeatureSelector extends BaseCustomFeature {
 				}
 
 				:host(.md3) .option:nth-of-type(1)::part(button) {
-					border-start-start-radius: calc(
-						var(--feature-height, 40px) / 2
-					);
-					border-end-start-radius: calc(
-						var(--feature-height, 40px) / 2
-					);
+					border-start-start-radius: calc(var(--feature-height, 40px) / 2);
+					border-end-start-radius: calc(var(--feature-height, 40px) / 2);
 				}
 				:host(.md3)
-					:not([pressed], .selected).option:nth-of-type(1)::part(
-						button
-					) {
-					border-start-end-radius: var(
-						--md-sys-shape-corner-small,
-						8px
-					);
-					border-end-end-radius: var(
-						--md-sys-shape-corner-small,
-						8px
-					);
+					:not([pressed], .selected).option:nth-of-type(1)::part(button) {
+					border-start-end-radius: var(--md-sys-shape-corner-small, 8px);
+					border-end-end-radius: var(--md-sys-shape-corner-small, 8px);
 				}
 				:host(.md3) .option:nth-last-of-type(1)::part(button) {
-					border-start-end-radius: calc(
-						var(--feature-height, 40px) / 2
-					);
-					border-end-end-radius: calc(
-						var(--feature-height, 40px) / 2
-					);
+					border-start-end-radius: calc(var(--feature-height, 40px) / 2);
+					border-end-end-radius: calc(var(--feature-height, 40px) / 2);
 				}
 				:host(.md3)
-					:not([pressed], .selected).option:nth-last-of-type(1)::part(
-						button
-					) {
-					border-start-start-radius: var(
-						--md-sys-shape-corner-small,
-						8px
-					);
-					border-end-start-radius: var(
-						--md-sys-shape-corner-small,
-						8px
-					);
+					:not([pressed], .selected).option:nth-last-of-type(1)::part(button) {
+					border-start-start-radius: var(--md-sys-shape-corner-small, 8px);
+					border-end-start-radius: var(--md-sys-shape-corner-small, 8px);
 				}
 
 				:host(.md3) .option:not(.selected) {
-					--md-button-border-radius: var(
-						--md-sys-shape-corner-small,
-						8px
-					);
+					--md-button-border-radius: var(--md-sys-shape-corner-small, 8px);
 				}
 				:host(.md3) .option.selected {
-					--md-button-border-radius: calc(
-						var(--feature-height, 40px) / 2
-					);
+					--md-button-border-radius: calc(var(--feature-height, 40px) / 2);
 				}
 				:host(.md3) .option[pressed] {
 					--md-button-border-radius: var(
