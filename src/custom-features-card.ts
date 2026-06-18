@@ -1,6 +1,6 @@
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { css, html, LitElement, PropertyValues } from 'lit';
-import { property } from 'lit/decorators.js';
+import { property, queryAll } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { HomeAssistant, ICustomFeatureCardConfig } from './models/interfaces';
 import { buildStyles } from './utils/styles';
@@ -11,6 +11,7 @@ import { CustomFeaturesRow } from './custom-features-row';
 export class CustomFeaturesCard extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: ICustomFeatureCardConfig;
+	@queryAll('service-call') rows?: CustomFeaturesRow[];
 
 	featureHeight: number = 42;
 	transparent: boolean = false;
@@ -107,9 +108,8 @@ export class CustomFeaturesCard extends LitElement {
 		}
 
 		// Update child hass objects if not updating
-		const children = this.shadowRoot?.querySelectorAll('service-call') ?? [];
-		for (const child of children) {
-			(child as CustomFeaturesRow).hass = this.hass;
+		for (const row of this.rows || []) {
+			row.hass = this.hass;
 		}
 
 		return false;

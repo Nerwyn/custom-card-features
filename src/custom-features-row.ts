@@ -1,7 +1,7 @@
 import packageInfo from '../package.json';
 
 import { LitElement, PropertyValues, TemplateResult, css, html } from 'lit';
-import { property } from 'lit/decorators.js';
+import { property, query } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
@@ -36,6 +36,8 @@ export class CustomFeaturesRow extends LitElement {
 	@property() config!: IConfig;
 	@property() context?: FeatureContext;
 	@property() stateObj?: StateObj;
+
+	@query('.row') row?: HTMLElement;
 
 	styles: string = '';
 	entryTypes: CardFeatureType[] = [];
@@ -249,9 +251,7 @@ export class CustomFeaturesRow extends LitElement {
 		}
 
 		// Update child hass objects if not updating
-		const children = (this.shadowRoot?.querySelector('.row') as HTMLElement)
-			.children;
-		for (const child of children) {
+		for (const child of this.row?.children || []) {
 			(child as BaseCustomFeature).hass = this.hass;
 			if (this.stateObj) {
 				(child as BaseCustomFeature).stateObj = this.stateObj;
