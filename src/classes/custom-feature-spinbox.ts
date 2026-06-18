@@ -1,5 +1,5 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, query } from 'lit/decorators.js';
 
 import {
 	DEBOUNCE_TIME,
@@ -14,6 +14,9 @@ import { CustomFeatureButton } from './custom-feature-button';
 
 @customElement('custom-feature-spinbox')
 export class CustomFeatureSpinbox extends BaseCustomFeature {
+	@query('#increment') incrementor!: CustomFeatureButton;
+	@query('#decrement') decrementor!: CustomFeatureButton;
+
 	range: [number, number] = [-32768, 32767];
 	step: number = 1;
 	debounceTimer?: ReturnType<typeof setTimeout>;
@@ -35,8 +38,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 		) {
 			const holdTime = this.config.hold_action?.hold_time
 				? (this.renderTemplate(
-						this.config[operator]?.hold_action
-							?.hold_time as unknown as string,
+						this.config[operator]?.hold_action?.hold_time as unknown as string,
 					) as number)
 				: 500;
 			this.holdTimer = setTimeout(() => {
@@ -47,8 +49,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 				if (!this.swiping) {
 					const repeatDelay = this.config.hold_action?.repeat_delay
 						? (this.renderTemplate(
-								this.config.hold_action
-									?.repeat_delay as unknown as string,
+								this.config.hold_action?.repeat_delay as unknown as string,
 							) as number)
 						: 100;
 					if (!this.holdInterval) {
@@ -89,10 +90,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 		const sensitivity = 8;
 		const totalDeltaX = (this.currentX ?? 0) - (this.initialX ?? 0);
 		const totalDeltaY = (this.currentY ?? 0) - (this.initialY ?? 0);
-		if (
-			Math.abs(Math.abs(totalDeltaX) - Math.abs(totalDeltaY)) >
-			sensitivity
-		) {
+		if (Math.abs(Math.abs(totalDeltaX) - Math.abs(totalDeltaY)) > sensitivity) {
 			this.endAction();
 			clearTimeout(this.debounceTimer);
 			this.swiping = true;
@@ -135,21 +133,16 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 		actions.haptics = actions.haptics ?? this.config.haptics;
 
 		if (
-			this.renderTemplate(actions?.tap_action?.action ?? 'none') !=
-				'none' ||
+			this.renderTemplate(actions?.tap_action?.action ?? 'none') != 'none' ||
 			this.renderTemplate(actions?.double_tap_action?.action ?? 'none') !=
 				'none' ||
 			!['none', 'repeat'].includes(
-				this.renderTemplate(
-					actions?.hold_action?.action ?? 'none',
-				) as string,
+				this.renderTemplate(actions?.hold_action?.action ?? 'none') as string,
 			) ||
-			this.renderTemplate(
-				actions?.momentary_start_action?.action ?? 'none',
-			) != 'none' ||
-			this.renderTemplate(
-				actions?.momentary_end_action?.action ?? 'none',
-			) != 'none'
+			this.renderTemplate(actions?.momentary_start_action?.action ?? 'none') !=
+				'none' ||
+			this.renderTemplate(actions?.momentary_end_action?.action ?? 'none') !=
+				'none'
 		) {
 			return html`
 				<custom-feature-button
@@ -196,9 +189,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 	}
 
 	async onKeyDown(e: KeyboardEvent) {
-		if (
-			['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)
-		) {
+		if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
 			e.stopImmediatePropagation();
 			e.preventDefault();
 
@@ -206,10 +197,9 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 				(e.key == 'ArrowLeft') != this.rtl || e.key == 'ArrowDown'
 					? 'decrement'
 					: 'increment';
-			const button = this.shadowRoot?.querySelector(
-				`custom-feature-button#${operator}`,
-			) as CustomFeatureButton;
-			if (button) {
+			const button =
+				operator == 'increment' ? this.incrementor : this.decrementor;
+			if (button.localName == 'custom-feature-button') {
 				await button.onKeyDown(
 					new window.KeyboardEvent('keydown', {
 						...e,
@@ -231,9 +221,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 	}
 
 	async onKeyUp(e: KeyboardEvent) {
-		if (
-			['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)
-		) {
+		if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
 			e.stopImmediatePropagation();
 			e.preventDefault();
 
@@ -241,10 +229,9 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 				(e.key == 'ArrowLeft') != this.rtl || e.key == 'ArrowDown'
 					? 'decrement'
 					: 'increment';
-			const button = this.shadowRoot?.querySelector(
-				`custom-feature-button#${operator}`,
-			) as CustomFeatureButton;
-			if (button) {
+			const button =
+				operator == 'increment' ? this.incrementor : this.decrementor;
+			if (button.localName == 'custom-feature-button') {
 				await button.onKeyUp(
 					new window.KeyboardEvent('keyup', {
 						...e,
@@ -316,23 +303,16 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 		}
 
 		// Update child hass objects if not updating
-		const children = (this.shadowRoot?.querySelectorAll('.operator') ??
-			[]) as BaseCustomFeature[];
-		for (const child of children) {
-			child.hass = this.hass;
-		}
+		this.decrementor.hass = this.hass;
+		this.incrementor.hass = this.hass;
 
 		return false;
 	}
 
 	firstUpdated(changedProperties: PropertyValues) {
 		super.firstUpdated(changedProperties);
-		this.shadowRoot
-			?.querySelector('#decrement')
-			?.removeAttribute('tabindex');
-		this.shadowRoot
-			?.querySelector('#increment')
-			?.removeAttribute('tabindex');
+		this.decrementor.removeAttribute('tabindex');
+		this.incrementor.removeAttribute('tabindex');
 	}
 
 	static get styles() {
