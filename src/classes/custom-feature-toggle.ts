@@ -1,5 +1,5 @@
 import { css, CSSResult, html, PropertyValues, TemplateResult } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, query, state } from 'lit/decorators.js';
 import {
 	CheckedValues,
 	ToggleThumbType,
@@ -17,6 +17,9 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 	resizeObserver: ResizeObserver = new ResizeObserver(() => {
 		this.width = this.clientWidth;
 	});
+
+	@query('.thumb') thumb?: HTMLElement;
+	@query('.icon-label') iconLabel?: HTMLElement;
 
 	direction?: 'left' | 'right';
 	thumbType: ToggleThumbType = 'default';
@@ -356,7 +359,7 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 			// Allow ripples to overflow
 			this.style.setProperty('overflow', 'visible');
 
-			if (!this.shadowRoot?.querySelector('.icon-label')?.children.length) {
+			if (!this.iconLabel?.children.length) {
 				// Makes checkboxes and toggles take up minimal space if they don't have an icon or label
 				this.style.setProperty('flex', '0 0 min-content');
 			}
@@ -367,10 +370,11 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		super.updated(changedProperties);
 
 		// Get thumb width
-		const thumb = this.shadowRoot?.querySelector('.thumb');
-		if (thumb) {
+		if (this.thumb) {
 			this.thumbWidth = parseFloat(
-				getComputedStyle(thumb).getPropertyValue('width').replace('px', ''),
+				getComputedStyle(this.thumb)
+					.getPropertyValue('width')
+					.replace('px', ''),
 			);
 		}
 	}
