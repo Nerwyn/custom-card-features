@@ -1,5 +1,5 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, query, state } from 'lit/decorators.js';
 
 import {
 	DOUBLE_TAP_WINDOW,
@@ -18,6 +18,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 	holdTimer?: ReturnType<typeof setTimeout>;
 	holdInterval?: ReturnType<typeof setInterval>;
 	@state() hold: boolean = false;
+	@query('.hold-indicator') holdIndicator!: HTMLElement;
 
 	thumbType: ButtonThumbType = 'default';
 	toggleStyles: boolean = false;
@@ -299,20 +300,15 @@ export class CustomFeatureButton extends BaseCustomFeature {
 
 		if (this.hold) {
 			this.setAttribute('hold', '');
-			const holdIndicator = this.shadowRoot?.querySelector(
-				'.hold-indicator',
-			) as HTMLElement;
-			if (holdIndicator) {
-				const rect = this.getBoundingClientRect();
-				holdIndicator.style.setProperty(
-					'left',
-					`${(this.initialX ?? 0) - rect.left}px`,
-				);
-				holdIndicator.style.setProperty(
-					'top',
-					`${(this.initialY ?? 0) - rect.top}px`,
-				);
-			}
+			const rect = this.getBoundingClientRect();
+			this.holdIndicator.style.setProperty(
+				'left',
+				`${(this.initialX ?? 0) - rect.left}px`,
+			);
+			this.holdIndicator.style.setProperty(
+				'top',
+				`${(this.initialY ?? 0) - rect.top}px`,
+			);
 		} else {
 			this.removeAttribute('hold');
 		}
