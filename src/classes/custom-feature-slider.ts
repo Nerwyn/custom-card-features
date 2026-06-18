@@ -1,5 +1,5 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
 import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
@@ -16,6 +16,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		this.width = this.clientWidth;
 	});
 
+	@query('input') slider!: HTMLInputElement;
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
 	step: number = STEP;
 	thumbType: SliderThumbType = 'default';
@@ -40,13 +41,11 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		this.value = value;
 	}
 
-	onInput(e: InputEvent) {
-		const slider = e.currentTarget as HTMLInputElement;
-
+	onInput(_e: InputEvent) {
 		if (!this.swiping) {
 			clearTimeout(this.getValueFromHassTimer);
 			this.getValueFromHass = false;
-			this._value = slider.value;
+			this._value = this.slider.value;
 			this.sliderOn = true;
 		}
 	}
@@ -62,16 +61,24 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 			clearTimeout(this.getValueFromHassTimer);
 			this.getValueFromHass = false;
 			this.sliderOn = true;
+
+			// iOS tap fix
+			const rect = this.slider.getBoundingClientRect();
+			let value = (e.clientX - rect.left) / rect.width;
+			if (this.rtl) {
+				value = 1 - value;
+			}
+			value = value * (this.range[1] - this.range[0]) + this.range[0];
+			this._value = value;
 		}
 	}
 
 	async onPointerUp(e: PointerEvent) {
 		clearTimeout(this.pressedTimeout);
 		super.onPointerUp(e);
-		const slider = e.currentTarget as HTMLInputElement;
 
 		if (!this.swiping && this.initialX && this.initialY) {
-			this._value = slider.value;
+			this._value = this.slider.value;
 			this.fireHapticEvent('light');
 			await this.sendAction('tap_action');
 		} else {
@@ -88,8 +95,6 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 		super.onPointerMove(e);
 
 		if (this.currentX && this.currentY && e.isPrimary) {
-			const slider = e.currentTarget as HTMLInputElement;
-
 			// Only consider significant enough movement
 			const sensitivity = 40;
 			if (
@@ -101,7 +106,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				this.setValue();
 				this.setSliderState();
 			} else {
-				this._value = slider.value;
+				this._value = this.slider.value;
 			}
 		}
 	}
