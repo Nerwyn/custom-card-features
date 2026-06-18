@@ -1,5 +1,11 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import {
+	customElement,
+	property,
+	query,
+	queryAll,
+	state,
+} from 'lit/decorators.js';
 
 import {
 	DropdownThumbType,
@@ -12,12 +18,12 @@ import { BaseCustomFeature } from './base-custom-feature';
 @customElement('custom-feature-dropdown')
 export class CustomFeatureDropdown extends BaseCustomFeature {
 	@state() open: boolean = false;
+	@query('.dropdown') dropdown!: HTMLElement;
 	resizeObserver: ResizeObserver = new ResizeObserver(() => {
-		const dropdownElement = this.shadowRoot?.querySelector(
-			'.dropdown',
-		) as HTMLElement;
-		dropdownElement.style.setProperty('width', `${this.clientWidth}px`);
+		this.dropdown.style.setProperty('width', `${this.clientWidth}px`);
 	});
+
+	@queryAll('.option') optionElements!: CustomFeatureDropdownOption[];
 
 	thumbType: DropdownThumbType = 'default';
 	shouldRenderRipple: boolean = false;
@@ -63,8 +69,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 	sizeAndPositionDropdown() {
 		if (this.open) {
 			// Calculate dropdown height without vertical scroll
-			const optionHeight =
-				this.shadowRoot?.querySelector('.option')?.clientHeight ?? 40;
+			const optionHeight = this.optionElements[0].clientHeight ?? 40;
 			let dropdownHeight0: number;
 			const nOptions = this.options.length;
 			if (this.className.includes('md3-fab')) {
@@ -277,9 +282,7 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 		}
 
 		// Update child hass objects if not updating
-		const children = (this.shadowRoot?.querySelectorAll('.option') ??
-			[]) as BaseCustomFeature[];
-		for (const child of children) {
+		for (const child of this.optionElements) {
 			child.hass = this.hass;
 		}
 
@@ -288,39 +291,37 @@ export class CustomFeatureDropdown extends BaseCustomFeature {
 
 	updated(changedProperties: PropertyValues) {
 		super.updated(changedProperties);
-		const options = this.options;
-		const optionElements = (this.shadowRoot?.querySelectorAll('.option') ??
-			[]) as unknown as HTMLElement[];
 		if (changedProperties.has('open')) {
-			for (const i in options) {
+			for (const i in this.options) {
 				if (!changedProperties.get('open') && this.open) {
 					this.setAttribute('open', '');
 					const selected =
 						String(this.value) ==
-						String(this.renderTemplate(options[i].option as string));
-					optionElements[i].className = `${selected ? 'selected' : ''} option`;
-					optionElements[i].setAttribute('tabindex', '0');
+						String(this.renderTemplate(this.options[i].option as string));
+					this.optionElements[i].className =
+						`${selected ? 'selected' : ''} option`;
+					this.optionElements[i].setAttribute('tabindex', '0');
 					if (selected) {
-						optionElements[i].focus();
+						this.optionElements[i].focus();
 					}
 				} else {
 					this.removeAttribute('open');
-					optionElements[i].removeAttribute('tabindex');
+					this.optionElements[i].removeAttribute('tabindex');
 				}
 			}
 
 			this.sizeAndPositionDropdown();
-		} else if (this.open && optionElements.length) {
+		} else if (this.open && this.optionElements.length) {
 			// Options or the selected value changed while the menu is open: refresh
 			// each item's selected/focus state and the menu height in place.
-			for (const i in options) {
-				const el = optionElements[i];
+			for (const i in this.options) {
+				const el = this.optionElements[i];
 				if (!el) {
 					continue;
 				}
 				const selected =
 					String(this.value) ==
-					String(this.renderTemplate(options[i].option as string));
+					String(this.renderTemplate(this.options[i].option as string));
 				el.className = `${selected ? 'selected' : ''} option`;
 				el.setAttribute('tabindex', '0');
 			}
@@ -974,8 +975,8 @@ export class CustomFeatureDropdownOption extends BaseCustomFeature {
 			] as HTMLElement | null;
 			if (!target?.className?.includes('option')) {
 				const optionElements = (
-					this.getRootNode() as ShadowRoot
-				)?.querySelectorAll('.option');
+					(this.getRootNode() as ShadowRoot).host as CustomFeatureDropdown
+				).optionElements;
 				if (optionElements) {
 					target = optionElements[
 						e.key == 'ArrowUp' ? optionElements.length - 1 : 0
