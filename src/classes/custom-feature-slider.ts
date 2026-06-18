@@ -9,12 +9,15 @@ import { BaseCustomFeature } from './base-custom-feature';
 
 @customElement('custom-feature-slider')
 export class CustomFeatureSlider extends BaseCustomFeature {
-	@state() thumbOffset: number = 0;
 	@state() sliderOn: boolean = true;
 	@state() width: number = this.clientWidth;
 	resizeObserver: ResizeObserver = new ResizeObserver(() => {
 		this.width = this.clientWidth;
 	});
+
+	@state() thumbOffset: number = 0;
+	@query('.thumb') thumb!: HTMLElement;
+	@query('.icon-label') iconLabel!: HTMLElement;
 
 	@query('input') slider!: HTMLInputElement;
 	range: [number, number] = [RANGE_MIN, RANGE_MAX];
@@ -119,8 +122,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	}
 
 	setThumbOffset() {
-		const thumbWidth =
-			this.shadowRoot?.querySelector('.thumb')?.clientWidth ?? 12;
+		const thumbWidth = this.thumb?.clientWidth ?? 12;
 		const maxOffset = (this.width - thumbWidth) / 2;
 		this.thumbOffset = Math.min(
 			Math.max(
@@ -333,19 +335,14 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 		// md3-slider icon and label colors
 		if (this.thumbType == 'md3-slider') {
-			const iconlabel = this.shadowRoot?.querySelector(
-				'.icon-label',
-			) as HTMLElement;
-			if (iconlabel) {
-				const width = iconlabel.clientWidth ?? 0;
-				if (
-					Math.floor(this.width / 2 + this.thumbOffset) >= width ||
-					Math.floor(this.width / 2 - this.thumbOffset) <= width
-				) {
-					iconlabel.className = 'icon-label active';
-				} else {
-					iconlabel.className = 'icon-label inactive';
-				}
+			const width = this.iconLabel.clientWidth ?? 0;
+			if (
+				Math.floor(this.width / 2 + this.thumbOffset) >= width ||
+				Math.floor(this.width / 2 - this.thumbOffset) <= width
+			) {
+				this.iconLabel.className = 'icon-label active';
+			} else {
+				this.iconLabel.className = 'icon-label inactive';
 			}
 		}
 	}
