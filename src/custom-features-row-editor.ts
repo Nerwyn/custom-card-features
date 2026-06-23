@@ -48,7 +48,6 @@ import {
 	InputType,
 	IOption,
 	ITarget,
-	OptionType,
 	ThumbType,
 	UncheckedValues,
 } from './models/interfaces';
@@ -323,7 +322,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.optionIndex = -1;
 	}
 
-	/** Open the editor for the option template shared by all generated options. */
 	editOptionTemplate(_e: Event) {
 		this.yamlStringsCache = {};
 		this.yamlString = undefined;
@@ -331,57 +329,25 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.activeEntryType = 'option_template';
 	}
 
-	/** Return from the option template editor to the dropdown/selector editor. */
 	exitOptionTemplate(_e: Event) {
 		this.activeEntryType = 'entry';
 		this.yamlStringsCache = {};
 		this.yamlString = undefined;
 	}
 
-	/** Which options source the active dropdown/selector is currently using. */
-	get optionsMode(): OptionType {
-		return this.activeEntry?.optionType ?? this.inferOptionType(this.activeEntry);
-	}
-
-	/**
-	 * Infer the options source from the option fields, for configs that predate
-	 * the explicit {@link IDropdownSelectorOptions.optionType} field. A non-blank
-	 * `options` template wins over leftover attribute-source fields, matching the
-	 * runtime precedence in resolveAttributeSource().
-	 */
-	inferOptionType(entry?: IEntry): OptionType {
-		const options = entry?.options;
-		if (typeof options == 'string' && options.trim()) {
-			return 'template';
-		}
-		if (
-			entry?.options_attribute !== undefined ||
-			entry?.options_entity !== undefined
-		) {
-			return 'attribute';
-		}
-		if (typeof options == 'string') {
-			return 'template';
-		}
-		return 'default';
-	}
-
-	/** Switch the options source, clearing the fields owned by the other modes. */
 	setOptionsMode(e: Event) {
-		const mode = (e.detail.value ?? 'default') as OptionType;
-		if (mode == this.optionsMode) {
+		const mode = e.detail.value ?? 'default';
+		if (mode == (this.activeEntry?.option_type ?? 'default')) {
 			return;
 		}
 		const entry = structuredClone(this.activeEntry) as IEntry;
-		// Record the chosen source explicitly and normalize the config to it,
-		// clearing the fields that belong to the other modes.
-		entry.optionType = mode;
-		delete entry.options_attribute;
-		delete entry.options_entity;
+		entry.option_type = mode;
+		delete entry.option_attribute;
+		delete entry.option_entity;
 		switch (mode) {
 			case 'attribute':
 				delete entry.options;
-				entry.options_attribute = '';
+				entry.option_attribute = '';
 				break;
 			case 'template':
 				entry.options = '';
@@ -1495,7 +1461,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 									'default',
 								)}${this.buildCommonAppearanceOptions()}`}`,
 					)}
-					${this.buildOptionsSection(type)}`;
+					${this.buildOptionsSection()}`;
 				break;
 			default:
 				switch (type) {
@@ -1532,14 +1498,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 		);
 	}
 
-	/**
-	 * Build the options source UI for a dropdown/selector: a source picker
-	 * (manual list / entity attribute / template) and the fields for the active
-	 * mode, plus the shared option template editor for the dynamic modes.
-	 */
-	buildOptionsSection(type: 'dropdown' | 'selector') {
-		const mode = this.optionsMode;
-		const noun = type == 'dropdown' ? 'dropdown' : 'selector';
+	buildOptionsSection() {
+		const mode = this.activeEntry?.option_type ?? 'default';
 
 		const modePicker = html`<ha-selector
 			.hass=${this.hass}
@@ -1566,12 +1526,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 				</div>`;
 		}
 
-		// Only list-type attributes make sense as a source, so hide attributes
-		// that are not a usable option list from the attribute picker.
 		const sourceEntity = this.renderTemplate(
-			(this.activeEntry?.options_entity ||
-				this.activeEntry?.entity_id ||
-				'') as string,
+			(this.activeEntry?.option_entity ?? '') as string,
 			this.getEntryContext(this.activeEntry ?? {}),
 		) as string;
 		const listAttributes = this.optionListAttributes(sourceEntity);
@@ -1582,27 +1538,23 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const sourceFields =
 			mode == 'attribute'
 				? html`${this.buildAlertBox(
-						`Generate one ${noun} option per item in an entity attribute that ` +
+						`Generate one option per item in an entity attribute that ` +
 							`contains a list, for example a light's 'effect_list'. Leave the ` +
 							`attribute blank for select/input_select entities to use their ` +
 							`'options' attribute.`,
 					)}
-					${this.buildSelector(
-						'Source entity (optional)',
-						'options_entity',
-						{ entity: {} },
-						this.activeEntry?.entity_id,
-					)}
-					${this.buildSelector('Source attribute', 'options_attribute', {
+					${this.buildSelector('Option entity', 'option_entity', {
+						entity: {},
+					})}
+					${this.buildSelector('Option attribute', 'option_attribute', {
 						attribute: {
-							entity_id:
-								this.activeEntry?.options_entity || this.activeEntry?.entity_id,
+							entity_id: this.activeEntry?.option_entity,
 							hide_attributes: hideAttributes,
 						},
 					})}`
 				: html`${this.buildAlertBox(
 						`Set the options to a template that renders to a list, for example ` +
-							`"{{ state_attr('light.my_light', 'effect_list') }}". One ${noun} ` +
+							`"{{ state_attr('light.my_light', 'effect_list') }}". One` +
 							`option is generated per item.`,
 					)}
 					${this.buildSelector('Options template', 'options', {
@@ -2618,27 +2570,24 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 		// The action targets the feature entity (the one being controlled), while
 		// the list is read from the source entity (which may differ via
-		// options_entity).
+		// option_entity).
 		const featureEntity = this.renderTemplate(
 			(entry.entity_id || entryEntityId || '') as string,
 			context,
 		) as string;
 		const sourceEntity = this.renderTemplate(
-			(entry.options_entity ||
-				entry.entity_id ||
-				entryEntityId ||
-				'') as string,
+			(entry.option_entity || entryEntityId || '') as string,
 			context,
 		) as string;
 		// A template source has no source attribute, so derive the default action
 		// from the attribute only in attribute mode.
-		const optionType = entry.optionType ?? this.inferOptionType(entry);
+		const optionType = entry.option_type ?? 'default';
 		const attribute =
 			optionType == 'template'
 				? ''
 				: resolveOptionsAttribute(
 						this.renderTemplate(
-							(entry.options_attribute || '') as string,
+							(entry.option_attribute || '') as string,
 							context,
 						) as string,
 						sourceEntity,
@@ -2730,37 +2679,29 @@ export class CustomFeaturesRowEditor extends LitElement {
 				switch (featureType) {
 					case 'dropdown':
 					case 'selector': {
-						// Options generated from an attribute/template are filled in
-						// at render time. Pre-fill the shared option template with a
-						// label and a sensible default action so it works out of the box.
-						const optionType =
-							entry.optionType ?? this.inferOptionType(entry);
+						const optionType = entry.option_type ?? 'default';
 						if (optionType != 'default') {
 							if (optionType == 'attribute') {
-								const sourceEntity = this.renderTemplate(
-									(entry.options_entity || entry.entity_id || '') as string,
+								entry.option_entity ||= entryEntityId;
+								const optionEntity = this.renderTemplate(
+									entry.option_entity ?? '',
 									this.getEntryContext(entry),
 								) as string;
-								const sourceState = this.hass.states[sourceEntity];
-								const candidates = this.optionListAttributes(sourceEntity);
-								// Clear a stale attribute that no longer exists on the source
-								// entity (e.g. after changing the entity). Checks the entity's
-								// actual attributes, not the filtered candidates, so a valid
-								// but single-item list attribute is preserved. A templated
-								// attribute name is left alone, since it is resolved at render
-								// time and its raw text won't match a real attribute.
+								const candidates = this.optionListAttributes(optionEntity);
+
 								if (
-									sourceState &&
-									entry.options_attribute &&
-									!hasTemplate(entry.options_attribute) &&
-									!(entry.options_attribute in sourceState.attributes)
+									entry.option_attribute &&
+									!hasTemplate(entry.option_attribute) &&
+									!this.hass.states[optionEntity]?.attributes[
+										entry.option_attribute
+									]
 								) {
-									entry.options_attribute = '';
+									entry.option_attribute = '';
 								}
 								// Auto-select the source attribute when none is chosen yet
 								// and exactly one usable list attribute exists.
-								if (!entry.options_attribute && candidates.length == 1) {
-									entry.options_attribute = candidates[0];
+								if (!entry.option_attribute && candidates.length == 1) {
+									entry.option_attribute = candidates[0];
 								}
 							}
 							entry.option_template = this.autofillOptionTemplate(

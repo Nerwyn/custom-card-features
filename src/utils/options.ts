@@ -50,6 +50,97 @@ export function resolveOptionsAttribute(
 	return SELECT_DOMAINS.includes(domain) ? 'options' : '';
 }
 
+export function getDefaultOptionSelectAction(
+	domain: string,
+	attribute: string,
+	value: string | number | boolean | string[] | number[],
+) {
+	let action: string;
+	let key: string;
+	switch (domain) {
+		case 'light':
+			action = 'turn_on';
+			key = 'effect';
+			break;
+		case 'media_player':
+			switch (attribute) {
+				case 'sound_mode_list':
+					action = 'select_sound_mode';
+					key = 'sound_mode';
+					break;
+				case 'source_list':
+				default:
+					action = 'select_source';
+					key = 'source';
+					break;
+			}
+			break;
+		case 'remote':
+			action = 'turn_on';
+			key = 'current_activity';
+			break;
+		case 'climate':
+			switch (attribute) {
+				case 'preset_modes':
+					action = 'set_preset_mode';
+					key = 'preset_mode';
+					break;
+				case 'swing_modes':
+					action = 'set_swing_mode';
+					key = 'swing_mode';
+					break;
+				case 'fan_modes':
+					action = 'set_fan_mode';
+					key = 'fan_mode';
+					break;
+				case 'hvac_modes':
+				default:
+					action = 'set_hvac_mode';
+					key = 'hvac_mode';
+					break;
+			}
+			break;
+		case 'fan':
+			action = 'set_preset_mode';
+			key = 'mode';
+			break;
+		case 'humidifier':
+			action = 'set_mode';
+			key = 'mode';
+			break;
+		case 'water_heater':
+			action = 'set_operation_mode';
+			key = 'operation_mode';
+			break;
+		case 'vacuum':
+			action = 'set_fan_speed';
+			key = 'fan_speed';
+			break;
+		case 'cover':
+			action = 'set_cover_position';
+			key = 'position';
+			break;
+		case 'lock':
+			action = 'lock';
+			key = 'lock';
+			break;
+		case 'select':
+		case 'input_select':
+		default:
+			action = 'select_option';
+			key = 'option';
+			break;
+	}
+
+	return {
+		action: 'perform-action',
+		perform_action: `${domain}.${action}`,
+		data: {
+			[key]: value,
+		},
+	};
+}
+
 /**
  * How to apply and reflect a selection for an attribute-sourced option list:
  * the service to call, the data key to set, and the feature attribute that
@@ -128,7 +219,7 @@ export function defaultOptionAction(
 ): IOptionAction | undefined {
 	// preset_modes is shared by climate and fan. Only those domains provide
 	// set_preset_mode, so a feature controlling another domain (e.g. an
-	// input_select sourcing preset_modes via options_entity) gets no default.
+	// input_select sourcing preset_modes via option_entity) gets no default.
 	if (attribute == 'preset_modes') {
 		return PRESET_MODE_DOMAINS.includes(domain)
 			? {
@@ -152,7 +243,7 @@ export function defaultOptionAction(
 	}
 	// Attribute-specific services (e.g. effect_list -> light.turn_on) only make
 	// sense when the controlled entity is in that service's domain. When the list
-	// is sourced from a different-domain entity (via options_entity), targeting
+	// is sourced from a different-domain entity (via option_entity), targeting
 	// the feature entity with that service would be invalid, so require a custom
 	// action instead of generating a broken default.
 	const action = OPTION_ACTIONS[attribute];

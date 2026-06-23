@@ -179,10 +179,10 @@ Instead of writing out every option by hand, a dropdown or selector can generate
   ```yaml
   - type: dropdown
     entity_id: light.my_light
-    options_attribute: effect_list
+    option_attribute: effect_list
   ```
 
-  `select` and `input_select` entities default to their `options` attribute, so the value can be left blank. Use `options_entity` to read the list from a different entity than the one being controlled.
+  `select` and `input_select` entities default to their `options` attribute, so the value can be left blank. Use `option_entity` to read the list from a different entity than the one being controlled.
 
 - **Template** points `options` at a template that renders to a list (comma or newline separated, or a JSON/YAML array via `| dump` for values containing commas or `{ value, label, icon }` objects):
 
@@ -2535,7 +2535,7 @@ features:
         value_attribute: effect
         icon: mdi:string-lights
         label: '{{ state_attr(config.entity, "effect") }}'
-        options_attribute: effect_list
+        option_attribute: effect_list
         option_template:
           label: '{{ option }}'
           tap_action:
@@ -2549,12 +2549,12 @@ features:
 
 </details>
 
-The same pattern works for any entity with a list attribute, for example a media player's `source_list` (paired with `media_player.select_source`) or a climate entity's `preset_modes`. For `select` and `input_select` entities you can leave the `options_attribute` value blank and omit `option_template`, since the `options` attribute is used and a `select_option` action is generated for you:
+The same pattern works for any entity with a list attribute, for example a media player's `source_list` (paired with `media_player.select_source`) or a climate entity's `preset_modes`. For `select` and `input_select` entities you can leave the `option_attribute` value blank and omit `option_template`, since the `options` attribute is used and a `select_option` action is generated for you:
 
 ```yaml
 - type: dropdown
   entity_id: input_select.scene
-  options_attribute:
+  option_attribute:
 ```
 
 If you need a computed list instead of a single attribute, point `options` at a template that renders to a list, for example to merge two lists or filter them:

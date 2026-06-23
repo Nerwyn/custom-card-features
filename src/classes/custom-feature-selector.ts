@@ -3,12 +3,12 @@ import { customElement, queryAll } from 'lit/decorators.js';
 
 import { SelectorThumbType, SelectorThumbTypes } from '../models/interfaces';
 import { buildStyles } from '../utils/styles';
-import { BaseCustomFeature } from './base-custom-feature';
+import { BaseOptionSelectCustomFeature } from './base-option-select-custom-features';
 import './custom-feature-button';
 import { CustomFeatureButton } from './custom-feature-button';
 
 @customElement('custom-feature-selector')
-export class CustomFeatureSelector extends BaseCustomFeature {
+export class CustomFeatureSelector extends BaseOptionSelectCustomFeature {
 	@queryAll('.option') optionElements!: CustomFeatureButton[];
 	thumbType: SelectorThumbType = 'default';
 

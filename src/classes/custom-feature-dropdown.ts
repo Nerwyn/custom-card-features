@@ -14,9 +14,10 @@ import {
 } from '../models/interfaces';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
+import { BaseOptionSelectCustomFeature } from './base-option-select-custom-features';
 
 @customElement('custom-feature-dropdown')
-export class CustomFeatureDropdown extends BaseCustomFeature {
+export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 	@state() open: boolean = false;
 	@query('.dropdown') dropdown!: HTMLElement;
 	resizeObserver: ResizeObserver = new ResizeObserver(() => {
