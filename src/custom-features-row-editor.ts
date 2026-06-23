@@ -1507,14 +1507,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 				select: {
 					mode: 'dropdown',
 					options: [
-						{ value: 'default', label: 'Manual list' },
+						{ value: 'default', label: 'Default' },
 						{ value: 'attribute', label: 'Entity attribute' },
 						{ value: 'template', label: 'Template' },
 					],
 					reorder: false,
 				},
 			}}
-			.label=${'Options source'}
+			.label=${'Option mode'}
 			.value=${mode}
 			@value-changed=${this.setOptionsMode}
 		></ha-selector>`;
