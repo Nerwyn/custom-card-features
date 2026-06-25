@@ -510,6 +510,7 @@ export class BaseCustomFeature extends LitElement {
 
 		context = {
 			value: this.value as string,
+			option: (this.config as IOption).option,
 			hold_secs: holdSecs,
 			unit: this.unitOfMeasurement,
 			initialX: this.initialX,
@@ -518,9 +519,6 @@ export class BaseCustomFeature extends LitElement {
 			currentY: this.currentY,
 			deltaX: this.deltaX,
 			deltaY: this.deltaY,
-			// Convenience alias for an option's own value (see issue #198), so that
-			// option templates can use `{{ option }}` as well as `{{ config.option }}`.
-			option: (this.config as IOption).option,
 			config: {
 				...this.config,
 				entity: this.entityId,

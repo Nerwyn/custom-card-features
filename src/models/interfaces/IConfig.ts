@@ -55,9 +55,10 @@ export interface IOption extends IEntry {
 
 export interface IDropdownSelectorOptions {
 	option_type?: OptionType;
-	options?: IOption[] | string;
+	options?: IOption[];
 	option_attribute?: string;
 	option_entity?: string;
+	options_template?: string;
 	option_template?: IOption;
 }
 

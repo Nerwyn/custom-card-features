@@ -1,14 +1,7 @@
 import type { IOption } from '../models/interfaces';
 
 const SELECT_DOMAINS = ['select', 'input_select'];
-
-// Domains that provide a set_preset_mode service for the preset_modes attribute.
-// Humidifiers are excluded: they expose modes via `available_modes`/`mode` and
-// `humidifier.set_mode`, not a preset-mode service.
 const PRESET_MODE_DOMAINS = ['climate', 'fan'];
-
-// List-valued attributes that describe capabilities/metadata rather than
-// selectable options, so they are not offered as an options source.
 const NON_OPTION_ATTRIBUTES = new Set([
 	'supported_color_modes',
 	'supported_features',
@@ -18,12 +11,6 @@ const NON_OPTION_ATTRIBUTES = new Set([
 	'device_trackers',
 ]);
 
-/**
- * Whether an entity attribute is usable as an options source: a list of more
- * than one item that is not a color tuple (`hs_color`, `rgb_color`, …, whose
- * numbers are channel values, not options) or a known capability/metadata
- * attribute. Other numeric lists are allowed — numbers are valid option values.
- */
 export function isOptionListAttribute(name: string, value: unknown): boolean {
 	return (
 		!NON_OPTION_ATTRIBUTES.has(name) &&
@@ -33,12 +20,6 @@ export function isOptionListAttribute(name: string, value: unknown): boolean {
 	);
 }
 
-/**
- * Resolve which entity attribute an attribute-sourced options list should be
- * read from. When no attribute is given, select/input_select entities default
- * to their `options` attribute so that generating options from them is zero
- * configuration; other domains require an explicit attribute.
- */
 export function resolveOptionsAttribute(
 	attribute: string | undefined,
 	entityId: string | undefined,
@@ -50,20 +31,21 @@ export function resolveOptionsAttribute(
 	return SELECT_DOMAINS.includes(domain) ? 'options' : '';
 }
 
-export function getDefaultOptionSelectAction(
+export function getDefaultSelectActionInfo(
 	domain: string,
-	attribute: string,
-	value: string | number | boolean | string[] | number[],
+	listAttribute: string,
 ) {
 	let action: string;
 	let key: string;
+	let valueAttribute: string | undefined;
 	switch (domain) {
 		case 'light':
 			action = 'turn_on';
 			key = 'effect';
+			valueAttribute = 'state';
 			break;
 		case 'media_player':
-			switch (attribute) {
+			switch (listAttribute) {
 				case 'sound_mode_list':
 					action = 'select_sound_mode';
 					key = 'sound_mode';
@@ -78,9 +60,10 @@ export function getDefaultOptionSelectAction(
 		case 'remote':
 			action = 'turn_on';
 			key = 'current_activity';
+			valueAttribute = 'activity';
 			break;
 		case 'climate':
-			switch (attribute) {
+			switch (listAttribute) {
 				case 'preset_modes':
 					action = 'set_preset_mode';
 					key = 'preset_mode';
@@ -97,12 +80,14 @@ export function getDefaultOptionSelectAction(
 				default:
 					action = 'set_hvac_mode';
 					key = 'hvac_mode';
+					valueAttribute = 'state';
 					break;
 			}
 			break;
 		case 'fan':
 			action = 'set_preset_mode';
 			key = 'mode';
+			valueAttribute = 'preset_mode';
 			break;
 		case 'humidifier':
 			action = 'set_mode';
@@ -111,50 +96,40 @@ export function getDefaultOptionSelectAction(
 		case 'water_heater':
 			action = 'set_operation_mode';
 			key = 'operation_mode';
+			valueAttribute = 'state';
 			break;
 		case 'vacuum':
 			action = 'set_fan_speed';
 			key = 'fan_speed';
 			break;
-		case 'cover':
-			action = 'set_cover_position';
-			key = 'position';
-			break;
-		case 'lock':
-			action = 'lock';
-			key = 'lock';
-			break;
 		case 'select':
 		case 'input_select':
-		default:
 			action = 'select_option';
 			key = 'option';
+			valueAttribute = 'state';
 			break;
+		default:
+			return undefined;
 	}
 
 	return {
-		action: 'perform-action',
-		perform_action: `${domain}.${action}`,
-		data: {
-			[key]: value,
+		value_attribute: valueAttribute || key,
+		action: {
+			action: 'perform-action',
+			perform_action: `${domain}.${action}`,
+			data: {
+				[key]: '{{ value }}',
+			},
 		},
 	};
 }
 
-/**
- * How to apply and reflect a selection for an attribute-sourced option list:
- * the service to call, the data key to set, and the feature attribute that
- * reflects the current selection (so it can be highlighted).
- */
 export interface IOptionAction {
 	perform_action: string;
 	data_key: string;
 	value_attribute: string;
 }
 
-// The list attribute a feature sources its options from also tells us how to
-// apply a selection and which attribute reflects it. Mapped here so generating
-// options from these attributes works with no action configuration.
 const OPTION_ACTIONS: Record<string, IOptionAction> = {
 	effect_list: {
 		perform_action: 'light.turn_on',
@@ -208,18 +183,10 @@ const OPTION_ACTIONS: Record<string, IOptionAction> = {
 	},
 };
 
-/**
- * Default action for an option generated from a given entity attribute, so that
- * tapping an option applies the selection without any action configuration.
- * Returns undefined when there is no sensible default for the domain/attribute.
- */
 export function defaultOptionAction(
 	domain: string,
 	attribute: string,
 ): IOptionAction | undefined {
-	// preset_modes is shared by climate and fan. Only those domains provide
-	// set_preset_mode, so a feature controlling another domain (e.g. an
-	// input_select sourcing preset_modes via option_entity) gets no default.
 	if (attribute == 'preset_modes') {
 		return PRESET_MODE_DOMAINS.includes(domain)
 			? {
@@ -229,8 +196,6 @@ export function defaultOptionAction(
 				}
 			: undefined;
 	}
-	// select/input_select, including the no-attribute (template source) case.
-	// The selected option is the entity state.
 	if (
 		SELECT_DOMAINS.includes(domain) &&
 		(attribute == 'options' || !attribute)
@@ -241,11 +206,6 @@ export function defaultOptionAction(
 			value_attribute: 'state',
 		};
 	}
-	// Attribute-specific services (e.g. effect_list -> light.turn_on) only make
-	// sense when the controlled entity is in that service's domain. When the list
-	// is sourced from a different-domain entity (via option_entity), targeting
-	// the feature entity with that service would be invalid, so require a custom
-	// action instead of generating a broken default.
 	const action = OPTION_ACTIONS[attribute];
 	if (action && action.perform_action.split('.')[0] != domain) {
 		return undefined;
@@ -253,9 +213,6 @@ export function defaultOptionAction(
 	return action;
 }
 
-// The exact data key a default option action sets, per service, used to tell an
-// auto-filled default action apart from a user customized one (which may reuse
-// the same service with a different data key, e.g. light.turn_on + brightness).
 const DEFAULT_ACTION_DATA_KEYS = new Map<string, string>([
 	...Object.values(OPTION_ACTIONS).map(
 		(action) => [action.perform_action, action.data_key] as [string, string],
@@ -266,12 +223,6 @@ const DEFAULT_ACTION_DATA_KEYS = new Map<string, string>([
 	['input_select.select_option', 'option'],
 ]);
 
-/**
- * Whether an action looks like an auto-filled option default (a known default
- * service whose only data is that service's expected key set to the
- * `{{ option }}` template) rather than a customized action, so it can be safely
- * regenerated when the source changes.
- */
 export function isManagedDefaultAction(
 	performAction: string | undefined,
 	data: Record<string, unknown> | undefined,
@@ -290,34 +241,24 @@ export function isManagedDefaultAction(
 	);
 }
 
-/**
- * Decode the handful of HTML entities that nunjucks autoescaping introduces.
- * `ha-nunjucks` renders with autoescaping enabled, so a template like
- * `{{ my_list | dump }}` resolves to `[&quot;a&quot;,&quot;b&quot;]`. Decoding
- * these lets us parse the result back into JSON.
- */
 export function unescapeHtml(str: string): string {
-	return str
-		.replace(/&quot;/g, '"')
-		.replace(/&#34;/g, '"')
-		.replace(/&#39;/g, "'")
-		.replace(/&apos;/g, "'")
-		.replace(/&lt;/g, '<')
-		.replace(/&gt;/g, '>')
-		.replace(/&amp;/g, '&');
+	const htmlEntities: Record<string, string> = {
+		'&quot;': '"',
+		'&#34;': '"',
+		'&#39;': "'",
+		'&apos;': "'",
+		'&#x27;': "'",
+		'&lt;': '<',
+		'&gt;': '>',
+		'&amp;': '&',
+	};
+
+	return str.replace(
+		/&quot;|&#34;|&#39;|&apos;|&#x27;|&lt;|&gt;|&amp;/g,
+		(match) => htmlEntities[match],
+	);
 }
 
-/**
- * Coerce the rendered result of an `options` template into an array of items.
- *
- * - An attribute source hands back a native array, which is used as-is.
- * - A template source renders to a string: either the default comma-joined list
- *   output (e.g. `{{ state_attr(...) }}` → `a,b,c`) or a newline-separated list.
- *   Newlines take precedence over commas, so values containing commas can be
- *   expressed with a `join('\n')` template.
- *
- * Each returned item is a primitive (string/number).
- */
 export function parseOptionsList(rendered: unknown): unknown[] {
 	if (Array.isArray(rendered)) {
 		return rendered;
@@ -329,8 +270,6 @@ export function parseOptionsList(rendered: unknown): unknown[] {
 		return [rendered];
 	}
 
-	// Decode entities the templater autoescapes (e.g. `R&amp;B` → `R&B`) before
-	// splitting, so the separator and the values are the real characters.
 	const unescaped = unescapeHtml(rendered).trim();
 	if (!unescaped) {
 		return [];
@@ -342,22 +281,10 @@ export function parseOptionsList(rendered: unknown): unknown[] {
 		.filter((item) => item.length);
 }
 
-/**
- * Build a single option from a templated list item and an optional per-option
- * template. The item's value is always written to the option's `option` field
- * so that selected state detection and the `option`/`config.option` template
- * variables (see issue #198) resolve to the item's value.
- *
- * List items may be primitives (`"Solid"`) or objects describing the option
- * (`{ value, label, icon }`, with `option`/`id`/`name`/`friendly_name`/`title`
- * accepted as aliases). Explicit `label`/`icon` from the item only apply when
- * the template does not already set them, so the template stays in control.
- */
 export function buildTemplatedOption(
 	item: unknown,
 	template?: IOption | null,
 ): IOption {
-	// A blank `option_template:` in YAML is null, so coalesce to an empty object.
 	const option: IOption = structuredClone(template ?? {});
 
 	let value: unknown = item;
@@ -365,11 +292,7 @@ export function buildTemplatedOption(
 	let icon: unknown;
 	if (item != null && typeof item == 'object') {
 		const record = item as Record<string, unknown>;
-		// `||` so a blank string falls through to the next alias rather than
-		// becoming an empty label.
 		label = record.label || record.name || record.friendly_name || record.title;
-		// Fall back to the label aliases for the value so that an item providing
-		// only e.g. `name` is still selectable, not given an empty option value.
 		value =
 			record.value ?? record.option ?? record.id ?? record.key ?? label ?? '';
 		icon = record.icon;

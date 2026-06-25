@@ -335,32 +335,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.yamlString = undefined;
 	}
 
-	setOptionsMode(e: Event) {
-		const mode = e.detail.value ?? 'default';
-		if (mode == (this.activeEntry?.option_type ?? 'default')) {
-			return;
-		}
-		const entry = structuredClone(this.activeEntry) as IEntry;
-		entry.option_type = mode;
-		delete entry.option_attribute;
-		delete entry.option_entity;
-		switch (mode) {
-			case 'attribute':
-				delete entry.options;
-				entry.option_attribute = '';
-				break;
-			case 'template':
-				entry.options = '';
-				break;
-			case 'default':
-			default:
-				entry.options = [];
-				break;
-		}
-		this.optionIndex = -1;
-		this.entryChanged(entry);
-	}
-
 	toggleGuiMode(_e: Event) {
 		this.yamlString = undefined;
 		this.configChanged(this.config);
@@ -1336,12 +1310,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 		let selectorGuiEditor: TemplateResult<1>;
 		let optionGuiEditor: TemplateResult<1>;
 
-		// Editing the template applied to every generated option, bound to
-		// `option_template` via `activeEntry`. Reuse the regular per-option editor
-		// (dropdown option or selector button) so it gets the same appearance and
-		// action fields, including the selector's momentary/hold/double-tap
-		// actions. The parent dropdown/selector supplies the autofill/haptics
-		// defaults.
 		if (this.activeEntryType == 'option_template') {
 			const parentEntry = this.config.entries[this.entryIndex];
 			return html`
@@ -1490,7 +1458,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return selectorGuiEditor;
 	}
 
-	/** Attribute names of an entity that are usable as an options source. */
 	optionListAttributes(entityId: string): string[] {
 		const attributes = this.hass.states[entityId]?.attributes ?? {};
 		return Object.keys(attributes).filter((key) =>
@@ -1499,11 +1466,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	buildOptionsSection() {
-		const mode = this.activeEntry?.option_type ?? 'default';
-
-		const modePicker = html`<ha-selector
-			.hass=${this.hass}
-			.selector=${{
+		const type = this.activeEntry?.option_type ?? 'default';
+		const typeSelector = this.buildSelector(
+			'Option mode',
+			'optionType',
+			{
 				select: {
 					mode: 'dropdown',
 					options: [
@@ -1513,14 +1480,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 					],
 					reorder: false,
 				},
-			}}
-			.label=${'Option mode'}
-			.value=${mode}
-			@value-changed=${this.setOptionsMode}
-		></ha-selector>`;
+			},
+			'default',
+		);
 
-		if (mode == 'default') {
-			return html`<div class="form">${modePicker}</div>
+		if (type == 'default') {
+			return html`<div class="form">${typeSelector}</div>
 				<div class="">
 					${this.buildEntryList('option')}${this.buildAddEntryButton('option')}
 				</div>`;
@@ -1536,7 +1501,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		).filter((key) => !listAttributes.includes(key));
 
 		const sourceFields =
-			mode == 'attribute'
+			type == 'attribute'
 				? html`${this.buildAlertBox(
 						`Generate one option per item in an entity attribute that ` +
 							`contains a list, for example a light's 'effect_list'. Leave the ` +
@@ -1557,14 +1522,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 							`"{{ state_attr('light.my_light', 'effect_list') }}". One` +
 							`option is generated per item.`,
 					)}
-					${this.buildSelector('Options template', 'options', {
+					${this.buildSelector('Options template', 'options_template', {
 						template: {},
 					})}`;
 
-		// The template applies to every generated option rather than identifying a
-		// single one, so show just the header and an edit button — no feature-list
-		// row or per-option label/icon preview.
-		return html`<div class="form">${modePicker}</div>
+		return html`<div class="form">${typeSelector}</div>
 			${sourceFields}
 			<div class="entry-list-header">
 				Option Template
@@ -2698,8 +2660,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 								) {
 									entry.option_attribute = '';
 								}
-								// Auto-select the source attribute when none is chosen yet
-								// and exactly one usable list attribute exists.
+
 								if (!entry.option_attribute && candidates.length == 1) {
 									entry.option_attribute = candidates[0];
 								}
