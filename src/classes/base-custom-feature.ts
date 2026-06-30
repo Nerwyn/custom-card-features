@@ -328,7 +328,7 @@ export class BaseCustomFeature extends LitElement {
 	}
 
 	showFailureToast(action: Action) {
-		let suffix = '';
+		let suffix: string;
 		switch (action) {
 			case 'more-info':
 				suffix = 'no_entity_more_info';

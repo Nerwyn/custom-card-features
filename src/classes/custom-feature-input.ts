@@ -106,7 +106,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 	}
 
 	validate(value: string | number) {
-		let valid = true;
+		let valid: boolean;
 		if (value == undefined) {
 			valid = false;
 		} else {
