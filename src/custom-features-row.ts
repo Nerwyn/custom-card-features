@@ -23,7 +23,14 @@ import { CustomFeaturesCard } from './custom-features-card';
 import { CustomFeaturesCardEditor } from './custom-features-card-editor';
 import { CustomFeaturesRowEditor } from './custom-features-row-editor';
 import { IConfig, IEntry } from './models/interfaces';
-import { atLeastHaVersion } from './utils';
+import {
+	IStreamlineEntry,
+	STREAMLINE_TEMPLATES_UPDATED,
+	atLeastHaVersion,
+	isStreamlineType,
+	loadStreamlineTemplates,
+	resolveStreamlineEntry,
+} from './utils';
 import { buildStyles } from './utils/styles';
 
 console.info(
@@ -38,9 +45,13 @@ export class CustomFeaturesRow extends LitElement {
 	@property() stateObj?: StateObj;
 
 	styles: string = '';
+	entries: IEntry[] = [];
 	entryTypes: CardFeatureType[] = [];
 
 	rtl: boolean = false;
+
+	// Re-render when remote streamline templates finish (re)loading
+	streamlineTemplatesListener = () => this.requestUpdate();
 
 	static getConfigElement() {
 		return document.createElement('custom-features-row-editor');
@@ -66,6 +77,63 @@ export class CustomFeaturesRow extends LitElement {
 		}
 
 		this.config = config;
+
+		// Preload streamline-card templates if any entry might use them, so the
+		// row can re-render once the (asynchronously loaded) templates arrive.
+		if (JSON.stringify(config).includes('custom:streamline-card')) {
+			loadStreamlineTemplates().then(() => this.requestUpdate());
+		}
+	}
+
+	connectedCallback() {
+		super.connectedCallback();
+		window.addEventListener(
+			STREAMLINE_TEMPLATES_UPDATED,
+			this.streamlineTemplatesListener,
+		);
+	}
+
+	disconnectedCallback() {
+		window.removeEventListener(
+			STREAMLINE_TEMPLATES_UPDATED,
+			this.streamlineTemplatesListener,
+		);
+		super.disconnectedCallback();
+	}
+
+	/**
+	 * Expand the configured entries, replacing each `custom:streamline-card`
+	 * entry with the feature entries resolved from its template.
+	 */
+	expandEntries(): IEntry[] {
+		const expanded: IEntry[] = [];
+		for (const entry of this.config.entries) {
+			const context = {
+				config: {
+					...entry,
+					entity: this.renderTemplate(entry.entity_id ?? '') as string,
+					stateObj: this.stateObj,
+				},
+			};
+			const type = String(
+				this.renderTemplate(entry.type as string, context) ?? 'button',
+			);
+
+			if (isStreamlineType(type)) {
+				const resolved = resolveStreamlineEntry(
+					entry as IStreamlineEntry,
+					this.hass,
+				);
+				if (resolved) {
+					expanded.push(...resolved);
+				}
+				// resolved == null means templates are not loaded yet; the entry is
+				// skipped for now and rendered once loadStreamlineTemplates resolves.
+			} else {
+				expanded.push(entry);
+			}
+		}
+		return expanded;
 	}
 
 	renderTemplate(
@@ -95,7 +163,7 @@ export class CustomFeaturesRow extends LitElement {
 		}
 
 		const row: TemplateResult[] = [];
-		for (const [i, entry] of this.config.entries.entries()) {
+		for (const [i, entry] of this.entries.entries()) {
 			switch (this.entryTypes[i]) {
 				case 'toggle':
 					row.push(
@@ -188,11 +256,10 @@ export class CustomFeaturesRow extends LitElement {
 	}
 
 	shouldUpdate(changedProperties: PropertyValues) {
-		if (
-			changedProperties.has('hass') ||
-			changedProperties.has('context') ||
-			changedProperties.has('stateObj')
-		) {
+		// Run on every update cycle (not just hass/context/stateObj changes) so
+		// that asynchronously loaded streamline-card templates, which trigger a
+		// manual requestUpdate, get a chance to expand into feature entries.
+		if (this.hass) {
 			this.setAttribute('theme', this.hass.themes.darkMode ? 'dark' : 'light');
 
 			const context = {
@@ -204,8 +271,9 @@ export class CustomFeaturesRow extends LitElement {
 				context,
 			) as string;
 
+			const entries = this.expandEntries();
 			const entryTypes: CardFeatureType[] = [];
-			for (const entry of this.config.entries) {
+			for (const entry of entries) {
 				const context = {
 					config: {
 						...entry,
@@ -232,9 +300,11 @@ export class CustomFeaturesRow extends LitElement {
 
 			if (
 				styles != this.styles ||
-				entryTypes.toString() != this.entryTypes.toString()
+				entryTypes.toString() != this.entryTypes.toString() ||
+				JSON.stringify(entries) != JSON.stringify(this.entries)
 			) {
 				this.styles = styles;
+				this.entries = entries;
 				this.entryTypes = entryTypes;
 				return true;
 			}

@@ -23,7 +23,11 @@ export interface IEntry
 		ISpinboxOptions,
 		IInputOptions,
 		IToggleOptions {
-	type?: CardFeatureType;
+	type?: CardFeatureType | 'custom:streamline-card';
+
+	// custom:streamline-card entries (resolved into feature entries at render)
+	template?: string;
+	variables?: Record<string, unknown> | Record<string, unknown>[];
 
 	entity_id?: string;
 	autofill_entity_id?: boolean;

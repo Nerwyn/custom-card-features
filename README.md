@@ -107,6 +107,45 @@ In addition to the default Home Assistant toggle feature style toggle, you can a
 
 Toggles feature three icons! There's the icon normally shown alongside the label, and additional checked and unchecked icons. For the default toggle the normal icon and label will appear on the toggle thumb while the checked/unchecked icons will appear in the toggle background. For the Material Design toggle options, the normal icon and label will appear inline with the checkbox/switch, and the checked/unchecked icons will appear within the checkbox or on the switch thumb.
 
+# Streamline Card Templates
+
+If you have [Streamline Card](https://github.com/brunosabot/streamline-card) installed, you can use its templates to define reusable feature entries and cut down on configuration duplication. Instead of repeating near identical entries, define a template once and reference it as an entry of type `custom:streamline-card`.
+
+```yaml
+type: custom:service-call
+entries:
+  - type: custom:streamline-card
+    template: my_button
+    variables:
+      - custom_icon: mdi:one-up
+  - type: custom:streamline-card
+    template: my_button
+    variables:
+      - custom_icon: mdi:access-point
+```
+
+The referenced template's `card` (or `element`) body is used as the entry config, so it should describe a custom feature rather than a card. For the example above:
+
+```yaml
+streamline_templates:
+  my_button:
+    default:
+      - custom_icon: mdi:gesture-tap-button
+    card:
+      type: button
+      icon: '[[custom_icon]]'
+      tap_action:
+        action: toggle
+```
+
+Templates are resolved exactly as Streamline Card resolves them, including:
+
+- Variable substitution using `[[variable_name]]` placeholders and `default` values.
+- `*_javascript` keys, which are evaluated against `states`, `user`, `variables`, and `areas`.
+- Templates defined inline under `streamline_templates` in your dashboard configuration, as well as file based templates loaded from `streamline_templates.yaml` (including `!include` directives).
+
+A single streamline entry can also resolve to multiple entries if its template body is a list of feature configs. After a streamline template is resolved, the resulting entry still supports all of the normal feature options and [nunjucks templating](#a-note-on-templating) described below.
+
 # How To Use
 
 This project now has a fully featured configuration user interface! To get started, install this project using HACS. Then go to a dashboard and create a tile card, or any other card that supports card features. The entity ID can be anything you like. Click `Add feature` and then `Custom features row`
