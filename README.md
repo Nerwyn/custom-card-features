@@ -172,7 +172,7 @@ Dropdowns can also be assigned their own default icon and label. When no option 
 
 #### Dynamic Options
 
-Instead of manually defining every option, a dropdown or selector can generate its options from a list. Change `Option mode` to `Entity attribute` to use an entity attribute as the options list, or `Template` to define the options list using a template.
+Instead of manually defining every option, a dropdown or selector can generate its options from a list. Change `Option mode` to `Entity attribute` to use an entity attribute value as the options list, or `Template` to define the options list using a template. When in template mode, the template result can either be a list of option value strings or partial option config objects.
 
 Each feature option will be generated using the items from the option list and the `Option template`, which you can modify. Use the template variable `option` to reference the current option list item.
 

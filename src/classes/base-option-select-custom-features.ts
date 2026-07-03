@@ -7,26 +7,34 @@ export class BaseOptionSelectCustomFeature extends BaseCustomFeature {
 	options: IOption[] = [];
 
 	setOptions(): boolean {
-		let items: string[];
+		let items: (string | IOption)[];
 
 		const optionType = this.renderTemplate(
 			this.config.option_type ?? 'default',
 		) as OptionType;
 		switch (optionType) {
 			case 'template': {
-				let template = this.config.options_template ?? '';
-				if (template.includes('- ')) {
-					const itemsObj = load(template) as string[];
-					if (Array.isArray(itemsObj)) {
-						template = itemsObj.join(',');
-					} else {
-						template = JSON.stringify(itemsObj);
+				const itemsString = this.renderTemplate(
+					this.config.options_template ?? '',
+				) as string;
+				if (itemsString.includes('- ')) {
+					let itemsObj = load(itemsString) as (string | IOption)[];
+					if (!Array.isArray(itemsObj)) {
+						itemsObj = [itemsObj];
 					}
+					items = itemsObj.map((i) => {
+						if (typeof i === 'string') {
+							return i.trim();
+						} else {
+							return i;
+						}
+					});
+				} else {
+					items = itemsString
+						.split(',')
+						.flat()
+						.map((i) => unescapeHtml(i).trim());
 				}
-				items = (this.renderTemplate(template.trim() ?? '') as string)
-					.split(',')
-					.flat()
-					.map((i) => unescapeHtml(i).trim());
 				break;
 			}
 			case 'attribute': {
@@ -60,10 +68,19 @@ export class BaseOptionSelectCustomFeature extends BaseCustomFeature {
 		}
 
 		const options = items.map((option) => {
-			return {
+			const res = {
 				...this.config.option_template,
-				option,
 				entity_id: this.config.option_entity ?? this.config.entity_id,
+			};
+			if (typeof option == 'string') {
+				return {
+					...res,
+					option,
+				};
+			}
+			return {
+				...res,
+				...option,
 			};
 		});
 		if (JSON.stringify(options) == JSON.stringify(this.options)) {
