@@ -79,11 +79,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 	// Reactive so that transitions which only change the active entry type (e.g.
 	// opening/closing the option template editor) trigger a re-render.
 	@state() activeEntryType:
-		| 'entry'
-		| 'option'
-		| 'option_template'
-		| 'decrement'
-		| 'increment' = 'entry';
+		'entry' | 'option' | 'option_template' | 'decrement' | 'increment' =
+		'entry';
 	people: Record<string, string>[] = [];
 
 	ACTIONS_TABS = ['default', 'momentary'];
@@ -559,15 +556,17 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return html`
 			<div class="content">
 				<div class="entry-list-header">
-					${field == 'entry' && this.showExitButton
-						? html`<div class="back-title">
-								<ha-icon-button-prev
-									.label=${this.hass.localize('ui.common.back')}
-									@click=${this.handleExitEditor}
-								></ha-icon-button-prev>
-								${listHeader}
-							</div>`
-						: listHeader}
+					${
+						field == 'entry' && this.showExitButton
+							? html`<div class="back-title">
+									<ha-icon-button-prev
+										.label=${this.hass.localize('ui.common.back')}
+										@click=${this.handleExitEditor}
+									></ha-icon-button-prev>
+									${listHeader}
+								</div>`
+							: listHeader
+					}
 					<ha-icon-button class="header-icon" @click=${this.handleREADME}
 						><ha-icon .icon="${'mdi:help-circle'}"></ha-icon
 					></ha-icon-button>
@@ -595,19 +594,21 @@ export class CustomFeaturesRowEditor extends LitElement {
 										${icon ? html`<ha-icon .icon="${icon}"></ha-icon>` : ''}
 										<div class="feature-list-item-label">
 											<span class="primary"
-												>${option ??
-												(field == 'option' ? 'Option' : entryType)}${label
-													? ` ⸱ ${label}`
-													: ''}</span
+												>${
+													option ?? (field == 'option' ? 'Option' : entryType)
+												}${label ? ` ⸱ ${label}` : ''}</span
 											>
-											${context.config.entity
-												? html`<span class="secondary"
-														>${context.config.entity_id}${context.config
-															.attribute
-															? ` ⸱ ${context.config.attribute}`
-															: ''}</span
-													>`
-												: ''}
+											${
+												context.config.entity
+													? html`<span class="secondary"
+															>${context.config.entity_id}${
+																context.config.attribute
+																	? ` ⸱ ${context.config.attribute}`
+																	: ''
+															}</span
+														>`
+													: ''
+											}
 										</div>
 									</div>
 									<ha-icon-button
@@ -734,9 +735,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 						)}
 					>
 						<ha-icon
-							.icon="${this.guiMode
-								? 'mdi:code-braces'
-								: 'mdi:list-box-outline'}"
+							.icon="${
+								this.guiMode ? 'mdi:code-braces' : 'mdi:list-box-outline'
+							}"
 						></ha-icon>
 					</ha-icon-button>
 				</div>
@@ -796,18 +797,20 @@ export class CustomFeaturesRowEditor extends LitElement {
 			${this.buildSelector('Entity', 'entity_id', {
 				entity: {},
 			})}
-			${this.hass.states[this.activeEntry?.entity_id ?? '']
-				? this.buildSelector(
-						'Attribute',
-						'value_attribute',
-						{
-							attribute: {
-								entity_id: this.activeEntry?.entity_id,
+			${
+				this.hass.states[this.activeEntry?.entity_id ?? '']
+					? this.buildSelector(
+							'Attribute',
+							'value_attribute',
+							{
+								attribute: {
+									entity_id: this.activeEntry?.entity_id,
+								},
 							},
-						},
-						'state',
-					)
-				: ''}
+							'state',
+						)
+					: ''
+			}
 		`;
 	}
 
@@ -866,109 +869,125 @@ export class CustomFeaturesRowEditor extends LitElement {
 		) as string;
 		return html`<div class="action-options">
 			${this.buildSelector(label, actionType, selector)}
-			${action != 'none' && actionType == 'double_tap_action'
-				? this.buildSelector(
-						'Double tap window',
-						'double_tap_action.double_tap_window',
-						{
-							number: {
-								min: 0,
-								step: 1,
-								mode: 'box',
-								unit_of_measurement: 'ms',
-							},
-						},
-						DOUBLE_TAP_WINDOW,
-					)
-				: ['hold_action', 'momentary_repeat_action'].includes(actionType) &&
-					  this.activeEntry?.[actionType]
-					? html`<div class="form">
-							${this.buildSelector(
-								'Hold time',
-								'hold_action.hold_time',
-								{
-									number: {
-										min: 0,
-										step: 1,
-										mode: 'box',
-										unit_of_measurement: 'ms',
-									},
+			${
+				action != 'none' && actionType == 'double_tap_action'
+					? this.buildSelector(
+							'Double tap window',
+							'double_tap_action.double_tap_window',
+							{
+								number: {
+									min: 0,
+									step: 1,
+									mode: 'box',
+									unit_of_measurement: 'ms',
 								},
-								HOLD_TIME,
+							},
+							DOUBLE_TAP_WINDOW,
+						)
+					: ['hold_action', 'momentary_repeat_action'].includes(actionType) &&
+						  this.activeEntry?.[actionType]
+						? html`<div class="form">
+								${this.buildSelector(
+									'Hold time',
+									'hold_action.hold_time',
+									{
+										number: {
+											min: 0,
+											step: 1,
+											mode: 'box',
+											unit_of_measurement: 'ms',
+										},
+									},
+									HOLD_TIME,
+								)}
+								${
+									this.renderTemplate(
+										this.activeEntry?.hold_action?.action as string,
+										context,
+									) == 'repeat' || actionType == 'momentary_repeat_action'
+										? this.buildSelector(
+												'Repeat delay',
+												'hold_action.repeat_delay',
+												{
+													number: {
+														min: 0,
+														step: 1,
+														mode: 'box',
+														unit_of_measurement: 'ms',
+													},
+												},
+												REPEAT_DELAY,
+											)
+										: ''
+								}
+							</div>`
+						: ''
+			}
+			${
+				action == 'more-info'
+					? this.buildSelector('Entity', `${actionType}.target.entity_id`, {
+							entity: {},
+						})
+					: ''
+			}
+			${
+				action == 'toggle'
+					? this.buildSelector('Target', `${actionType}.target`, {
+							target: {},
+						})
+					: ''
+			}
+			${
+				buildCodeEditor || action == 'fire-dom-event'
+					? this.buildCodeEditor('action', actionType)
+					: ''
+			}
+			${
+				action == 'eval'
+					? html`
+							${this.buildAlertBox(
+								"It's easy to crash your browser or server if you use this to send too many commands in a loop. Make sure you know what you're doing!",
+								'warning',
 							)}
-							${this.renderTemplate(
-								this.activeEntry?.hold_action?.action as string,
-								context,
-							) == 'repeat' || actionType == 'momentary_repeat_action'
-								? this.buildSelector(
-										'Repeat delay',
-										'hold_action.repeat_delay',
+							${this.buildCodeEditor('eval', actionType)}
+						`
+					: ''
+			}
+			${
+				action != 'none'
+					? html`${this.buildSelector(
+							'Confirmation',
+							`${actionType}.confirmation`,
+							{
+								boolean: {},
+							},
+							false,
+						)}
+						${
+							this.activeEntry?.[actionType]?.confirmation
+								? html`${this.buildSelector(
+										'Text',
+										`${actionType}.confirmation.text`,
 										{
-											number: {
-												min: 0,
-												step: 1,
-												mode: 'box',
-												unit_of_measurement: 'ms',
+											text: {},
+										},
+									)}
+									${this.buildSelector(
+										'Exemptions',
+										`${actionType}.confirmation.exemptions`,
+										{
+											select: {
+												multiple: true,
+												mode: 'list',
+												options: this.people,
+												reorder: false,
 											},
 										},
-										REPEAT_DELAY,
-									)
-								: ''}
-						</div>`
-					: ''}
-			${action == 'more-info'
-				? this.buildSelector('Entity', `${actionType}.target.entity_id`, {
-						entity: {},
-					})
-				: ''}
-			${action == 'toggle'
-				? this.buildSelector('Target', `${actionType}.target`, {
-						target: {},
-					})
-				: ''}
-			${buildCodeEditor || action == 'fire-dom-event'
-				? this.buildCodeEditor('action', actionType)
-				: ''}
-			${action == 'eval'
-				? html`
-						${this.buildAlertBox(
-							"It's easy to crash your browser or server if you use this to send too many commands in a loop. Make sure you know what you're doing!",
-							'warning',
-						)}
-						${this.buildCodeEditor('eval', actionType)}
-					`
-				: ''}
-			${action != 'none'
-				? html`${this.buildSelector(
-						'Confirmation',
-						`${actionType}.confirmation`,
-						{
-							boolean: {},
-						},
-						false,
-					)}
-					${this.activeEntry?.[actionType]?.confirmation
-						? html`${this.buildSelector(
-								'Text',
-								`${actionType}.confirmation.text`,
-								{
-									text: {},
-								},
-							)}
-							${this.buildSelector(
-								'Exemptions',
-								`${actionType}.confirmation.exemptions`,
-								{
-									select: {
-										multiple: true,
-										mode: 'list',
-										options: this.people,
-										reorder: false,
-									},
-								},
-							)}`
-						: ''}`
-				: ''}
+									)}`
+								: ''
+						}`
+					: ''
+			}
 		</div>`;
 	}
 
@@ -1080,89 +1099,93 @@ export class CustomFeaturesRowEditor extends LitElement {
 				)}
 			</div>
 			${this.buildAppearancePanel(
-				html`${parentEntry
-					? html``
-					: html`
-							${this.buildSelector(
-								'Type',
-								'thumb',
-								{
-									select: {
-										mode: 'dropdown',
-										options: [
-											{
-												value: 'default',
-												label: 'Default',
-											},
-											{
-												value: 'transparent',
-												label: 'Transparent',
-											},
-											{
-												value: 'tile-icon',
-												label: 'Tile Icon',
-											},
-											{
-												value: 'md3-elevated',
-												label: 'Material Design 3 Elevated',
-											},
-											{
-												value: 'md3-filled',
-												label: 'Material Design 3 Filled',
-											},
-											{
-												value: 'md3-tonal',
-												label: 'Material Design 3 Tonal',
-											},
-											{
-												value: 'md3-outlined',
-												label: 'Material Design 3 Outlined',
-											},
-											{
-												value: 'md3-text',
-												label: 'Material Design 3 Text',
-											},
-											{
-												value: 'md3-fab-primary',
-												label: 'Material Design 3 FAB Primary',
-											},
-											{
-												value: 'md3-fab-secondary',
-												label: 'Material Design 3 FAB Secondary',
-											},
-											{
-												value: 'md3-fab-tertiary',
-												label: 'Material Design 3 FAB Tertiary',
-											},
-											{
-												value: 'md3-fab-primary-container',
-												label: 'Material Design 3 FAB Primary Container',
-											},
-											{
-												value: 'md3-fab-secondary-container',
-												label: 'Material Design 3 FAB Secondary Container',
-											},
-											{
-												value: 'md3-fab-tertiary-container',
-												label: 'Material Design 3 FAB Tertiary Container',
-											},
-										],
-										reorder: false,
-									},
-								},
-								'default',
-							)}
-							${thumb.startsWith('md3') && !thumb.endsWith('text')
-								? this.buildSelector(
-										'Toggle styles',
-										'toggle_styles',
-										{
-											boolean: {},
+				html`${
+					parentEntry
+						? html``
+						: html`
+								${this.buildSelector(
+									'Type',
+									'thumb',
+									{
+										select: {
+											mode: 'dropdown',
+											options: [
+												{
+													value: 'default',
+													label: 'Default',
+												},
+												{
+													value: 'transparent',
+													label: 'Transparent',
+												},
+												{
+													value: 'tile-icon',
+													label: 'Tile Icon',
+												},
+												{
+													value: 'md3-elevated',
+													label: 'Material Design 3 Elevated',
+												},
+												{
+													value: 'md3-filled',
+													label: 'Material Design 3 Filled',
+												},
+												{
+													value: 'md3-tonal',
+													label: 'Material Design 3 Tonal',
+												},
+												{
+													value: 'md3-outlined',
+													label: 'Material Design 3 Outlined',
+												},
+												{
+													value: 'md3-text',
+													label: 'Material Design 3 Text',
+												},
+												{
+													value: 'md3-fab-primary',
+													label: 'Material Design 3 FAB Primary',
+												},
+												{
+													value: 'md3-fab-secondary',
+													label: 'Material Design 3 FAB Secondary',
+												},
+												{
+													value: 'md3-fab-tertiary',
+													label: 'Material Design 3 FAB Tertiary',
+												},
+												{
+													value: 'md3-fab-primary-container',
+													label: 'Material Design 3 FAB Primary Container',
+												},
+												{
+													value: 'md3-fab-secondary-container',
+													label: 'Material Design 3 FAB Secondary Container',
+												},
+												{
+													value: 'md3-fab-tertiary-container',
+													label: 'Material Design 3 FAB Tertiary Container',
+												},
+											],
+											reorder: false,
 										},
-										false,
-									)
-								: ''}
-						`}${this.buildCommonAppearanceOptions()}`,
+									},
+									'default',
+								)}
+								${
+									thumb.startsWith('md3') && !thumb.endsWith('text')
+										? this.buildSelector(
+												'Toggle styles',
+												'toggle_styles',
+												{
+													boolean: {},
+												},
+												false,
+											)
+										: ''
+								}
+							`
+				}${this.buildCommonAppearanceOptions()}`,
 			)}
 			${this.buildInteractionsPanel(actionSelectors)}
 		`;
@@ -1316,9 +1339,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 				${this.buildAlertBox(
 					"This template is applied to every generated option. Use the variable '{{ option }}' to reference each item's value, for example in the label or action data.",
 				)}
-				${type == 'dropdown'
-					? this.buildDropdownOptionGuiEditor(parentEntry)
-					: this.buildButtonGuiEditor(parentEntry)}
+				${
+					type == 'dropdown'
+						? this.buildDropdownOptionGuiEditor(parentEntry)
+						: this.buildButtonGuiEditor(parentEntry)
+				}
 			`;
 		}
 
@@ -1357,77 +1382,79 @@ export class CustomFeaturesRowEditor extends LitElement {
 						)}
 					</div>
 					${this.buildAppearancePanel(
-						html`${type == 'selector'
-							? html`${this.buildSelector(
-									'Type',
-									'thumb',
-									{
-										select: {
-											mode: 'dropdown',
-											options: [
-												{
-													value: 'default',
-													label: 'Default',
-												},
-												{
-													value: 'md3-elevated',
-													label: 'Material Design 3 Elevated',
-												},
-												{
-													value: 'md3-filled',
-													label: 'Material Design 3 Filled',
-												},
-												{
-													value: 'md3-tonal',
-													label: 'Material Design 3 Tonal',
-												},
-												{
-													value: 'md3-outlined',
-													label: 'Material Design 3 Outlined',
-												},
-											],
-											reorder: false,
+						html`${
+							type == 'selector'
+								? html`${this.buildSelector(
+										'Type',
+										'thumb',
+										{
+											select: {
+												mode: 'dropdown',
+												options: [
+													{
+														value: 'default',
+														label: 'Default',
+													},
+													{
+														value: 'md3-elevated',
+														label: 'Material Design 3 Elevated',
+													},
+													{
+														value: 'md3-filled',
+														label: 'Material Design 3 Filled',
+													},
+													{
+														value: 'md3-tonal',
+														label: 'Material Design 3 Tonal',
+													},
+													{
+														value: 'md3-outlined',
+														label: 'Material Design 3 Outlined',
+													},
+												],
+												reorder: false,
+											},
 										},
-									},
-									'default',
-								)}`
-							: html`${this.buildSelector(
-									'Type',
-									'thumb',
-									{
-										select: {
-											mode: 'dropdown',
-											options: [
-												{
-													value: 'default',
-													label: 'Default',
-												},
-												{
-													value: 'md3-standard',
-													label: 'Material Design 3 Standard',
-												},
-												{
-													value: 'md3-vibrant',
-													label: 'Material Design 3 Vibrant',
-												},
-												{
-													value: 'md3-fab-primary',
-													label: 'Material Design 3 FAB Primary',
-												},
-												{
-													value: 'md3-fab-secondary',
-													label: 'Material Design 3 FAB Secondary',
-												},
-												{
-													value: 'md3-fab-tertiary',
-													label: 'Material Design 3 FAB Tertiary',
-												},
-											],
-											reorder: false,
+										'default',
+									)}`
+								: html`${this.buildSelector(
+										'Type',
+										'thumb',
+										{
+											select: {
+												mode: 'dropdown',
+												options: [
+													{
+														value: 'default',
+														label: 'Default',
+													},
+													{
+														value: 'md3-standard',
+														label: 'Material Design 3 Standard',
+													},
+													{
+														value: 'md3-vibrant',
+														label: 'Material Design 3 Vibrant',
+													},
+													{
+														value: 'md3-fab-primary',
+														label: 'Material Design 3 FAB Primary',
+													},
+													{
+														value: 'md3-fab-secondary',
+														label: 'Material Design 3 FAB Secondary',
+													},
+													{
+														value: 'md3-fab-tertiary',
+														label: 'Material Design 3 FAB Tertiary',
+													},
+												],
+												reorder: false,
+											},
 										},
-									},
-									'default',
-								)}${this.buildCommonAppearanceOptions()}`}`,
+										'default',
+									)}${this.buildCommonAppearanceOptions()}`
+						}`,
 					)}
 					${this.buildOptionsSection()}`;
 				break;
@@ -1469,7 +1496,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const type = this.activeEntry?.option_type ?? 'default';
 		const typeSelector = this.buildSelector(
 			'Option mode',
-			'optionType',
+			'option_type',
 			{
 				select: {
 					mode: 'dropdown',
@@ -1774,24 +1801,26 @@ export class CustomFeaturesRowEditor extends LitElement {
 					},
 					true,
 				)}
-				${thumb == 'default'
-					? html`${this.buildSelector(
-							'Swipe only',
-							'swipe_only',
-							{
-								boolean: {},
-							},
-							false,
-						)}
-						${this.buildSelector(
-							'Full swipe',
-							'full_swipe',
-							{
-								boolean: {},
-							},
-							false,
-						)}`
-					: ``}
+				${
+					thumb == 'default'
+						? html`${this.buildSelector(
+								'Swipe only',
+								'swipe_only',
+								{
+									boolean: {},
+								},
+								false,
+							)}
+							${this.buildSelector(
+								'Full swipe',
+								'full_swipe',
+								{
+									boolean: {},
+								},
+								false,
+							)}`
+						: ``
+				}
 				${this.buildSelector(
 					'Autofill',
 					'autofill_entity_id',
@@ -2275,15 +2304,17 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	buildErrorPanel() {
 		return html`
-			${this.errors && this.errors.length > 0
-				? html`<div class="error">
-						${this.hass.localize('ui.errors.config.error_detected')}:
-						<br />
-						<ul>
-							${this.errors!.map((error) => html`<li>${error}</li>`)}
-						</ul>
-					</div>`
-				: ''}
+			${
+				this.errors && this.errors.length > 0
+					? html`<div class="error">
+							${this.hass.localize('ui.errors.config.error_detected')}:
+							<br />
+							<ul>
+								${this.errors!.map((error) => html`<li>${error}</li>`)}
+							</ul>
+						</div>`
+					: ''
+			}
 		`;
 	}
 
@@ -2476,8 +2507,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					]) {
 						if (data[targetId]) {
 							target[targetId as keyof ITarget] = data[targetId] as
-								| string
-								| string[];
+								string | string[];
 							delete data[targetId];
 						}
 					}
@@ -2871,8 +2901,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 									break;
 							}
 							entry.range = [rangeMin, rangeMax] as
-								| [number, number]
-								| [string, string];
+								[number, number] | [string, string];
 							break;
 						}
 						rangeMin ??=
