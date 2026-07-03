@@ -53,7 +53,7 @@ You can override the default behavior of each option by changing their action. T
 
 You can also choose to not give any of the dropdown options `Option` values, so that none are ever marked as the selected option. This makes it so that the default dropdown icon and label are always displayed, and the dropdown feature becomes more of a menu for firing different actions rather than one for selecting an option.
 
-Instead of writing out every option by hand, you can also generate them from an entity attribute that contains a list (such as a light's `effect_list`) or from a template. This is useful for entities with long, dynamic attribute lists. See [Dynamic Options](#dynamic-options) below and [Example 9](#example-9) for a worked example.
+Instead of defining every option manually, you can also generate them from an entity attribute that contains a list (such as a light's `effect_list`) or from a template. This is useful for entities with long, dynamic attribute lists. See [Dynamic Options](#dynamic-options) below and [Example 9](#example-9).
 
 ## Inputs
 
@@ -172,37 +172,11 @@ Dropdowns can also be assigned their own default icon and label. When no option 
 
 #### Dynamic Options
 
-Instead of writing out every option by hand, a dropdown or selector can generate its options from a list — one option per item — using the **Options source** setting in the configuration UI:
+Instead of manually defining every option, a dropdown or selector can generate its options from a list. Change `Option mode` to `Entity attribute` to use an entity attribute as the options list, or `Template` to define the options list using a template.
 
-- **Entity attribute** reads the list straight from an attribute, for example a light's `effect_list`:
+Each feature option will be generated using the items from the option list and the `Option template`, which you can modify. Use the template variable `option` to reference the current option list item.
 
-  ```yaml
-  - type: dropdown
-    entity_id: light.my_light
-    option_attribute: effect_list
-  ```
-
-  `select` and `input_select` entities default to their `options` attribute, so the value can be left blank. Use `option_entity` to read the list from a different entity than the one being controlled.
-
-- **Template** points `options` at a template that renders to a list (comma or newline separated, or a JSON/YAML array via `| dump` for values containing commas or `{ value, label, icon }` objects):
-
-  ```yaml
-  options: "{{ state_attr('light.my_light', 'effect_list') }}"
-  ```
-
-Each item's value is exposed to its templates as `option` (and `config.option`). An optional **Option template** sets the label, icon, and action shared by every generated option:
-
-```yaml
-option_template:
-  label: '{{ option }}'
-  tap_action:
-    action: perform-action
-    perform_action: light.turn_on
-    target: { entity_id: light.my_light }
-    data: { effect: '{{ option }}' }
-```
-
-For recognized list attributes (`effect_list`, `source_list`, `sound_mode_list`, `activity_list`, `hvac_modes`, `fan_modes`, `swing_modes`, `preset_modes`, `available_modes`, `operation_list`, `fan_speed_list`, and a select's `options`) the matching action and tracked attribute are filled in automatically, so generating options works with no option template at all — and the configuration UI pre-fills the option template so you can tweak it. Generated options re-render when their source changes, and the resolved list is cached so even very long lists stay cheap.
+When using an entity attribute to define the option list, the option template action will be autofilled if identified.
 
 ### Toggle General Options
 
@@ -226,7 +200,7 @@ Buttons, dropdowns, selectors, sliders, and toggles have design variants that ca
 
 Almost all fields support nunjucks templating. Nunjucks is a templating engine for JavaScript, which is heavily based on the jinja2 templating engine for Python which Home Assistant uses. While the syntax of nunjucks and jinja2 is almost identical, you may find the [nunjucks documentation](https://mozilla.github.io/nunjucks/templating.html) useful. Most extensions supported by Home Assistant templates are supported by this templating system, but not all and the syntax may vary. Please see the [ha-nunjucks](https://github.com/Nerwyn/ha-nunjucks) repository for a list of available extensions. If you want additional extensions to be added or have templating questions or bugs, please make an issue or discussion on that repository, not this one.
 
-You can include the current value of a feature and its units by using the variables `value` and `unit` in a label template. You can also include `hold_secs` in a template if performing a momentary repeat or end action. For toggles you can use the boolean variable `checked` to check whether the toggle is on or off. For dropdown and selector options you can use the variable `option` (also available as `config.option`) to reference that option's own value, which is especially useful with [dynamic options](#dynamic-options). Each custom feature can also reference its entry using `config` within templates. `config.entity` and `config.attribute` will return the features entity ID and attribute with their templates rendered (if they have them), and other templated config fields can be rendered within templates by wrapping them in the function `render` within a template. Information about the parent card such as its entity ID, state, and attributes can be accessed using `stateObj`. The structure of `stateObj` matches the [Home Assistant websocket `HassEntity` type definition](https://github.com/home-assistant/home-assistant-js-websocket/blob/1d51737f6092b95e2bc98e85aca752771b97b760/lib/types.ts#L72-L96) and is listed below.
+You can include the current value of a feature and its units by using the variables `value` and `unit` in a label template. You can also include `hold_secs` in a template if performing a momentary repeat or end action. For toggles you can use the boolean variable `checked` to check whether the toggle is on or off. For dropdown and selector options you can use the variable `option` to reference an option's option. Each custom feature can also reference its entry using `config` within templates. `config.entity` and `config.attribute` will return the features entity ID and attribute with their templates rendered (if they have them), and other templated config fields can be rendered within templates by wrapping them in the function `render` within a template. Information about the parent card such as its entity ID, state, and attributes can be accessed using `stateObj`. The structure of `stateObj` matches the [Home Assistant websocket `HassEntity` type definition](https://github.com/home-assistant/home-assistant-js-websocket/blob/1d51737f6092b95e2bc98e85aca752771b97b760/lib/types.ts#L72-L96) and is listed below.
 
 <details>
 
@@ -2498,7 +2472,7 @@ transparent: true
 
 ## Example 9
 
-Generating dropdown options dynamically from a light's `effect_list` attribute. The dropdown lists every effect the light supports, marks the active one as selected, and tapping an option sets that effect — all without hand writing a single option. If the light's firmware adds or removes effects, the dropdown updates automatically.
+Generating dropdown options dynamically from a light entity's `effect_list` attribute.
 
 <details>
 
@@ -2514,7 +2488,8 @@ features:
         entity_id: light.wled
         value_attribute: effect
         icon: mdi:string-lights
-        label: '{{ state_attr(config.entity, "effect") }}'
+        label: '{{ value }}'
+        option_type: attribute
         option_attribute: effect_list
         option_template:
           label: '{{ option }}'
@@ -2528,17 +2503,3 @@ features:
 ```
 
 </details>
-
-The same pattern works for any entity with a list attribute, for example a media player's `source_list` (paired with `media_player.select_source`) or a climate entity's `preset_modes`. For `select` and `input_select` entities you can leave the `option_attribute` value blank and omit `option_template`, since the `options` attribute is used and a `select_option` action is generated for you:
-
-```yaml
-- type: dropdown
-  entity_id: input_select.scene
-  option_attribute:
-```
-
-If you need a computed list instead of a single attribute, point `options` at a template that renders to a list, for example to merge two lists or filter them:
-
-```yaml
-options: "{{ (state_attr(config.entity, 'effect_list') or []) | reject('eq', 'Solid') | list }}"
-```
