@@ -1,6 +1,7 @@
 const SELECT_DOMAINS = ['select', 'input_select'];
 const PRESET_MODE_DOMAINS = ['climate', 'fan'];
-const NON_OPTION_ATTRIBUTES = new Set([
+
+export const NON_OPTION_ATTRIBUTES = new Set([
 	'supported_color_modes',
 	'supported_features',
 	'device_class',
@@ -8,15 +9,6 @@ const NON_OPTION_ATTRIBUTES = new Set([
 	'lights',
 	'device_trackers',
 ]);
-
-export function isOptionListAttribute(name: string, value: unknown): boolean {
-	return (
-		!NON_OPTION_ATTRIBUTES.has(name) &&
-		!name.endsWith('_color') &&
-		Array.isArray(value) &&
-		value.length >= 2
-	);
-}
 
 export function resolveOptionsAttribute(
 	attribute: string | undefined,
