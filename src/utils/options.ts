@@ -1,5 +1,3 @@
-import type { IOption } from '../models/interfaces';
-
 const SELECT_DOMAINS = ['select', 'input_select'];
 const PRESET_MODE_DOMAINS = ['climate', 'fan'];
 const NON_OPTION_ATTRIBUTES = new Set([
@@ -257,54 +255,4 @@ export function unescapeHtml(str: string): string {
 		/&quot;|&#34;|&#39;|&apos;|&#x27;|&lt;|&gt;|&amp;/g,
 		(match) => htmlEntities[match],
 	);
-}
-
-export function parseOptionsList(rendered: unknown): unknown[] {
-	if (Array.isArray(rendered)) {
-		return rendered;
-	}
-	if (rendered == null) {
-		return [];
-	}
-	if (typeof rendered != 'string') {
-		return [rendered];
-	}
-
-	const unescaped = unescapeHtml(rendered).trim();
-	if (!unescaped) {
-		return [];
-	}
-	const separator = unescaped.includes('\n') ? '\n' : ',';
-	return unescaped
-		.split(separator)
-		.map((item) => item.trim())
-		.filter((item) => item.length);
-}
-
-export function buildTemplatedOption(
-	item: unknown,
-	template?: IOption | null,
-): IOption {
-	const option: IOption = structuredClone(template ?? {});
-
-	let value: unknown = item;
-	let label: unknown;
-	let icon: unknown;
-	if (item != null && typeof item == 'object') {
-		const record = item as Record<string, unknown>;
-		label = record.label || record.name || record.friendly_name || record.title;
-		value =
-			record.value ?? record.option ?? record.id ?? record.key ?? label ?? '';
-		icon = record.icon;
-	}
-
-	option.option = String(value);
-	if (label && option.label == undefined) {
-		option.label = String(label);
-	}
-	if (icon != undefined && option.icon == undefined) {
-		option.icon = String(icon);
-	}
-
-	return option;
 }
