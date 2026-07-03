@@ -148,19 +148,23 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 				@pointerleave=${this.onPointerLeave}
 				@contextmenu=${this.onContextMenu}
 			>
-				${this.selectedIcon || this.selectedLabel || this.selectedStyles
-					? html`${this.buildIcon(
-							this.thumbType.includes('md3-fab') && this.open
-								? 'mdi:close'
-								: this.selectedIcon,
-						) || html`<div class="icon"></div>`}${this.buildLabel(
-							this.selectedLabel,
-						)}${buildStyles(this.selectedStyles)}`
-					: html`${this.buildIcon(
-							this.thumbType.includes('md3-fab') && this.open
-								? 'mdi:close'
-								: this.icon,
-						)}${this.buildLabel(this.label)}`}
+				${
+					this.selectedIcon || this.selectedLabel || this.selectedStyles
+						? html`${
+								this.buildIcon(
+									this.thumbType.includes('md3-fab') && this.open
+										? 'mdi:close'
+										: this.selectedIcon,
+								) || html`<div class="icon"></div>`
+							}${this.buildLabel(
+								this.selectedLabel,
+							)}${buildStyles(this.selectedStyles)}`
+						: html`${this.buildIcon(
+								this.thumbType.includes('md3-fab') && this.open
+									? 'mdi:close'
+									: this.icon,
+							)}${this.buildLabel(this.label)}`
+				}
 				${this.buildRipple()}
 			</div>
 			<ha-icon
@@ -183,8 +187,6 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 			changedProperties.has('hass') ||
 			changedProperties.has('stateObj') ||
 			changedProperties.has('value') ||
-			// Rebuilt options can change which option is selected and how its
-			// thumb renders, so recompute when they do.
 			optionsChanged
 		) {
 			let thumbType = this.renderTemplate(
@@ -225,12 +227,7 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 			}
 
 			if (selectedOption) {
-				// Render the selected option's appearance using the option's own
-				// context, so `option`/`config.option` resolve to its value (instead
-				// of the dropdown's, which has no option) when shown in the window.
-				// The parent config is merged first so templates can still reference
-				// other dropdown config fields; option fields override.
-				const optionContext = {
+				const context = {
 					option: selectedOption.option,
 					config: {
 						...this.config,
@@ -242,19 +239,19 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 
 				const selectedIcon = this.renderTemplate(
 					selectedOption.icon as string,
-					optionContext,
+					context,
 				) as string;
 
 				const selectedLabel = this.renderTemplate(
 					(selectedOption.label || selectedOption.icon
 						? selectedOption.label
 						: selectedOption.option) as string,
-					optionContext,
+					context,
 				) as string;
 
 				const selectedStyles = this.renderTemplate(
 					selectedOption.styles as string,
-					optionContext,
+					context,
 				) as string;
 
 				if (
@@ -313,8 +310,6 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 
 			this.sizeAndPositionDropdown();
 		} else if (this.open && this.optionElements.length) {
-			// Options or the selected value changed while the menu is open: refresh
-			// each item's selected/focus state and the menu height in place.
 			for (const i in this.options) {
 				const el = this.optionElements[i];
 				if (!el) {

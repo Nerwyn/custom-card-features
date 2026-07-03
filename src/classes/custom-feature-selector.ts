@@ -29,8 +29,6 @@ export class CustomFeatureSelector extends BaseOptionSelectCustomFeature {
 		for (const option0 of options) {
 			const option = structuredClone(option0);
 			option.haptics = option.haptics ?? this.config.haptics;
-			// Fall back to the option value as the label when none is provided, so
-			// generated options (and manual ones without appearance) are visible.
 			if (!option.label && !option.icon) {
 				option.label = option.option;
 			}
