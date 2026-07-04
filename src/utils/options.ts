@@ -20,7 +20,6 @@ export function getDefaultSelectActionInfo(
 		case 'light':
 			action = 'turn_on';
 			key = 'effect';
-			valueAttribute = 'state';
 			break;
 		case 'media_player':
 			switch (listAttribute) {
