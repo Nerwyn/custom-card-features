@@ -1,5 +1,4 @@
-const SELECT_DOMAINS = ['select', 'input_select'];
-const PRESET_MODE_DOMAINS = ['climate', 'fan'];
+import { IEntry } from '../models/interfaces';
 
 export const NON_OPTION_ATTRIBUTES = new Set([
 	'supported_color_modes',
@@ -10,21 +9,10 @@ export const NON_OPTION_ATTRIBUTES = new Set([
 	'device_trackers',
 ]);
 
-export function resolveOptionsAttribute(
-	attribute: string | undefined,
-	entityId: string | undefined,
-): string {
-	if (attribute) {
-		return attribute;
-	}
-	const domain = (entityId ?? '').split('.')[0];
-	return SELECT_DOMAINS.includes(domain) ? 'options' : '';
-}
-
 export function getDefaultSelectActionInfo(
 	domain: string,
 	listAttribute: string,
-) {
+): Partial<IEntry> | undefined {
 	let action: string;
 	let key: string;
 	let valueAttribute: string | undefined;
@@ -104,131 +92,14 @@ export function getDefaultSelectActionInfo(
 
 	return {
 		value_attribute: valueAttribute || key,
-		action: {
+		tap_action: {
 			action: 'perform-action',
 			perform_action: `${domain}.${action}`,
 			data: {
-				[key]: '{{ value }}',
+				[key]: '{{ option }}',
 			},
 		},
 	};
-}
-
-export interface IOptionAction {
-	perform_action: string;
-	data_key: string;
-	value_attribute: string;
-}
-
-const OPTION_ACTIONS: Record<string, IOptionAction> = {
-	effect_list: {
-		perform_action: 'light.turn_on',
-		data_key: 'effect',
-		value_attribute: 'effect',
-	},
-	source_list: {
-		perform_action: 'media_player.select_source',
-		data_key: 'source',
-		value_attribute: 'source',
-	},
-	sound_mode_list: {
-		perform_action: 'media_player.select_sound_mode',
-		data_key: 'sound_mode',
-		value_attribute: 'sound_mode',
-	},
-	activity_list: {
-		perform_action: 'remote.turn_on',
-		data_key: 'activity',
-		value_attribute: 'current_activity',
-	},
-	hvac_modes: {
-		perform_action: 'climate.set_hvac_mode',
-		data_key: 'hvac_mode',
-		value_attribute: 'state',
-	},
-	fan_modes: {
-		perform_action: 'climate.set_fan_mode',
-		data_key: 'fan_mode',
-		value_attribute: 'fan_mode',
-	},
-	swing_modes: {
-		perform_action: 'climate.set_swing_mode',
-		data_key: 'swing_mode',
-		value_attribute: 'swing_mode',
-	},
-	available_modes: {
-		perform_action: 'humidifier.set_mode',
-		data_key: 'mode',
-		value_attribute: 'mode',
-	},
-	operation_list: {
-		perform_action: 'water_heater.set_operation_mode',
-		data_key: 'operation_mode',
-		value_attribute: 'state',
-	},
-	fan_speed_list: {
-		perform_action: 'vacuum.set_fan_speed',
-		data_key: 'fan_speed',
-		value_attribute: 'fan_speed',
-	},
-};
-
-export function defaultOptionAction(
-	domain: string,
-	attribute: string,
-): IOptionAction | undefined {
-	if (attribute == 'preset_modes') {
-		return PRESET_MODE_DOMAINS.includes(domain)
-			? {
-					perform_action: `${domain}.set_preset_mode`,
-					data_key: 'preset_mode',
-					value_attribute: 'preset_mode',
-				}
-			: undefined;
-	}
-	if (
-		SELECT_DOMAINS.includes(domain) &&
-		(attribute == 'options' || !attribute)
-	) {
-		return {
-			perform_action: `${domain}.select_option`,
-			data_key: 'option',
-			value_attribute: 'state',
-		};
-	}
-	const action = OPTION_ACTIONS[attribute];
-	if (action && action.perform_action.split('.')[0] != domain) {
-		return undefined;
-	}
-	return action;
-}
-
-const DEFAULT_ACTION_DATA_KEYS = new Map<string, string>([
-	...Object.values(OPTION_ACTIONS).map(
-		(action) => [action.perform_action, action.data_key] as [string, string],
-	),
-	['climate.set_preset_mode', 'preset_mode'],
-	['fan.set_preset_mode', 'preset_mode'],
-	['select.select_option', 'option'],
-	['input_select.select_option', 'option'],
-]);
-
-export function isManagedDefaultAction(
-	performAction: string | undefined,
-	data: Record<string, unknown> | undefined,
-): boolean {
-	const expectedKey = performAction
-		? DEFAULT_ACTION_DATA_KEYS.get(performAction)
-		: undefined;
-	if (!expectedKey) {
-		return false;
-	}
-	const keys = data ? Object.keys(data) : [];
-	return (
-		keys.length == 1 &&
-		keys[0] == expectedKey &&
-		data?.[expectedKey] == '{{ option }}'
-	);
 }
 
 export function unescapeHtml(str: string): string {

@@ -54,10 +54,8 @@ import {
 import {
 	deepGet,
 	deepSet,
-	defaultOptionAction,
-	isManagedDefaultAction,
+	getDefaultSelectActionInfo,
 	NON_OPTION_ATTRIBUTES,
-	resolveOptionsAttribute,
 } from './utils';
 
 export class CustomFeaturesRowEditor extends LitElement {
@@ -66,6 +64,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 	@property() context?: Record<'entity_id', string>;
 	@property() showExitButton: boolean = false;
 
+	@state() activeEntryType:
+		'entry' | 'option' | 'option_template' | 'decrement' | 'increment' =
+		'entry';
 	@state() entryIndex: number = -1;
 	@state() actionsTabIndex: number = 0;
 	@state() optionIndex: number = -1;
@@ -76,9 +77,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	yamlString?: string;
 	yamlStringsCache: Record<string, string> = {};
-	@state() activeEntryType:
-		'entry' | 'option' | 'option_template' | 'decrement' | 'increment' =
-		'entry';
 	people: Record<string, string>[] = [];
 
 	ACTIONS_TABS = ['default', 'momentary'];
@@ -272,7 +270,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
 			.index;
 		const entry = structuredClone(this.activeEntry) as IOption;
-		const options = (entry.options as IOption[]) ?? [];
+		const options = entry.options ?? [];
 		options.splice(i, 1);
 		entry.options = options;
 		this.entryChanged(entry);
@@ -316,6 +314,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.yamlStringsCache = {};
 		this.yamlString = undefined;
 		this.optionIndex = -1;
+	}
+
+	removeOptionTemplate(_e: Event) {
+		const entry = structuredClone(this.activeEntry) as IOption;
+		delete entry.option_template;
+		this.entryChanged(entry);
 	}
 
 	editOptionTemplate(_e: Event) {
@@ -1455,7 +1459,25 @@ export class CustomFeaturesRowEditor extends LitElement {
 									)}${this.buildCommonAppearanceOptions()}`
 						}`,
 					)}
-					${this.buildOptionsSection()}`;
+					<div class="form">
+						${this.buildSelector(
+							'Option mode',
+							'option_type',
+							{
+								select: {
+									mode: 'dropdown',
+									options: [
+										{ value: 'default', label: 'Default' },
+										{ value: 'attribute', label: 'Entity attribute' },
+										{ value: 'template', label: 'Template' },
+									],
+									reorder: false,
+								},
+							},
+							'default',
+						)}
+					</div>
+					${this.buildOptionTypeEditor()}`;
 				break;
 			default:
 				switch (type) {
@@ -1495,26 +1517,35 @@ export class CustomFeaturesRowEditor extends LitElement {
 		);
 	}
 
-	buildOptionsSection() {
-		const type = this.activeEntry?.option_type ?? 'default';
+	buildOptionTypeEditor() {
+		const optionTemplateRow = html`
+			<div class="entry-list-header">
+				Option Template
+				<div>
+					<ha-icon-button
+						class="remove-icon"
+						@click=${this.removeOptionTemplate}
+					>
+						<ha-icon .icon="${'mdi:refresh'}"></ha-icon>
+					</ha-icon-button>
+					<ha-icon-button class="edit-icon" @click=${this.editOptionTemplate}>
+						<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
+					</ha-icon-button>
+				</div>
+			</div>
+		`;
 
-		let optionsConfig: TemplateResult;
-		switch (type) {
+		const optionType = this.activeEntry?.option_type ?? 'default';
+		switch (optionType) {
 			case 'template':
-				optionsConfig = html` ${this.buildSelector(
-						'Options template',
-						'options_template',
-						{
-							template: {},
-						},
-					)}
-					<div class="entry-list-header">
-						Option Template
-						<ha-icon-button class="edit-icon" @click=${this.editOptionTemplate}>
-							<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
-						</ha-icon-button>
-					</div>`;
-				break;
+				return html` ${this.buildSelector(
+					'Options template',
+					'options_template',
+					{
+						template: {},
+					},
+				)}
+				${optionTemplateRow}`;
 			case 'attribute': {
 				const entityId = this.renderTemplate(
 					this.activeEntry?.option_entity ?? '',
@@ -1524,52 +1555,21 @@ export class CustomFeaturesRowEditor extends LitElement {
 				const hideAttributes = Object.keys(
 					this.hass.states[entityId]?.attributes ?? {},
 				).filter((key) => !listAttributes.includes(key));
-				optionsConfig = html`${this.buildSelector(
-						'Option entity',
-						'option_entity',
-						{
-							entity: {},
-						},
-					)}
-					${this.buildSelector('Option attribute', 'option_attribute', {
-						attribute: {
-							entity_id: this.activeEntry?.option_entity,
-							hide_attributes: hideAttributes,
-						},
-					})}
-					<div class="entry-list-header">
-						Option Template
-						<ha-icon-button class="edit-icon" @click=${this.editOptionTemplate}>
-							<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
-						</ha-icon-button>
-					</div>`;
-				break;
+				return html`${this.buildSelector('Option entity', 'option_entity', {
+					entity: {},
+				})}
+				${this.buildSelector('Option attribute', 'option_attribute', {
+					attribute: {
+						entity_id: this.activeEntry?.option_entity,
+						hide_attributes: hideAttributes,
+					},
+				})}
+				${optionTemplateRow}`;
 			}
 			case 'default':
 			default:
-				optionsConfig = html`${this.buildEntryList('option')}${this.buildAddEntryButton('option')}`;
-				break;
+				return html`${this.buildEntryList('option')}${this.buildAddEntryButton('option')}`;
 		}
-
-		return html`<div class="form">
-				${this.buildSelector(
-					'Option mode',
-					'option_type',
-					{
-						select: {
-							mode: 'dropdown',
-							options: [
-								{ value: 'default', label: 'Default' },
-								{ value: 'attribute', label: 'Entity attribute' },
-								{ value: 'template', label: 'Template' },
-							],
-							reorder: false,
-						},
-					},
-					'default',
-				)}
-			</div>
-			${optionsConfig} `;
 	}
 
 	buildDropdownOptionGuiEditor(parentEntry: IEntry) {
@@ -2550,76 +2550,45 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return entry;
 	}
 
-	autofillOptionTemplate(entry: IEntry, entryEntityId: string): IOption {
-		const template = structuredClone(entry.option_template ?? {}) as IOption;
+	autofillOptionTemplate(entry: IEntry, entityId: string) {
 		const context = this.getEntryContext(entry);
+
 		if (
 			!this.renderTemplate(
-				(template.autofill_entity_id ??
+				(entry.option_template?.autofill_entity_id ??
 					entry.autofill_entity_id ??
 					AUTOFILL) as unknown as string,
 				context,
 			)
 		) {
-			return template;
+			return entry.option_template;
 		}
 
-		const featureEntity = this.renderTemplate(
-			(entry.entity_id || entryEntityId || '') as string,
-			context,
-		) as string;
-		const sourceEntity = this.renderTemplate(
-			(entry.option_entity || entryEntityId || '') as string,
-			context,
-		) as string;
+		const template = structuredClone(entry.option_template ?? {}) as IOption;
 
-		const optionType = entry.option_type ?? 'default';
-		const attribute =
-			optionType == 'template'
-				? ''
-				: resolveOptionsAttribute(
-						this.renderTemplate(
-							(entry.option_attribute || '') as string,
-							context,
-						) as string,
-						sourceEntity,
-					);
-
-		template.entity_id ||= featureEntity;
+		template.entity_id ||= entityId;
 		template.label ||= '{{ option }}';
 
-		const existing = template.tap_action;
-		const defaultTarget =
-			!existing?.target ||
-			(Object.keys(existing.target).length == 1 &&
-				existing.target.entity_id == '{{ config.entity }}');
-		const managed =
-			defaultTarget &&
-			isManagedDefaultAction(
-				existing?.perform_action,
-				existing?.data as Record<string, unknown> | undefined,
-			);
 		if (
-			!template.double_tap_action &&
-			!template.hold_action &&
-			!template.momentary_start_action &&
-			!template.momentary_repeat_action &&
-			!template.momentary_end_action &&
-			(!existing || managed)
+			this.renderTemplate(entry.option_type ?? 'default', context) ==
+			'attribute'
 		) {
-			const action = defaultOptionAction(
-				featureEntity.split('.')[0],
-				attribute,
+			const optionEntity = this.renderTemplate(
+				entry.option_entity ?? '',
+				context,
+			) as string;
+			const listAttribute = this.renderTemplate(
+				entry.option_attribute || '',
+				context,
+			) as string;
+			const info = getDefaultSelectActionInfo(
+				optionEntity.split('.')[0],
+				listAttribute,
 			);
-			if (action) {
-				template.tap_action = {
-					action: 'perform-action',
-					perform_action: action.perform_action,
-					target: { entity_id: '{{ config.entity }}' },
-					data: { [action.data_key]: '{{ option }}' },
-				} as IAction;
-			} else if (managed) {
-				delete template.tap_action;
+			if (info) {
+				entry.value_attribute ||= info.value_attribute;
+				template.tap_action ??= info.tap_action!;
+				template.tap_action.target ??= { entity_id: '{{ config.entity }}' };
 			}
 		}
 

@@ -551,7 +551,6 @@ export class CustomFeatureInput extends BaseCustomFeature {
 						--mdc-text-field-idle-line-color,
 						rgba(0, 0, 0, 0.42)
 					);
-					z-index: 1;
 				}
 				@media (hover: hover) {
 					:host(:hover) .line-ripple::before {
@@ -561,7 +560,6 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				.line-ripple::after {
 					height: 2px;
 					background: var(--mdc-theme-primary, #6200ee);
-					z-index: 2;
 					scale: 0 1;
 					opacity: 0;
 					transition:
