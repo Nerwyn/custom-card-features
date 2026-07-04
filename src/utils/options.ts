@@ -1,4 +1,4 @@
-import { IEntry } from '../models/interfaces';
+import { IEntry } from '../models/interfaces/IConfig';
 
 export const NON_OPTION_ATTRIBUTES = new Set([
 	'supported_color_modes',

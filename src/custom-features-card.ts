@@ -2,11 +2,12 @@ import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { css, html, LitElement, PropertyValues } from 'lit';
 import { property, queryAll } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
-import { HomeAssistant, ICustomFeatureCardConfig } from './models/interfaces';
 import { buildStyles } from './utils/styles';
 
 import './custom-features-card-editor';
 import { CustomFeaturesRow } from './custom-features-row';
+import { HomeAssistant } from './models/interfaces/HomeAssistant';
+import { ICustomFeatureCardConfig } from './models/interfaces/IConfig';
 
 export class CustomFeaturesCard extends LitElement {
 	@property() hass!: HomeAssistant;

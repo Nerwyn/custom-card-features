@@ -1,7 +1,10 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement, queryAll } from 'lit/decorators.js';
 
-import { SelectorThumbType, SelectorThumbTypes } from '../models/interfaces';
+import {
+	SelectorThumbType,
+	SelectorThumbTypes,
+} from '../models/interfaces/IConfig';
 import { buildStyles } from '../utils/styles';
 import { BaseOptionSelectCustomFeature } from './base-option-select-custom-features';
 import './custom-feature-button';

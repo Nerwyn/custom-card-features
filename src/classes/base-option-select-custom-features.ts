@@ -1,6 +1,7 @@
 import { load } from 'js-yaml';
-import { IOption, OptionType } from '../models/interfaces';
-import { deepGet, unescapeHtml } from '../utils';
+import { IOption, OptionType } from '../models/interfaces/IConfig';
+import { deepGet } from '../utils/deepKeys';
+import { unescapeHtml } from '../utils/unescapeHTML';
 import { BaseCustomFeature } from './base-custom-feature';
 
 export class BaseOptionSelectCustomFeature extends BaseCustomFeature {

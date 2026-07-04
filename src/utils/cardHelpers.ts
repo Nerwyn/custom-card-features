@@ -1,9 +1,6 @@
-import {
-	CardHelpers,
-	HassElement,
-	IAction,
-	IConfirmation,
-} from '../models/interfaces';
+import { CardHelpers } from '../models/interfaces/CardHelpers';
+import { HassElement } from '../models/interfaces/HassElement';
+import { IAction, IConfirmation } from '../models/interfaces/IActions';
 
 let helpers: CardHelpers;
 
@@ -36,9 +33,7 @@ export async function handleConfirmation(
 			).split('.');
 			if (hass.services[domain]?.[service]) {
 				const localize = await hass.loadBackendTranslation('title');
-				serviceName = `${
-					localize(`component.${domain}.title`) || domain
-				}: ${
+				serviceName = `${localize(`component.${domain}.title`) || domain}: ${
 					localize(`component.${domain}.services.${service}.name`) ||
 					hass.services[domain][service].name ||
 					service

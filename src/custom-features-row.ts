@@ -5,12 +5,6 @@ import { property, query } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
-import {
-	CardFeatureType,
-	FeatureContext,
-	HomeAssistant,
-	StateObj,
-} from './models/interfaces';
 
 import { BaseCustomFeature } from './classes/base-custom-feature';
 import './classes/custom-feature-dropdown';
@@ -22,8 +16,13 @@ import './classes/custom-feature-toggle';
 import { CustomFeaturesCard } from './custom-features-card';
 import { CustomFeaturesCardEditor } from './custom-features-card-editor';
 import { CustomFeaturesRowEditor } from './custom-features-row-editor';
-import { IConfig, IEntry } from './models/interfaces';
-import { atLeastHaVersion } from './utils';
+import {
+	FeatureContext,
+	HomeAssistant,
+	StateObj,
+} from './models/interfaces/HomeAssistant';
+import { CardFeatureType, IConfig, IEntry } from './models/interfaces/IConfig';
+import { atLeastHaVersion } from './utils/atLeastHaVersion';
 import { buildStyles } from './utils/styles';
 
 console.info(

@@ -3,7 +3,10 @@ import { customElement, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
 import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
-import { SliderThumbType, SliderThumbTypes } from '../models/interfaces';
+import {
+	SliderThumbType,
+	SliderThumbTypes,
+} from '../models/interfaces/IConfig';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
@@ -162,9 +165,9 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				${values.map(
 					(i) =>
 						html`<div
-							class="tick ${i > parseFloat(this.value as string)
-								? 'in'
-								: ''}active"
+							class="tick ${
+								i > parseFloat(this.value as string) ? 'in' : ''
+							}active"
 							value="${i}"
 						></div>`,
 				)}

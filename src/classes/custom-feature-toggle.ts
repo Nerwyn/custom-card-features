@@ -1,11 +1,12 @@
 import { css, CSSResult, html, PropertyValues, TemplateResult } from 'lit';
 import { customElement, query, state } from 'lit/decorators.js';
+
 import {
 	CheckedValues,
 	ToggleThumbType,
 	ToggleThumbTypes,
 	UncheckedValues,
-} from '../models/interfaces';
+} from '../models/interfaces/IConfig';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
@@ -243,10 +244,9 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 		}
 		return html`
 			<div
-				class="container default ${this.fullSwipe ? 'full-swipe' : ''} ${this
-					.checked
-					? 'on'
-					: 'off'}"
+				class="container default ${this.fullSwipe ? 'full-swipe' : ''} ${
+					this.checked ? 'on' : 'off'
+				}"
 				part="default-switch"
 				@pointerdown=${this.onPointerDown}
 				@pointerup=${this.onPointerUp}

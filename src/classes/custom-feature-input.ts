@@ -20,7 +20,7 @@ import {
 	WEEK_MAX,
 	WEEK_MIN,
 } from '../models/constants';
-import { InputType } from '../models/interfaces';
+import { InputType } from '../models/interfaces/IConfig';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 

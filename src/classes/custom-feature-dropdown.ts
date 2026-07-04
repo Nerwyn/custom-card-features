@@ -11,7 +11,7 @@ import {
 	DropdownThumbType,
 	DropdownThumbTypes,
 	IOption,
-} from '../models/interfaces';
+} from '../models/interfaces/IConfig';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 import { BaseOptionSelectCustomFeature } from './base-option-select-custom-features';

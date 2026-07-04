@@ -32,31 +32,33 @@ import {
 	WEEK_MAX,
 	WEEK_MIN,
 } from './models/constants';
+
+import { HomeAssistant } from './models/interfaces/HomeAssistant';
 import {
 	Actions,
 	ActionType,
 	ActionTypes,
+	IAction,
+	IData,
+	ITarget,
+} from './models/interfaces/IActions';
+import {
 	ButtonThumbType,
 	CardFeatureType,
 	CardFeatureTypes,
 	CheckedValues,
-	HomeAssistant,
-	IAction,
 	IConfig,
-	IData,
 	IEntry,
 	InputType,
 	IOption,
-	ITarget,
 	ThumbType,
 	UncheckedValues,
-} from './models/interfaces';
+} from './models/interfaces/IConfig';
+import { deepGet, deepSet } from './utils/deepKeys';
 import {
-	deepGet,
-	deepSet,
 	getDefaultSelectActionInfo,
 	NON_OPTION_ATTRIBUTES,
-} from './utils';
+} from './utils/options';
 
 export class CustomFeaturesRowEditor extends LitElement {
 	@property() hass!: HomeAssistant;

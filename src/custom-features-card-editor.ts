@@ -1,15 +1,15 @@
 import { html, TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import {
-	CardFeatureType,
-	HomeAssistant,
-	IConfig,
-	ICustomFeatureCardConfig,
-	IEntry,
-} from './models/interfaces';
 
 import './custom-features-row-editor';
 import { CustomFeaturesRowEditor } from './custom-features-row-editor';
+import { HomeAssistant } from './models/interfaces/HomeAssistant';
+import {
+	CardFeatureType,
+	IConfig,
+	ICustomFeatureCardConfig,
+	IEntry,
+} from './models/interfaces/IConfig';
 
 export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 	@property() hass!: HomeAssistant;
@@ -54,25 +54,22 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 
 	copyRow(e: Event) {
 		const features = structuredClone(this.config.features);
-		const i = (
-			e.currentTarget as unknown as Event & Record<'index', number>
-		).index;
+		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
+			.index;
 		const feature = structuredClone(features[i]);
 		features.splice(i, 1, features[i], feature);
 		this.rowsChanged(features);
 	}
 
 	editRow(e: Event) {
-		const i = (
-			e.currentTarget as unknown as Event & Record<'index', number>
-		).index;
+		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
+			.index;
 		this.rowIndex = i;
 	}
 
 	removeRow(e: Event) {
-		const i = (
-			e.currentTarget as unknown as Event & Record<'index', number>
-		).index;
+		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
+			.index;
 		const features = structuredClone(this.config.features);
 		features.splice(i, 1);
 		this.rowsChanged(features);
@@ -90,10 +87,7 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 		return html`
 			<div class="content">
 				<div class="entry-list-header">Custom Features Rows</div>
-				<ha-sortable
-					handle-selector=".handle"
-					@item-moved=${handlers.move}
-				>
+				<ha-sortable handle-selector=".handle" @item-moved=${handlers.move}>
 					<div class="features">
 						${features.map((row, i) => {
 							const entries = row.entries.length
@@ -102,13 +96,10 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 							return html`
 								<div class="feature-list-item">
 									<div class="handle">
-										<ha-icon
-											.icon="${'mdi:drag'}"
-										></ha-icon>
+										<ha-icon .icon="${'mdi:drag'}"></ha-icon>
 									</div>
 									${entries.map((entry: IEntry) => {
-										const context =
-											this.getEntryContext(entry);
+										const context = this.getEntryContext(entry);
 										const icon = this.renderTemplate(
 											entry.icon as string,
 											context,
@@ -121,34 +112,25 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 											entry.type as string,
 											context,
 										);
-										return html`<div
-											class="feature-list-item-content"
-										>
-											${icon
-												? html`<ha-icon
-														.icon="${icon}"
-													></ha-icon>`
-												: ''}
-											<div
-												class="feature-list-item-label"
-											>
+										return html`<div class="feature-list-item-content">
+											${icon ? html`<ha-icon .icon="${icon}"></ha-icon>` : ''}
+											<div class="feature-list-item-label">
 												<span class="primary"
-													>${entryType ??
-													'button'}${label
-														? ` ⸱ ${label}`
-														: ''}</span
+													>${entryType ?? 'button'}${
+														label ? ` ⸱ ${label}` : ''
+													}</span
 												>
-												${context.config.entity
-													? html`<span
-															class="secondary"
-															>${context.config
-																.entity_id}${context
-																.config
-																.attribute
-																? ` ⸱ ${context.config.attribute}`
-																: ''}</span
-														>`
-													: ''}
+												${
+													context.config.entity
+														? html`<span class="secondary"
+																>${context.config.entity_id}${
+																	context.config.attribute
+																		? ` ⸱ ${context.config.attribute}`
+																		: ''
+																}</span
+															>`
+														: ''
+												}
 											</div>
 										</div>`;
 									})}
@@ -157,27 +139,21 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 										.index=${i}
 										@click=${handlers.copy}
 									>
-										<ha-icon
-											.icon="${'mdi:content-copy'}"
-										></ha-icon>
+										<ha-icon .icon="${'mdi:content-copy'}"></ha-icon>
 									</ha-icon-button>
 									<ha-icon-button
 										class="edit-icon"
 										.index=${i}
 										@click=${handlers.edit}
 									>
-										<ha-icon
-											.icon="${'mdi:pencil'}"
-										></ha-icon>
+										<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
 									</ha-icon-button>
 									<ha-icon-button
 										class="remove-icon"
 										.index=${i}
 										@click=${handlers.remove}
 									>
-										<ha-icon
-											.icon="${'mdi:delete'}"
-										></ha-icon>
+										<ha-icon .icon="${'mdi:delete'}"></ha-icon>
 									</ha-icon-button>
 								</div>
 							`;
@@ -191,8 +167,7 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 	buildAddRowButton() {
 		return html`
 			<ha-button @click=${this.addRow} class="add-list-item">
-				<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon>Add
-				row</ha-button
+				<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon>Add row</ha-button
 			>
 		`;
 	}

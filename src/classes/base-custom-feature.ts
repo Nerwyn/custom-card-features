@@ -1,26 +1,25 @@
-import {
-	Action,
-	HapticType,
-	HomeAssistant,
-	StateObj,
-} from '../models/interfaces';
-
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { CSSResult, LitElement, PropertyValues, css, html } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 
 import { load } from 'js-yaml';
 import { UPDATE_AFTER_ACTION_DELAY } from '../models/constants';
+
 import {
+	HapticType,
+	HomeAssistant,
+	StateObj,
+} from '../models/interfaces/HomeAssistant';
+import {
+	Action,
 	ActionType,
 	IAction,
 	IActions,
-	IEntry,
-	IOption,
-} from '../models/interfaces';
+} from '../models/interfaces/IActions';
+import { IEntry, IOption } from '../models/interfaces/IConfig';
 import { MdRipple } from '../models/interfaces/MdRipple';
-import { deepGet, deepSet, getDeepKeys } from '../utils';
 import { handleConfirmation } from '../utils/cardHelpers';
+import { deepGet, deepSet, getDeepKeys } from '../utils/deepKeys';
 
 export class BaseCustomFeature extends LitElement {
 	@property() hass!: HomeAssistant;

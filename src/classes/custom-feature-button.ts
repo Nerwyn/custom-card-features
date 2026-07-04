@@ -6,7 +6,10 @@ import {
 	HOLD_TIME,
 	REPEAT_DELAY,
 } from '../models/constants';
-import { ButtonThumbType, ButtonThumbTypes } from '../models/interfaces';
+import {
+	ButtonThumbType,
+	ButtonThumbTypes,
+} from '../models/interfaces/IConfig';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
