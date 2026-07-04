@@ -2550,51 +2550,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return entry;
 	}
 
-	autofillOptionTemplate(entry: IEntry, entityId: string) {
-		const context = this.getEntryContext(entry);
-
-		if (
-			!this.renderTemplate(
-				(entry.option_template?.autofill_entity_id ??
-					entry.autofill_entity_id ??
-					AUTOFILL) as unknown as string,
-				context,
-			)
-		) {
-			return entry.option_template;
-		}
-
-		const template = structuredClone(entry.option_template ?? {}) as IOption;
-
-		template.entity_id ||= entityId;
-		template.label ||= '{{ option }}';
-
-		if (
-			this.renderTemplate(entry.option_type ?? 'default', context) ==
-			'attribute'
-		) {
-			const optionEntity = this.renderTemplate(
-				entry.option_entity ?? '',
-				context,
-			) as string;
-			const listAttribute = this.renderTemplate(
-				entry.option_attribute || '',
-				context,
-			) as string;
-			const info = getDefaultSelectActionInfo(
-				optionEntity.split('.')[0],
-				listAttribute,
-			);
-			if (info) {
-				entry.value_attribute ||= info.value_attribute;
-				template.tap_action ??= info.tap_action!;
-				template.tap_action.target ??= { entity_id: '{{ config.entity }}' };
-			}
-		}
-
-		return template;
-	}
-
 	autofillDefaultFields(config: IConfig) {
 		const updatedConfig = structuredClone(config);
 		const updatedEntries: IEntry[] = [];
@@ -2630,7 +2585,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 				switch (featureType) {
 					case 'dropdown':
 					case 'selector': {
-						const optionType = entry.option_type ?? 'default';
+						const optionType = this.renderTemplate(
+							entry.option_type ?? 'default',
+							context,
+						);
 						if (optionType != 'default') {
 							if (optionType == 'attribute') {
 								entry.option_entity ||= entryEntityId;
@@ -2654,10 +2612,46 @@ export class CustomFeaturesRowEditor extends LitElement {
 									entry.option_attribute = candidates[0];
 								}
 							}
-							entry.option_template = this.autofillOptionTemplate(
-								entry,
-								entryEntityId,
-							);
+
+							if (
+								this.renderTemplate(
+									(entry.option_template?.autofill_entity_id ??
+										entry.autofill_entity_id ??
+										AUTOFILL) as unknown as string,
+									context,
+								)
+							) {
+								entry.option_template ??= {};
+								entry.option_template.entity_id ??= entryEntityId;
+								if (
+									!entry.option_template.label &&
+									!entry.option_template.icon
+								) {
+									entry.option_template.label = '{{ option }}';
+								}
+
+								if (optionType == 'attribute') {
+									const optionEntity = this.renderTemplate(
+										entry.option_entity ?? '',
+										context,
+									) as string;
+									const optionAttribute = this.renderTemplate(
+										entry.option_attribute || '',
+										context,
+									) as string;
+									const info = getDefaultSelectActionInfo(
+										optionEntity.split('.')[0],
+										optionAttribute,
+									);
+									if (info) {
+										entry.value_attribute ??= info.value_attribute;
+										entry.option_template.tap_action ??= info.tap_action!;
+										entry.option_template.tap_action.target ??= {
+											entity_id: '{{ config.entity }}',
+										};
+									}
+								}
+							}
 							break;
 						}
 
