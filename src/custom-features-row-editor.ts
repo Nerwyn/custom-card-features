@@ -55,10 +55,6 @@ import {
 	UncheckedValues,
 } from './models/interfaces/IConfig';
 import { deepGet, deepSet } from './utils/deepKeys';
-import {
-	getDefaultSelectActionInfo,
-	NON_OPTION_ATTRIBUTES,
-} from './utils/options';
 
 export class CustomFeaturesRowEditor extends LitElement {
 	@property() hass!: HomeAssistant;
@@ -1508,11 +1504,18 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return selectorGuiEditor;
 	}
 
-	optionListAttributes(entityId: string): string[] {
+	getOptionListAttributes(entityId: string): string[] {
 		const attributes = this.hass.states[entityId]?.attributes ?? {};
 		return Object.keys(attributes).filter(
 			(attribute) =>
-				!NON_OPTION_ATTRIBUTES.has(attribute) &&
+				![
+					'supported_color_modes',
+					'supported_features',
+					'device_class',
+					'entity_id',
+					'lights',
+					'device_trackers',
+				].includes(attribute) &&
 				!attribute.endsWith('_color') &&
 				Array.isArray(attributes[attribute]) &&
 				attributes[attribute].length >= 2,
@@ -1553,7 +1556,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					this.activeEntry?.option_entity ?? '',
 					this.getEntryContext(this.activeEntry ?? {}),
 				) as string;
-				const listAttributes = this.optionListAttributes(entityId);
+				const listAttributes = this.getOptionListAttributes(entityId);
 				const hideAttributes = Object.keys(
 					this.hass.states[entityId]?.attributes ?? {},
 				).filter((key) => !listAttributes.includes(key));
@@ -2598,7 +2601,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 									entry.option_entity ?? '',
 									this.getEntryContext(entry),
 								) as string;
-								const candidates = this.optionListAttributes(optionEntity);
+								const candidates = this.getOptionListAttributes(optionEntity);
 
 								if (
 									entry.option_attribute &&
@@ -2641,7 +2644,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 										entry.option_attribute || '',
 										context,
 									) as string;
-									const info = getDefaultSelectActionInfo(
+									const info = this.getDefaultSelectInfo(
 										optionEntity.split('.')[0],
 										optionAttribute,
 									);
@@ -2905,6 +2908,98 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 		updatedConfig.entries = updatedEntries;
 		return updatedConfig;
+	}
+
+	getDefaultSelectInfo(
+		domain: string,
+		listAttribute: string,
+	): Partial<IEntry> | undefined {
+		let action: string;
+		let key: string;
+		let valueAttribute: string | undefined;
+		switch (domain) {
+			case 'light':
+				action = 'turn_on';
+				key = 'effect';
+				break;
+			case 'media_player':
+				switch (listAttribute) {
+					case 'sound_mode_list':
+						action = 'select_sound_mode';
+						key = 'sound_mode';
+						break;
+					case 'source_list':
+					default:
+						action = 'select_source';
+						key = 'source';
+						break;
+				}
+				break;
+			case 'remote':
+				action = 'turn_on';
+				key = 'current_activity';
+				valueAttribute = 'activity';
+				break;
+			case 'climate':
+				switch (listAttribute) {
+					case 'preset_modes':
+						action = 'set_preset_mode';
+						key = 'preset_mode';
+						break;
+					case 'swing_modes':
+						action = 'set_swing_mode';
+						key = 'swing_mode';
+						break;
+					case 'fan_modes':
+						action = 'set_fan_mode';
+						key = 'fan_mode';
+						break;
+					case 'hvac_modes':
+					default:
+						action = 'set_hvac_mode';
+						key = 'hvac_mode';
+						valueAttribute = 'state';
+						break;
+				}
+				break;
+			case 'fan':
+				action = 'set_preset_mode';
+				key = 'mode';
+				valueAttribute = 'preset_mode';
+				break;
+			case 'humidifier':
+				action = 'set_mode';
+				key = 'mode';
+				break;
+			case 'water_heater':
+				action = 'set_operation_mode';
+				key = 'operation_mode';
+				valueAttribute = 'state';
+				break;
+			case 'vacuum':
+				action = 'set_fan_speed';
+				key = 'fan_speed';
+				break;
+			case 'select':
+			case 'input_select':
+				action = 'select_option';
+				key = 'option';
+				valueAttribute = 'state';
+				break;
+			default:
+				return undefined;
+		}
+
+		return {
+			value_attribute: valueAttribute || key,
+			tap_action: {
+				action: 'perform-action',
+				perform_action: `${domain}.${action}`,
+				data: {
+					[key]: '{{ option }}',
+				},
+			},
+		};
 	}
 
 	handleUpdateDeprecatedConfig() {
