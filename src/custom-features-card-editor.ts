@@ -209,7 +209,7 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 							false,
 						)}
 					</div>
-					${this.buildCodeEditor('jinja2')}
+					${this.buildSelector('CSS Styles', 'styles', { code: { mode: 'css' } })}
 				</div>
 			</div>`;
 		} else {

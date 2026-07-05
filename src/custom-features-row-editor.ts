@@ -1,11 +1,10 @@
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { css, html, LitElement, TemplateResult } from 'lit';
-import { property, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import packageInfo from '../package.json';
 
 import { dump, load } from 'js-yaml';
 
-import { ifDefined } from 'lit/directives/if-defined.js';
 import {
 	AUTOFILL,
 	COLOR_MAX,
@@ -39,7 +38,6 @@ import {
 	ActionType,
 	ActionTypes,
 	IAction,
-	IData,
 	ITarget,
 } from './models/interfaces/IActions';
 import {
@@ -73,8 +71,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 	@state() guiMode: boolean = true;
 	@state() errors?: string[];
 
-	yamlString?: string;
-	yamlStringsCache: Record<string, string> = {};
 	people: Record<string, string>[] = [];
 
 	ACTIONS_TABS = ['default', 'momentary'];
@@ -197,8 +193,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	editEntry(e: Event) {
-		this.yamlStringsCache = {};
-		this.yamlString = undefined;
 		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
 			.index;
 		this.activeEntryType = 'entry';
@@ -230,8 +224,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	editOption(e: Event) {
-		this.yamlStringsCache = {};
-		this.yamlString = undefined;
 		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
 			.index;
 		this.activeEntryType = 'option';
@@ -302,15 +294,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	exitEditEntry(_e: Event) {
 		this.activeEntryType = 'entry';
-		this.yamlStringsCache = {};
-		this.yamlString = undefined;
 		this.entryIndex = -1;
 	}
 
 	exitEditOption(_e: Event) {
 		this.activeEntryType = 'entry';
-		this.yamlStringsCache = {};
-		this.yamlString = undefined;
 		this.optionIndex = -1;
 	}
 
@@ -321,20 +309,15 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	editOptionTemplate(_e: Event) {
-		this.yamlStringsCache = {};
-		this.yamlString = undefined;
 		this.actionsTabIndex = 0;
 		this.activeEntryType = 'option_template';
 	}
 
 	exitOptionTemplate(_e: Event) {
 		this.activeEntryType = 'entry';
-		this.yamlStringsCache = {};
-		this.yamlString = undefined;
 	}
 
 	toggleGuiMode(_e: Event) {
-		this.yamlString = undefined;
 		this.configChanged(this.config);
 		this.guiMode = !this.guiMode;
 	}
@@ -343,7 +326,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		if (this.entryIndex < 0) {
 			return undefined;
 		}
-		const entry = this.config.entries[this.entryIndex];
+		const entry = this.config.entries[this.entryIndex] ?? {};
 		switch (this.activeEntryType) {
 			case 'decrement':
 				return entry.decrement ?? {};
@@ -355,96 +338,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 				return entry.options?.[this.optionIndex] ?? {};
 			case 'entry':
 			default:
-				return this.config.entries[this.entryIndex] ?? {};
-		}
-	}
-
-	get yaml(): string {
-		if (this.yamlString == undefined && this.entryIndex > -1) {
-			const yaml = dump(this.activeEntry);
-			this.yamlString = yaml.trim() == '{}' ? '' : yaml;
-		}
-		return this.yamlString || '';
-	}
-
-	set yaml(yaml: string | undefined) {
-		this.yamlString = yaml;
-		try {
-			this.entryChanged(load(this.yaml) as IEntry);
-			this.errors = undefined;
-		} catch (e) {
-			this.errors = [(e as Error).message];
-		}
-	}
-
-	handleYamlCodeChanged(e: Event) {
-		e.stopPropagation();
-		const yaml = e.detail.value;
-		if (yaml != this.yaml) {
-			this.yaml = yaml;
-		}
-	}
-
-	handleStyleCodeChanged(e: Event) {
-		e.stopPropagation();
-		const css = e.detail.value;
-		if (this.entryIndex > -1) {
-			if (css != this.activeEntry?.styles) {
-				this.entryChanged({
-					...this.activeEntry,
-					styles: css,
-				});
-			}
-		} else {
-			if (css != this.config.styles) {
-				this.configChanged({
-					...this.config,
-					styles: css,
-				});
-			}
-		}
-	}
-
-	handleActionCodeChanged(e: Event) {
-		e.stopPropagation();
-		const actionType = (e.target as HTMLElement).id as ActionType;
-		const actionYaml = e.detail.value;
-		this.yamlStringsCache[actionType] = actionYaml;
-		if (this.activeEntry) {
-			try {
-				const actionObj = load(actionYaml) as IData;
-				if (JSON.stringify(actionObj ?? {}).includes('null')) {
-					return;
-				}
-				this.entryChanged({
-					...this.activeEntry,
-					[actionType]: actionObj,
-				});
-				this.errors = undefined;
-			} catch (e) {
-				this.errors = [(e as Error).message];
-			}
-		}
-	}
-
-	handleEvalCodeChanged(e: Event) {
-		e.stopPropagation();
-		const actionType = (e.target as HTMLElement).id as ActionType;
-		const evalString = e.detail.value;
-		if (this.activeEntry) {
-			this.entryChanged({
-				...this.activeEntry,
-				[actionType]: {
-					...this.activeEntry[actionType],
-					eval: evalString,
-				},
-			});
+				return entry;
 		}
 	}
 
 	handleSpinboxTabSelected(e: Event) {
-		this.yamlStringsCache = {};
-		this.yamlString = undefined;
 		const i = this.SPINBOX_TABS.indexOf(e.detail.name);
 		switch (i) {
 			case 0:
@@ -465,7 +363,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	handleActionsTabSelected(e: Event) {
-		this.yamlStringsCache = {};
 		const i = this.ACTIONS_TABS.indexOf(e.detail.name);
 		if (this.actionsTabIndex == i) {
 			return;
@@ -474,7 +371,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	handleSelectorChange(e: Event) {
-		this.yamlStringsCache = {};
 		const key = (e.target as HTMLElement).id;
 		let value = e.detail.value;
 		if (key.endsWith('.confirmation.exemptions')) {
@@ -484,7 +380,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 				};
 			});
 		}
-		if (this.entryIndex < 0) {
+		if (key == 'this') {
+			this.entryChanged(value);
+		} else if (this.entryIndex < 0) {
 			this.configChanged(deepSet(structuredClone(this.config), key, value));
 		} else {
 			this.entryChanged(
@@ -786,6 +684,17 @@ export class CustomFeaturesRowEditor extends LitElement {
 			value = ((value as Record<string, { user: string }>[]) ?? []).map(
 				(v) => v.user,
 			);
+		} else if (key == 'this') {
+			value = obj as object;
+		}
+
+		if ('code' in selector) {
+			return this.buildCodeEditor(
+				(selector.code as Record<string, string>).mode as string,
+				label,
+				key,
+				value,
+			);
 		}
 
 		return html`<ha-selector
@@ -835,7 +744,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 						"Change the feature appearance based on its value using a template like '{{ value | float }}'.",
 					)}
 					<div class="form">
-						${appearanceOptions}${this.buildCodeEditor('jinja2')}
+						${appearanceOptions}
+						${this.buildSelector('CSS Styles', 'styles', { code: { mode: 'css' } })}
 					</div>
 				</div>
 			</ha-expansion-panel>
@@ -948,7 +858,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			}
 			${
 				buildCodeEditor || action == 'fire-dom-event'
-					? this.buildCodeEditor('action', actionType)
+					? this.buildSelector('', actionType, { code: { mode: 'action' } })
 					: ''
 			}
 			${
@@ -958,7 +868,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 								"It's easy to crash your browser or server if you use this to send too many commands in a loop. Make sure you know what you're doing!",
 								'warning',
 							)}
-							${this.buildCodeEditor('eval', actionType)}
+							${this.buildSelector('', `${actionType}.eval`, { code: { mode: 'eval' } })}
 						`
 					: ''
 			}
@@ -2245,69 +2155,44 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return html`<div class="gui-editor">${entryGuiEditor}</div>`;
 	}
 
-	buildCodeEditor(mode: string, id?: string) {
-		let title: string | undefined;
-		let value: string;
-		let handler: (_e: Event) => void;
-		let autocompleteEntities: boolean;
-		let autocompleteIcons: boolean;
+	buildCodeEditor(
+		mode: string,
+		label: string,
+		key: string,
+		value: object | string,
+	) {
+		let autocompleteEntities = true;
+		let autocompleteIcons = false;
 		switch (mode) {
-			case 'jinja2':
-				value =
-					(this.entryIndex > -1
-						? this.activeEntry?.styles
-						: this.config.styles) ?? '';
-				handler = this.handleStyleCodeChanged;
-				title = 'CSS Styles';
-				autocompleteEntities = true;
-				autocompleteIcons = false;
+			case 'css':
+				mode = 'jinja2' as 'css';
 				break;
 			case 'action':
 				mode = 'yaml';
-				handler = this.handleActionCodeChanged;
-				id = id ?? 'tap_action';
-				value =
-					this.yamlStringsCache[id] ??
-					dump((this.activeEntry?.[id as ActionType] as IAction) ?? {});
-				value = value.trim() == '{}' ? '' : value;
-				autocompleteEntities = true;
-				autocompleteIcons = false;
+				// value = value.trim() == '{}' ? '' : value;
 				break;
 			case 'eval':
-				mode = 'jinja2';
-				value =
-					this.yamlStringsCache[`${id}.eval`] ??
-					(this.activeEntry?.[id as ActionType] as IAction).eval ??
-					'';
-				handler = this.handleEvalCodeChanged;
+				mode = 'jinja2' as 'css';
 				autocompleteEntities = false;
-				autocompleteIcons = false;
 				break;
 			case 'yaml':
 			default:
-				value = this.yaml;
-				handler = this.handleYamlCodeChanged;
-				autocompleteEntities = true;
 				autocompleteIcons = true;
 				break;
 		}
-		return html`
-			<div class="yaml-editor">
-				${title ? html`<div class="style-header">${title}</div>` : ''}
-				<ha-code-editor
-					mode="${mode}"
-					id="${ifDefined(id)}"
-					dir="ltr"
-					?autocomplete-entities="${autocompleteEntities}"
-					?autocomplete-icons="${autocompleteIcons}"
-					.hass=${this.hass}
-					.value=${value}
-					.error=${Boolean(this.errors)}
-					@value-changed=${handler}
-					@keydown=${(e: KeyboardEvent) => e.stopPropagation()}
-				></ha-code-editor>
-			</div>
-		`;
+
+		return html`<custom-features-code-editor
+			mode="${mode}"
+			id="${key}"
+			dir="ltr"
+			?autocomplete-entities="${autocompleteEntities}"
+			?autocomplete-icons="${autocompleteIcons}"
+			.hass=${this.hass}
+			.label="${label}"
+			.value=${value}
+			.error=${Boolean(this.errors)}
+			@value-changed=${this.handleSelectorChange}
+		></custom-features-code-editor>`;
 	}
 
 	buildEntryEditor() {
@@ -2315,7 +2200,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 		if (this.guiMode) {
 			editor = this.buildEntryGuiEditor();
 		} else {
-			editor = this.buildCodeEditor('yaml');
+			editor = this.buildSelector('', 'this', {
+				code: { mode: 'yaml' },
+			});
 		}
 
 		return html`${this.buildEntryHeader()}${editor}`;
@@ -2373,7 +2260,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				editor = html`
 					<div>
 						<div>${this.buildEntryList()}${this.buildAddEntryButton()}</div>
-						${this.buildCodeEditor('jinja2')}
+						${this.buildSelector('CSS Styles', 'styles', { code: { mode: 'css' } })}
 						<ha-button
 							size="s"
 							appearance="filled"
@@ -3337,15 +3224,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 				padding: 8px 0px;
 				width: 100%;
 			}
-			.yaml-editor {
-				display: inline-flex;
-				flex-direction: column;
-				padding: 8px 0px;
-				width: 100%;
-			}
-			ha-code-editor {
-				--code-mirror-max-height: calc(100vh - 245px);
-			}
 			.error,
 			.info {
 				word-break: break-word;
@@ -3375,7 +3253,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				gap: 4px;
 			}
 			.style-header {
-				font-size: var(--mdc-typography-body1-font-size, 1rem);
+				font-size: var(--ha-font-size-m, 14px);
 				font-weight: 500;
 				padding: 8px;
 			}
@@ -3390,8 +3268,62 @@ export class CustomFeaturesRowEditor extends LitElement {
 			}
 			#thumb,
 			#label,
-			.yaml-editor {
+			cached-ha-code-editor {
 				grid-column: 1 / -1;
+			}
+		`;
+	}
+}
+
+@customElement('custom-features-code-editor')
+class _CustomFeaturesCodeEditor extends LitElement {
+	@property() hass!: HomeAssistant;
+	@property() mode: 'yaml' | 'eval' | 'action' | 'jinja2' = 'yaml';
+	@property() autocompleteEntities = true;
+	@property() autocompleteIcons = false;
+	@property() label = '';
+	@property() value = '';
+	@property() error = false;
+
+	valueChanged(e: Event) {
+		if (this.mode == 'jinja2') {
+			return;
+		}
+		e.stopPropagation();
+
+		const event = new Event('value-changed');
+		event.detail = { value: load(e.detail.value) };
+		this.dispatchEvent(event);
+	}
+
+	render() {
+		let value: string | object;
+		if (this.mode == 'jinja2') {
+			value = this.value;
+		} else {
+			value = dump(this.value);
+		}
+
+		return html` ${this.label ? html`<div class="code-editor-header">${this.label}</div>` : ''}
+			<ha-code-editor
+				mode="${this.mode}"
+				dir="ltr"
+				?autocomplete-entities="${this.autocompleteEntities}"
+				?autocomplete-icons="${this.autocompleteIcons}"
+				.hass=${this.hass}
+				.value=${value}
+				.error=${this.error}
+				@keydown=${(e: KeyboardEvent) => e.stopPropagation()}
+				@value-changed=${this.valueChanged}
+			></ha-code-editor>`;
+	}
+
+	static get styles() {
+		return css`
+			.code-editor-header {
+				font-size: var(--ha-font-size-m, 14px);
+				font-weight: 500;
+				padding: 8px;
 			}
 		`;
 	}
