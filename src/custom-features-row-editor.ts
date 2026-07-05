@@ -595,20 +595,20 @@ export class CustomFeaturesRowEditor extends LitElement {
 									<div class="feature-list-item-label">
 										<span class="primary"
 											>${
-													option ?? (field == 'option' ? 'Option' : entryType)
-												}${label ? ` ⸱ ${label}` : ''}</span
+												option ?? (field == 'option' ? 'Option' : entryType)
+											}${label ? ` ⸱ ${label}` : ''}</span
 										>
 										${
-												context.config.entity
-													? html`<span class="secondary"
-															>${context.config.entity_id}${
-																context.config.attribute
-																	? ` ⸱ ${context.config.attribute}`
-																	: ''
-															}</span
-														>`
-													: ''
-											}
+											context.config.entity
+												? html`<span class="secondary"
+														>${context.config.entity_id}${
+															context.config.attribute
+																? ` ⸱ ${context.config.attribute}`
+																: ''
+														}</span
+													>`
+												: ''
+										}
 									</div>
 								</div>
 								<ha-icon-button
@@ -658,7 +658,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 			default:
 				return html`
 					<ha-dropdown @wa-select=${this.addEntry} placement="bottom-end">
-						<ha-button size="s" appearance="filled" slot="trigger">
+						<ha-button
+							size="s"
+							appearance="filled"
+							slot="trigger"
+							class="add-list-item"
+						>
 							<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon>Add custom
 							feature</ha-button
 						>
@@ -2313,10 +2318,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			editor = this.buildCodeEditor('yaml');
 		}
 
-		return html`
-			${this.buildEntryHeader()}
-			<div class="wrapper">${editor}</div>
-		`;
+		return html`${this.buildEntryHeader()}${editor}`;
 	}
 
 	buildErrorPanel() {
@@ -2369,7 +2371,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		switch (this.entryIndex) {
 			case -1:
 				editor = html`
-					<div class="content">
+					<div>
 						<div>${this.buildEntryList()}${this.buildAddEntryButton()}</div>
 						${this.buildCodeEditor('jinja2')}
 						<ha-button
@@ -3212,13 +3214,16 @@ export class CustomFeaturesRowEditor extends LitElement {
 				-webkit-tap-highlight-color: transparent;
 				-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 			}
-			.content {
-				padding: 12px;
+			.content,
+			.card-editor-content {
 				display: inline-flex;
 				flex-direction: column;
 				gap: 24px;
 				box-sizing: border-box;
 				width: 100%;
+			}
+			.content {
+				padding: 12px;
 			}
 			.action-options {
 				display: inline-flex;
@@ -3254,6 +3259,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 			}
 			ha-dropdown-item {
 				text-transform: capitalize;
+			}
+			.add-list-item {
+				margin-top: 8px;
 			}
 
 			.feature-list-item {
@@ -3319,12 +3327,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 			.back-title {
 				display: flex;
 				align-items: center;
-				font-size: 18px;
+				font-size: var(--ha-font-size-l, 16px);
 			}
 
-			.wrapper {
-				width: 100%;
-			}
 			.gui-editor {
 				display: inline-flex;
 				flex-direction: column;
@@ -3361,11 +3366,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				font-size: 20px;
+				font-size: var(--ha-font-size-xl, 20px);
 				font-weight: 500;
 			}
 			.panel-header {
 				display: inline-flex;
+				align-items: center;
 				gap: 4px;
 			}
 			.style-header {

@@ -182,7 +182,7 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 
 		let editor: TemplateResult<1>;
 		if (this.rowIndex == -1) {
-			editor = html`<div class="content">
+			editor = html`<div class="card-editor-content">
 				<div>${this.buildRowsList()}${this.buildAddRowButton()}</div>
 				<div class="entry-list-header">Style Options</div>
 				<div class="action-options">
