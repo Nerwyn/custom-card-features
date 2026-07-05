@@ -555,51 +555,50 @@ export class CustomFeaturesRowEditor extends LitElement {
 				break;
 		}
 		return html`
-			<div class="content">
-				<div class="entry-list-header">
-					${
-						field == 'entry' && this.showExitButton
-							? html`<div class="back-title">
-									<ha-icon-button-prev
-										.label=${this.hass.localize('ui.common.back')}
-										@click=${this.handleExitEditor}
-									></ha-icon-button-prev>
-									${listHeader}
-								</div>`
-							: listHeader
-					}
-					<ha-icon-button class="header-icon" @click=${this.handleREADME}
-						><ha-icon .icon="${'mdi:help-circle'}"></ha-icon
-					></ha-icon-button>
-				</div>
-				<ha-sortable handle-selector=".handle" @item-moved=${handlers.move}>
-					<div class="features">
-						${entries.map((entry, i) => {
-							const context = this.getEntryContext(entry);
-							const icon = this.renderTemplate(entry.icon as string, context);
-							const label = this.renderTemplate(entry.label as string, context);
-							const option = this.renderTemplate(
-								(entry as IOption).option as string,
-								context,
-							);
-							const entryType = this.renderTemplate(
-								entry.type as string,
-								context,
-							);
-							return html`
-								<div class="feature-list-item">
-									<div class="handle">
-										<ha-icon .icon="${'mdi:drag'}"></ha-icon>
-									</div>
-									<div class="feature-list-item-content">
-										${icon ? html`<ha-icon .icon="${icon}"></ha-icon>` : ''}
-										<div class="feature-list-item-label">
-											<span class="primary"
-												>${
+			<div class="entry-list-header">
+				${
+					field == 'entry' && this.showExitButton
+						? html`<div class="back-title">
+								<ha-icon-button-prev
+									.label=${this.hass.localize('ui.common.back')}
+									@click=${this.handleExitEditor}
+								></ha-icon-button-prev>
+								${listHeader}
+							</div>`
+						: listHeader
+				}
+				<ha-icon-button class="header-icon" @click=${this.handleREADME}
+					><ha-icon .icon="${'mdi:help-circle'}"></ha-icon
+				></ha-icon-button>
+			</div>
+			<ha-sortable handle-selector=".handle" @item-moved=${handlers.move}>
+				<div class="features">
+					${entries.map((entry, i) => {
+						const context = this.getEntryContext(entry);
+						const icon = this.renderTemplate(entry.icon as string, context);
+						const label = this.renderTemplate(entry.label as string, context);
+						const option = this.renderTemplate(
+							(entry as IOption).option as string,
+							context,
+						);
+						const entryType = this.renderTemplate(
+							entry.type as string,
+							context,
+						);
+						return html`
+							<div class="feature-list-item">
+								<div class="handle">
+									<ha-icon .icon="${'mdi:drag-horizontal-variant'}"></ha-icon>
+								</div>
+								<div class="feature-list-item-content">
+									${icon ? html`<ha-icon .icon="${icon}"></ha-icon>` : ''}
+									<div class="feature-list-item-label">
+										<span class="primary"
+											>${
 													option ?? (field == 'option' ? 'Option' : entryType)
 												}${label ? ` ⸱ ${label}` : ''}</span
-											>
-											${
+										>
+										${
 												context.config.entity
 													? html`<span class="secondary"
 															>${context.config.entity_id}${
@@ -610,35 +609,34 @@ export class CustomFeaturesRowEditor extends LitElement {
 														>`
 													: ''
 											}
-										</div>
 									</div>
-									<ha-icon-button
-										class="copy-icon"
-										.index=${i}
-										@click=${handlers.copy}
-									>
-										<ha-icon .icon="${'mdi:content-copy'}"></ha-icon>
-									</ha-icon-button>
-									<ha-icon-button
-										class="edit-icon"
-										.index=${i}
-										@click=${handlers.edit}
-									>
-										<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
-									</ha-icon-button>
-									<ha-icon-button
-										class="remove-icon"
-										.index=${i}
-										@click=${handlers.remove}
-									>
-										<ha-icon .icon="${'mdi:delete'}"></ha-icon>
-									</ha-icon-button>
 								</div>
-							`;
-						})}
-					</div>
-				</ha-sortable>
-			</div>
+								<ha-icon-button
+									class="copy-icon"
+									.index=${i}
+									@click=${handlers.copy}
+								>
+									<ha-icon .icon="${'mdi:content-copy'}"></ha-icon>
+								</ha-icon-button>
+								<ha-icon-button
+									class="edit-icon"
+									.index=${i}
+									@click=${handlers.edit}
+								>
+									<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
+								</ha-icon-button>
+								<ha-icon-button
+									class="remove-icon"
+									.index=${i}
+									@click=${handlers.remove}
+								>
+									<ha-icon .icon="${'mdi:delete'}"></ha-icon>
+								</ha-icon-button>
+							</div>
+						`;
+					})}
+				</div>
+			</ha-sortable>
 		`;
 	}
 
@@ -646,7 +644,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 		switch (field) {
 			case 'option':
 				return html`
-					<ha-button @click=${this.addOption} class="add-list-item">
+					<ha-button
+						size="s"
+						appearance="filled"
+						@click=${this.addOption}
+						class="add-list-item"
+					>
 						<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon>Add
 						option</ha-button
 					>
@@ -655,7 +658,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			default:
 				return html`
 					<ha-dropdown @wa-select=${this.addEntry} placement="bottom-end">
-						<ha-button slot="trigger">
+						<ha-button size="s" appearance="filled" slot="trigger">
 							<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon>Add custom
 							feature</ha-button
 						>
@@ -2369,7 +2372,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 					<div class="content">
 						<div>${this.buildEntryList()}${this.buildAddEntryButton()}</div>
 						${this.buildCodeEditor('jinja2')}
-						<ha-button @click=${this.handleUpdateDeprecatedConfig}>
+						<ha-button
+							size="s"
+							appearance="filled"
+							@click=${this.handleUpdateDeprecatedConfig}
+						>
 							<ha-icon .icon=${'mdi:cog'} slot="start"></ha-icon>Update old
 							config</ha-button
 						>
@@ -3237,13 +3244,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 				border: solid 1px var(--outline-color);
 				--ha-card-border-radius: 6px;
 				--expansion-panel-content-padding: 0;
-			}
-			ha-icon {
-				display: flex;
-				color: var(--secondary-text-color);
-			}
-			.add-list-item {
-				margin: 0 18px 12px;
 			}
 			ha-button {
 				width: fit-content;

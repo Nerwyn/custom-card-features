@@ -85,88 +85,91 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 		};
 
 		return html`
-			<div class="content">
-				<div class="entry-list-header">Custom Features Rows</div>
-				<ha-sortable handle-selector=".handle" @item-moved=${handlers.move}>
-					<div class="features">
-						${features.map((row, i) => {
-							const entries = row.entries.length
-								? row.entries
-								: [{ type: 'Empty' as CardFeatureType }];
-							return html`
-								<div class="feature-list-item">
-									<div class="handle">
-										<ha-icon .icon="${'mdi:drag'}"></ha-icon>
-									</div>
-									${entries.map((entry: IEntry) => {
-										const context = this.getEntryContext(entry);
-										const icon = this.renderTemplate(
-											entry.icon as string,
-											context,
-										);
-										const label = this.renderTemplate(
-											entry.label as string,
-											context,
-										);
-										const entryType = this.renderTemplate(
-											entry.type as string,
-											context,
-										);
-										return html`<div class="feature-list-item-content">
-											${icon ? html`<ha-icon .icon="${icon}"></ha-icon>` : ''}
-											<div class="feature-list-item-label">
-												<span class="primary"
-													>${entryType ?? 'button'}${
-														label ? ` ⸱ ${label}` : ''
-													}</span
-												>
-												${
-													context.config.entity
-														? html`<span class="secondary"
-																>${context.config.entity_id}${
-																	context.config.attribute
-																		? ` ⸱ ${context.config.attribute}`
-																		: ''
-																}</span
-															>`
-														: ''
-												}
-											</div>
-										</div>`;
-									})}
-									<ha-icon-button
-										class="copy-icon"
-										.index=${i}
-										@click=${handlers.copy}
-									>
-										<ha-icon .icon="${'mdi:content-copy'}"></ha-icon>
-									</ha-icon-button>
-									<ha-icon-button
-										class="edit-icon"
-										.index=${i}
-										@click=${handlers.edit}
-									>
-										<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
-									</ha-icon-button>
-									<ha-icon-button
-										class="remove-icon"
-										.index=${i}
-										@click=${handlers.remove}
-									>
-										<ha-icon .icon="${'mdi:delete'}"></ha-icon>
-									</ha-icon-button>
+			<div class="entry-list-header">Custom Features Rows</div>
+			<ha-sortable handle-selector=".handle" @item-moved=${handlers.move}>
+				<div class="features">
+					${features.map((row, i) => {
+						const entries = row.entries.length
+							? row.entries
+							: [{ type: 'Empty' as CardFeatureType }];
+						return html`
+							<div class="feature-list-item">
+								<div class="handle">
+									<ha-icon .icon="${'mdi:drag-horizontal-variant'}"></ha-icon>
 								</div>
-							`;
-						})}
-					</div>
-				</ha-sortable>
-			</div>
+								${entries.map((entry: IEntry) => {
+									const context = this.getEntryContext(entry);
+									const icon = this.renderTemplate(
+										entry.icon as string,
+										context,
+									);
+									const label = this.renderTemplate(
+										entry.label as string,
+										context,
+									);
+									const entryType = this.renderTemplate(
+										entry.type as string,
+										context,
+									);
+									return html`<div class="feature-list-item-content">
+										${icon ? html`<ha-icon .icon="${icon}"></ha-icon>` : ''}
+										<div class="feature-list-item-label">
+											<span class="primary"
+												>${entryType ?? 'button'}${
+													label ? ` ⸱ ${label}` : ''
+												}</span
+											>
+											${
+												context.config.entity
+													? html`<span class="secondary"
+															>${context.config.entity_id}${
+																context.config.attribute
+																	? ` ⸱ ${context.config.attribute}`
+																	: ''
+															}</span
+														>`
+													: ''
+											}
+										</div>
+									</div>`;
+								})}
+								<ha-icon-button
+									class="copy-icon"
+									.index=${i}
+									@click=${handlers.copy}
+								>
+									<ha-icon .icon="${'mdi:content-copy'}"></ha-icon>
+								</ha-icon-button>
+								<ha-icon-button
+									class="edit-icon"
+									.index=${i}
+									@click=${handlers.edit}
+								>
+									<ha-icon .icon="${'mdi:pencil'}"></ha-icon>
+								</ha-icon-button>
+								<ha-icon-button
+									class="remove-icon"
+									.index=${i}
+									@click=${handlers.remove}
+								>
+									<ha-icon .icon="${'mdi:delete'}"></ha-icon>
+								</ha-icon-button>
+							</div>
+						`;
+					})}
+				</div>
+			</ha-sortable>
 		`;
 	}
 
 	buildAddRowButton() {
 		return html`
-			<ha-button @click=${this.addRow} class="add-list-item">
+			<ha-button
+				size="s"
+				appearance="filled"
+				@click=${this.addRow}
+				class="add-list-item"
+			>
 				<ha-icon .icon=${'mdi:plus'} slot="start"></ha-icon>Add row</ha-button
 			>
 		`;
@@ -180,10 +183,7 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 		let editor: TemplateResult<1>;
 		if (this.rowIndex == -1) {
 			editor = html`<div class="content">
-				<div>
-					<div class="content">${this.buildRowsList()}</div>
-					${this.buildAddRowButton()}
-				</div>
+				<div>${this.buildRowsList()}${this.buildAddRowButton()}</div>
 				<div class="entry-list-header">Style Options</div>
 				<div class="action-options">
 					<div class="form">
