@@ -1,9 +1,7 @@
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { css, html, LitElement, TemplateResult } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import packageInfo from '../package.json';
-
-import { dump, load } from 'js-yaml';
 
 import {
 	AUTOFILL,
@@ -688,15 +686,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 			value = obj as object;
 		}
 
-		if ('code' in selector) {
-			return this.buildCodeEditor(
-				(selector.code as Record<string, string>).mode as string,
-				label,
-				key,
-				value,
-			);
-		}
-
 		return html`<ha-selector
 			.hass=${hass}
 			.name="${label}"
@@ -743,10 +732,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 					${this.buildAlertBox(
 						"Change the feature appearance based on its value using a template like '{{ value | float }}'.",
 					)}
-					<div class="form">
-						${appearanceOptions}
-						${this.buildSelector('CSS Styles', 'styles', { code: { mode: 'css' } })}
-					</div>
+					<div class="form">${appearanceOptions}</div>
+					${this.buildSelector('CSS Styles', 'styles', { template: { preview: false } })}
 				</div>
 			</ha-expansion-panel>
 		`;
@@ -858,7 +845,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			}
 			${
 				buildCodeEditor || action == 'fire-dom-event'
-					? this.buildSelector('', actionType, { code: { mode: 'action' } })
+					? this.buildSelector('', actionType, { object: {} })
 					: ''
 			}
 			${
@@ -868,7 +855,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 								"It's easy to crash your browser or server if you use this to send too many commands in a loop. Make sure you know what you're doing!",
 								'warning',
 							)}
-							${this.buildSelector('', `${actionType}.eval`, { code: { mode: 'eval' } })}
+							${this.buildSelector('', `${actionType}.eval`, { template: { preview: false } })}
 						`
 					: ''
 			}
@@ -1465,7 +1452,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					'Options template',
 					'options_template',
 					{
-						template: {},
+						template: { preview: false },
 					},
 				)}
 				${optionTemplateRow}`;
@@ -2155,53 +2142,13 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return html`<div class="gui-editor">${entryGuiEditor}</div>`;
 	}
 
-	buildCodeEditor(
-		mode: string,
-		label: string,
-		key: string,
-		value: object | string,
-	) {
-		let autocompleteEntities = true;
-		let autocompleteIcons = false;
-		switch (mode) {
-			case 'css':
-				mode = 'jinja2' as 'css';
-				break;
-			case 'action':
-				mode = 'yaml';
-				// value = value.trim() == '{}' ? '' : value;
-				break;
-			case 'eval':
-				mode = 'jinja2' as 'css';
-				autocompleteEntities = false;
-				break;
-			case 'yaml':
-			default:
-				autocompleteIcons = true;
-				break;
-		}
-
-		return html`<custom-features-code-editor
-			mode="${mode}"
-			id="${key}"
-			dir="ltr"
-			?autocomplete-entities="${autocompleteEntities}"
-			?autocomplete-icons="${autocompleteIcons}"
-			.hass=${this.hass}
-			.label="${label}"
-			.value=${value}
-			.error=${Boolean(this.errors)}
-			@value-changed=${this.handleSelectorChange}
-		></custom-features-code-editor>`;
-	}
-
 	buildEntryEditor() {
 		let editor: TemplateResult<1>;
 		if (this.guiMode) {
 			editor = this.buildEntryGuiEditor();
 		} else {
 			editor = this.buildSelector('', 'this', {
-				code: { mode: 'yaml' },
+				object: {},
 			});
 		}
 
@@ -2258,9 +2205,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 		switch (this.entryIndex) {
 			case -1:
 				editor = html`
-					<div>
+					<div class="main-editor-content">
 						<div>${this.buildEntryList()}${this.buildAddEntryButton()}</div>
-						${this.buildSelector('CSS Styles', 'styles', { code: { mode: 'css' } })}
+						${this.buildSelector('CSS Styles', 'styles', { template: { preview: false } })}
 						<ha-button
 							size="s"
 							appearance="filled"
@@ -3102,7 +3049,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 			}
 			.content,
-			.card-editor-content {
+			.main-editor-content {
 				display: inline-flex;
 				flex-direction: column;
 				gap: 24px;
@@ -3270,60 +3217,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 			#label,
 			cached-ha-code-editor {
 				grid-column: 1 / -1;
-			}
-		`;
-	}
-}
-
-@customElement('custom-features-code-editor')
-class _CustomFeaturesCodeEditor extends LitElement {
-	@property() hass!: HomeAssistant;
-	@property() mode: 'yaml' | 'eval' | 'action' | 'jinja2' = 'yaml';
-	@property() autocompleteEntities = true;
-	@property() autocompleteIcons = false;
-	@property() label = '';
-	@property() value = '';
-	@property() error = false;
-
-	valueChanged(e: Event) {
-		if (this.mode == 'jinja2') {
-			return;
-		}
-		e.stopPropagation();
-
-		const event = new Event('value-changed');
-		event.detail = { value: load(e.detail.value) };
-		this.dispatchEvent(event);
-	}
-
-	render() {
-		let value: string | object;
-		if (this.mode == 'jinja2') {
-			value = this.value;
-		} else {
-			value = dump(this.value);
-		}
-
-		return html` ${this.label ? html`<div class="code-editor-header">${this.label}</div>` : ''}
-			<ha-code-editor
-				mode="${this.mode}"
-				dir="ltr"
-				?autocomplete-entities="${this.autocompleteEntities}"
-				?autocomplete-icons="${this.autocompleteIcons}"
-				.hass=${this.hass}
-				.value=${value}
-				.error=${this.error}
-				@keydown=${(e: KeyboardEvent) => e.stopPropagation()}
-				@value-changed=${this.valueChanged}
-			></ha-code-editor>`;
-	}
-
-	static get styles() {
-		return css`
-			.code-editor-header {
-				font-size: var(--ha-font-size-m, 14px);
-				font-weight: 500;
-				padding: 8px;
 			}
 		`;
 	}
