@@ -146,6 +146,8 @@ Some additional logic is applied for certain attributes:
 - `elapsed` - Only for timer entities. Updated twice a second using the the current timestamp and the attributes `duration`, `remaining`, and `finishes_at`, and locked to a max value using the attribute `duration`.
   - **Note**: `elapsed` is not an actual attribute of timer entities, but is a possible `value_attribute` for timer entities for the purpose of displaying accurate timer elapsed values. Timer entities do have an attribute `remaining`, which only updates when the timer state changes. The actual `remaining` attribute can be calculated using the `elapsed` value and the timer `duration` attribute.
 
+If you do not set a feature entity, you can instead set the feature value using a template in the value template field. This template is not used if entity ID is set, even if that entity ID does not exist or it's state or attribute is undefined, it is only used if no entity is set at all.
+
 If you find that the autofilling of the entity ID in the action or feature value or the icon and units is causing issues, setting `Autofill` to `false` may help. Just remember to set or clear the entity ID of the feature and the entity, device, area, or label ID of the action target.
 
 Haptics are disabled for features by default, but can be toggled on at the feature level.

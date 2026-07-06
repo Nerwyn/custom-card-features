@@ -705,6 +705,13 @@ export class CustomFeaturesRowEditor extends LitElement {
 				entity: {},
 			})}
 			${
+				this.activeEntry?.entity_id
+					? ''
+					: this.buildSelector('Value template', 'value_template', {
+							template: { preview: false },
+						})
+			}
+			${
 				this.hass.states[this.activeEntry?.entity_id ?? '']
 					? this.buildSelector(
 							'Attribute',
