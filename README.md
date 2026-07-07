@@ -53,7 +53,7 @@ You can override the default behavior of each option by changing their action. T
 
 You can also choose to not give any of the dropdown options `Option` values, so that none are ever marked as the selected option. This makes it so that the default dropdown icon and label are always displayed, and the dropdown feature becomes more of a menu for firing different actions rather than one for selecting an option.
 
-Instead of defining every option manually, you can also generate them from an entity attribute that contains a list (such as a light's `effect_list`) or from a template. This is useful for entities with long, dynamic attribute lists. See [Dynamic Options](#dynamic-options) below and [Example 9](#example-9).
+Instead of defining every option manually, you can also generate them from an entity attribute that contains a list (such as a light's `effect_list`) or from a template. This is useful for entities with long, dynamic attribute lists. See [Dynamic Options](#dynamic-options) below.
 
 ## Inputs
 
@@ -2348,131 +2348,6 @@ layout_options:
 </details>
 
 ## Example 8
-
-Google Home app inspired light button and slider.
-
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/google_home_like_light.png" width="600"/>
-
-<details>
-
-<summary>Config</summary>
-
-```yaml
-type: custom:custom-features-card
-features:
-  - type: custom:service-call
-    entries:
-      - type: button
-        entity_id: light.sunroom_ceiling
-        icon: >-
-          {{ (state_attr(config.entity, 'icon')) + ('' if
-          is_state(config.entity, 'on') else '-outline')}}
-        toggle_styles: true
-        label: >-
-          {{ state_attr(config.entity, 'friendly_name')  |  regex_replace('Lights?',
-          '')  }}
-
-          {{ value | capitalize }}
-        tap_action:
-          action: perform-action
-          perform_action: light.toggle
-          target:
-            entity_id:
-              - '{{ config.entity }}'
-          data: {}
-        hold_action:
-          action: more-info
-        styles: |-
-          :host {
-            justify-content: flex-start;
-          }
-          :host([value='on']) {
-            --color: var(--on-color);
-            --icon-color: var(--on-on-color);
-            --label-color: var(--on-on-color);
-          }
-          .label {
-            display: inline-flex;
-            font-size: 15px;
-            line-height: 18px;
-            font-weight: 700;
-          }
-        thumb: md3-filled
-        hold_action:
-          action: more-info
-          target:
-            entity_id: light.sunroom_ceiling
-          data: {}
-      - type: slider
-        entity_id: light.sunroom_ceiling
-        tap_action:
-          action: perform-action
-          target:
-            entity_id:
-              - '{{ config.entity }}'
-          perform_action: >-
-            light.{{ 'toggle' if (currentX - initialX) | abs < 5 else 'turn_on'
-            }}
-          data: |-
-            {% if (currentX - initialX) | abs >= 5  %}
-            brightness_pct: '{{ value }}'
-            {% endif %}
-        range:
-          - 0
-          - 100
-        step: 1
-        icon: >-
-          {{ (state_attr(config.entity, "icon")) + ("-outline" if not
-          is_state(config.entity, "on") else "") }}
-        styles: |-
-          .container:not(.off),
-          .container:not(.off) ~ .md3-thumb {
-            --color: var(--on-color);
-            --background: var(--on-background-color);
-            --icon-color: var(--on-on-color);
-            --label-color: var(--on-on-color);
-          }
-          .icon-label {
-            padding-inline-start: 16px;
-          }
-          .label {
-            display: inline-flex;
-            font-size: 15px;
-            line-height: 18px;
-          }
-        label: >-
-          {{ state_attr(config.entity, 'friendly_name')  |
-          regex_replace('Lights?', '')  }}
-
-          {{ (states(config.entity) | capitalize) if not is_state(config.entity,
-          'on') else value + unit }}
-        thumb: md3-slider
-        value_attribute: brightness
-        unit_of_measurement: '%'
-    styles: |-
-      :host {
-        margin-bottom: 0;
-      }
-      :host([theme='dark']) {
-        --on-color: #50462a;
-        --on-on-color: #ffe082;
-        --on-background-color: #33302a;
-      }
-      :host([theme='light']) {
-        --on-color: #ffe082;
-        --on-on-color: #745b00;
-        --on-background-color: #ffefc9;
-      }
-feature_height: 96
-grid_options:
-  columns: 12
-  rows: auto
-transparent: true
-```
-
-</details>
-
-## Example 9
 
 Generating dropdown options dynamically from a light entity's `effect_list` attribute.
 
