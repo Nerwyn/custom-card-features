@@ -310,6 +310,8 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 	firstUpdated(changedProperties: PropertyValues) {
 		super.firstUpdated(changedProperties);
 
+		setTimeout(() => this.setAttribute('ready', ''), 250);
+
 		if (this.firefox && this.thumbType == 'md3-slider') {
 			// Firefox md3 slider transition fix
 			this.style.setProperty(
@@ -803,6 +805,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 
 				:host([dir='rtl']) .thumb {
 					scale: -1;
+				}
+
+				:host(:not([ready])) {
+					--thumb-transition: none;
 				}
 			`,
 		];
