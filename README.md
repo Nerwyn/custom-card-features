@@ -162,7 +162,7 @@ Inputs, sliders, and spinboxes will wait one second before updating their intern
 
 Inputs also have an Input Type field, which can be used to choose between many of the HTML input element types that have been optimized for use with this feature.
 
-### Dropdown and Selector General Options
+### Dropdown and Selector Options
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_dropdown_general_options.png" width="600"/>
 
@@ -2024,7 +2024,7 @@ type: custom:custom-features-card
 
 A better looking temperature spinbox with hold on repeat, tile color, and an icon and label. Also an XKCD button that opens a different comic based on how long you hold it using momentary button mode, some momentary button test code, two buttons that change background color based on their state, and an example of how to use a button as a transparent label.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/spinbox_tile.png" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/spinboxes_tile.png" width="600"/>
 
 <details>
 
@@ -2349,7 +2349,7 @@ layout_options:
 
 ## Example 8
 
-Generating dropdown options dynamically from a light entity's `effect_list` attribute.
+Dropdown features with different appearance types that are manually defined or automatically defined by an entity attribute.
 
 <details>
 
@@ -2357,26 +2357,167 @@ Generating dropdown options dynamically from a light entity's `effect_list` attr
 
 ```yaml
 type: tile
-entity: light.wled
+grid_options:
+  columns: 12
+  rows: auto
+entity: input_select.select_test
+name: Dropdowns?
+icon: mdi:form-dropdown
+color: green
+vertical: false
 features:
   - type: custom:service-call
     entries:
       - type: dropdown
-        entity_id: light.wled
+        entity_id: input_select.select_test
+        icon: mdi:ab-testing
+        autofill_entity_id: true
+        option_type: attribute
+        option_template:
+          label: '{{ option }}'
+          tap_action:
+            action: perform-action
+            perform_action: input_select.select_option
+            target:
+              entity_id: '{{ config.entity }}'
+            data:
+              option: '{{ option }}'
+          icon: mdi:alpha-{{ option | lower }}-circle
+          entity_id: input_select.select_test
+        options_attribute: options
+        option_attribute: options
+        option_entity: input_select.select_test
+        value_attribute: state
+      - type: dropdown
+        entity_id: light.desk_lights
         value_attribute: effect
         icon: mdi:string-lights
         label: '{{ value }}'
         option_type: attribute
         option_attribute: effect_list
+        option_entity: light.desk_lights
         option_template:
+          entity_id: light.desk_lights
           label: '{{ option }}'
           tap_action:
             action: perform-action
             perform_action: light.turn_on
-            target:
-              entity_id: light.wled
             data:
               effect: '{{ option }}'
+            target:
+              entity_id: '{{ config.entity }}'
+        thumb: md3-standard
+      - type: dropdown
+        entity_id: light.sunroom_ceiling
+        options:
+          - entity_id: light.sunroom_ceiling
+            option: 255,167,87
+            tap_action:
+              action: perform-action
+              perform_action: light.turn_on
+              target:
+                entity_id: light.sunroom_ceiling
+              data:
+                brightness_pct: 100
+                color_temp_kelvin: 2000
+            icon: mdi:checkbox-blank-circle
+            styles: |-
+              .icon {
+                color: rgb(255,166,87);
+              }
+          - entity_id: light.sunroom_ceiling
+            option: 255,0,0
+            tap_action:
+              action: perform-action
+              perform_action: light.turn_on
+              target:
+                entity_id:
+                  - light.sunroom_ceiling
+              data:
+                rgb_color:
+                  - 255
+                  - 0
+                  - 0
+                brightness_pct: 100
+              confirmation:
+                text: RED ALERT?!
+            icon: mdi:checkbox-blank-circle
+            styles: |-
+              .icon {
+                color: var(--red-color);
+              }
+          - entity_id: light.sunroom_ceiling
+            option: 0,255,0
+            tap_action:
+              action: perform-action
+              perform_action: light.turn_on
+              target:
+                entity_id:
+                  - light.sunroom_ceiling
+              data:
+                rgb_color:
+                  - 0
+                  - 255
+                  - 0
+                brightness_pct: 100
+            icon: mdi:checkbox-blank-circle
+            styles: |-
+              .icon {
+                color: var(--green-color);
+              }
+          - entity_id: light.sunroom_ceiling
+            option: 0,0,255
+            tap_action:
+              action: perform-action
+              perform_action: light.turn_on
+              target:
+                entity_id:
+                  - light.sunroom_ceiling
+              data:
+                rgb_color:
+                  - 0
+                  - 0
+                  - 255
+                brightness_pct: 100
+            icon: mdi:checkbox-blank-circle
+            styles: |-
+              .icon {
+                color: var(--blue-color);
+              }
+          - entity_id: light.sunroom_ceiling
+            option: 128,0,128
+            tap_action:
+              action: perform-action
+              perform_action: light.turn_on
+              target:
+                entity_id:
+                  - light.sunroom_ceiling
+              data:
+                rgb_color:
+                  - 128
+                  - 0
+                  - 128
+                brightness_pct: 100
+            icon: mdi:checkbox-blank-circle
+            styles: |-
+              .icon {
+                color: var(--purple-color);
+              }
+          - entity_id: light.sunroom_ceiling
+            tap_action:
+              action: perform-action
+              perform_action: light.turn_off
+              target:
+                entity_id:
+                  - light.sunroom_ceiling
+              data: {}
+            icon: mdi:checkbox-blank-circle-outline
+            styles: ''
+            option: 'null'
+        value_attribute: rgb_color
+        icon: mdi:ceiling-light
+        thumb: md3-fab-primary
+features_position: bottom
 ```
 
 </details>
