@@ -2351,6 +2351,8 @@ layout_options:
 
 Dropdown features with different appearance types that are manually defined or automatically defined by an entity attribute.
 
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/dropdowns_tile.png" width="600"/>
+
 <details>
 
 <summary>Config</summary>
