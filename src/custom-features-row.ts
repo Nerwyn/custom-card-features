@@ -11,6 +11,7 @@ import './classes/custom-feature-dropdown';
 import './classes/custom-feature-input';
 import './classes/custom-feature-selector';
 import './classes/custom-feature-slider';
+import './classes/custom-feature-collapsible-slider';
 import './classes/custom-feature-spinbox';
 import './classes/custom-feature-toggle';
 import { CustomFeaturesCard } from './custom-features-card';
@@ -132,6 +133,15 @@ export class CustomFeaturesRow extends LitElement {
 							.config=${entry}
 							.stateObj=${this.stateObj}
 						></custom-feature-slider>`,
+					);
+					break;
+				case 'collapsible-slider':
+					row.push(
+						html`<custom-feature-collapsible-slider
+							.hass=${this.hass}
+							.config=${entry}
+							.stateObj=${this.stateObj}
+						></custom-feature-collapsible-slider>`,
 					);
 					break;
 				case 'selector':

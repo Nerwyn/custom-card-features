@@ -19,6 +19,7 @@ export interface IEntry
 		IActions,
 		IButtonOptions,
 		ISliderOptions,
+		ICollapsibleSliderOptions,
 		IDropdownSelectorOptions,
 		ISpinboxOptions,
 		IInputOptions,
@@ -41,6 +42,7 @@ export interface IEntry
 
 export const CardFeatureTypes = [
 	'button',
+	'collapsible-slider',
 	'dropdown',
 	'input',
 	'selector',
@@ -153,6 +155,13 @@ export interface ISliderOptions {
 	step?: number;
 	thumb?: ThumbType;
 	ticks?: boolean;
+}
+
+export interface ICollapsibleSliderOptions {
+	collapsed?: boolean;
+	collapsed_height?: number;
+	expanded_height?: number;
+	auto_collapse?: boolean | number;
 }
 
 export interface ISpinboxOptions {

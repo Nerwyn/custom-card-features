@@ -1242,6 +1242,127 @@ export class CustomFeaturesRowEditor extends LitElement {
 		`;
 	}
 
+	buildCollapsibleSliderGuiEditor() {
+		const context = this.getEntryContext(this.activeEntry as IEntry);
+		const rangeMin = this.renderTemplate(
+			this.activeEntry?.range?.[0] as number,
+			context,
+		);
+		const rangeMax = this.renderTemplate(
+			this.activeEntry?.range?.[0] as number,
+			context,
+		);
+		const step =
+			this.renderTemplate(this.activeEntry?.step as number, context) ?? STEP;
+		const unit = this.renderTemplate(
+			this.activeEntry?.unit_of_measurement as string,
+			context,
+		);
+
+		return html`
+			${this.buildMainFeatureOptions()}
+			<div class="form">
+				${this.buildSelector('Min', 'range.0', {
+					number: {
+						max: rangeMax ?? undefined,
+						step: step,
+						mode: 'box',
+						unit_of_measurement: unit,
+					},
+				})}
+				${this.buildSelector('Max', 'range.1', {
+					number: {
+						min: rangeMin ?? undefined,
+						step: step,
+						mode: 'box',
+						unit_of_measurement: unit,
+					},
+				})}
+				${this.buildSelector('Step', 'step', {
+					number: {
+						min: 0,
+						step: 'any',
+						mode: 'box',
+						unit_of_measurement: unit,
+					},
+				})}
+				${this.buildSelector(
+					'Update after action delay',
+					'value_from_hass_delay',
+					{
+						number: {
+							min: 0,
+							step: 1,
+							mode: 'box',
+							unit_of_measurement: 'ms',
+						},
+					},
+					UPDATE_AFTER_ACTION_DELAY,
+				)}
+				${this.buildSelector('Autofill', 'autofill_entity_id', {
+					boolean: {},
+				})}
+				${this.buildSelector('Haptics', 'haptics', {
+					boolean: {},
+				})}
+				${this.buildSelector('Collapsed by default', 'collapsed', {
+					boolean: {},
+				})}
+				${this.buildSelector('Collapsed height', 'collapsed_height', {
+					number: {
+						min: 0,
+						step: 1,
+						mode: 'box',
+						unit_of_measurement: 'px',
+					},
+				})}
+				${this.buildSelector('Expanded height', 'expanded_height', {
+					number: {
+						min: 0,
+						step: 1,
+						mode: 'box',
+						unit_of_measurement: 'px',
+					},
+				})}
+				${this.buildSelector('Auto-collapse delay', 'auto_collapse', {
+					number: {
+						min: 0,
+						step: 1,
+						mode: 'box',
+						unit_of_measurement: 'ms',
+					},
+				})}
+			</div>
+			${this.buildAppearancePanel(html`
+				${this.buildSelector(
+					'Type',
+					'thumb',
+					{
+						select: {
+							mode: 'dropdown',
+							options: [
+								{ value: 'default', label: 'Default' },
+								{ value: 'line', label: 'Line' },
+								{ value: 'flat', label: 'Flat' },
+								{ value: 'round', label: 'Round' },
+								{ value: 'md3-slider', label: 'Material Design 3' },
+							],
+							reorder: false,
+						},
+					},
+					'default',
+				)}
+				${this.buildCommonAppearanceOptions()}
+				${this.buildSelector('Ticks', 'ticks', { boolean: {} }, false)}
+			`)}
+			${this.buildInteractionsPanel(html`
+				${this.buildAlertBox(
+					'Tap toggles the slider open and closed. Drag to set the value, then release to apply it. Set an "Auto-collapse delay" to automatically hide the slider after adjusting.',
+				)}
+			`)}
+		`;
+	}
+
 	buildDropdownSelectorGuiEditor(type: 'dropdown' | 'selector') {
 		let selectorGuiEditor: TemplateResult<1>;
 		let optionGuiEditor: TemplateResult<1>;
@@ -2126,6 +2247,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 			case 'slider':
 				entryGuiEditor = this.buildSliderGuiEditor();
 				break;
+			case 'collapsible-slider':
+				entryGuiEditor = this.buildCollapsibleSliderGuiEditor();
+				break;
 			case 'dropdown':
 			case 'selector':
 				entryGuiEditor = this.buildDropdownSelectorGuiEditor(
@@ -2607,9 +2731,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 								entry.entity_id as string,
 							);
 						}
-					// falls through
-					case 'input':
-					case 'slider': {
+				// falls through
+				case 'input':
+				case 'slider':
+				case 'collapsible-slider': {
 						const [domain, _service] = (entryEntityId ?? '').split('.');
 						if (!entry.tap_action) {
 							const tap_action = {} as IAction;
