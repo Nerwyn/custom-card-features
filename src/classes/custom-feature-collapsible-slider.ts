@@ -1,7 +1,8 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
+import { IAction, IActions } from '../models/interfaces/IActions';
 import { buildStyles } from '../utils/styles';
 import { CustomFeatureSlider } from './custom-feature-slider';
 
@@ -9,98 +10,185 @@ const AUTO_COLLAPSE_DEFAULT = 2000;
 
 @customElement('custom-feature-collapsible-slider')
 export class CustomFeatureCollapsibleSlider extends CustomFeatureSlider {
-	@state() expanded: boolean = false;
+	@property({ type: Boolean, reflect: true }) expanded: boolean = false;
 	@state() collapsed: boolean = true;
 
 	collapsedHeight?: number;
 	expandedHeight?: number;
-	autoCollapseMs: number = 0;
 	featureHeight: number = 40;
+	autoCollapseMs: number = 0;
 
-	collapseTimer?: ReturnType<typeof setTimeout>;
+	autoCollapseTimer?: ReturnType<typeof setTimeout>;
+	inputActionDebounce?: ReturnType<typeof setTimeout>;
 
-	onPointerDown(e: PointerEvent) {
-		super.onPointerDown(e);
-
-		if (!this.expanded) {
+	setRowExpandedState(expanded: boolean) {
+		const row = this.parentElement;
+		if (!row?.classList.contains('row')) {
 			return;
 		}
 
-		// Delay pressed state to fix initial slider thumb transition
-		this.pressed = false;
-		this.pressedTimeout = setTimeout(() => (this.pressed = true), 150);
+		if (expanded) {
+			row.classList.add('collapsible-slider-active');
+			return;
+		}
 
-		if (!this.swiping) {
-			clearTimeout(this.getValueFromHassTimer);
-			this.getValueFromHass = false;
-			this.sliderOn = true;
-
-			// iOS tap fix
-			const rect = this.slider.getBoundingClientRect();
-			let value = (e.clientX - rect.left) / rect.width;
-			if (this.rtl) {
-				value = 1 - value;
-			}
-			value = value * (this.range[1] - this.range[0]) + this.range[0];
-			this._value = value;
+		const otherExpanded = Array.from(
+			row.querySelectorAll('custom-feature-collapsible-slider'),
+		).some((element) => {
+			const slider = element as CustomFeatureCollapsibleSlider;
+			return slider != this && slider.expanded;
+		});
+		if (!otherExpanded) {
+			row.classList.remove('collapsible-slider-active');
 		}
 	}
 
-	async onPointerUp(e: PointerEvent) {
-		clearTimeout(this.pressedTimeout);
-
-		// Collapsed: a tap reveals the slider instead of firing an action
-		if (!this.expanded) {
-			this.expand();
-			return;
-		}
-
-		// Expanded tap (no drag): collapse again to hide the slider
-		if (!this.swiping) {
-			this.collapse();
-			return;
-		}
-
-		// Expanded drag: commit the value using the parent slider logic,
-		// then optionally auto-collapse after a period of inactivity
-		await super.onPointerUp(e);
-		this.scheduleCollapse();
+	onCollapsedPointerUp(_e: PointerEvent) {
+		this.expand();
 	}
 
-	onPointerMove(e: PointerEvent) {
-		if (!this.expanded) {
-			return;
-		}
-		super.onPointerMove(e);
-	}
-
-	onInput(_e: InputEvent) {
-		if (!this.expanded) {
-			return;
-		}
-		super.onInput(_e);
+	onClose(e: PointerEvent) {
+		e.stopPropagation();
+		e.preventDefault();
+		this.collapse();
 	}
 
 	expand() {
+		if (this.expanded) {
+			return;
+		}
+		this.getValueFromHass = true;
+		this.setValue();
+		this.setSliderState();
 		this.expanded = true;
-		this.fireHapticEvent('light');
-		this.endAction();
+		this.setRowExpandedState(true);
 		this.setHeight();
 		this.requestUpdate();
 	}
 
 	collapse() {
+		if (!this.expanded) {
+			return;
+		}
+		clearTimeout(this.autoCollapseTimer);
 		this.expanded = false;
-		clearTimeout(this.collapseTimer);
-		this.endAction();
+		this.setRowExpandedState(false);
 		this.setHeight();
 		this.requestUpdate();
 	}
 
-	scheduleCollapse() {
-		clearTimeout(this.collapseTimer);
+	async onPointerUp(_e: PointerEvent) {
+		clearTimeout(this.pressedTimeout);
+		clearTimeout(this.autoCollapseTimer);
+		clearTimeout(this.inputActionDebounce);
+		this.pressed = false;
+
+		this._value = this.slider.value;
+		this.fireHapticEvent('light');
+
+		const action = this.getAction('tap_action');
+		const hasAction =
+			action &&
+			action.action != 'none' &&
+			!(action.action == 'perform-action' && !action.perform_action);
+		if (hasAction) {
+			await this.sendAction('tap_action');
+		} else {
+			const fallback = this.buildFallbackTapAction();
+			if (fallback) {
+				await this.sendAction('tap_action', {
+					tap_action: fallback,
+				} as IActions);
+			}
+		}
+
+		this.endAction();
+		this.resetGetValueFromHass();
+
 		if (this.autoCollapseMs > 0) {
-			this.collapseTimer = setTimeout(() => this.collapse(), this.autoCollapseMs);
+			this.autoCollapseTimer = setTimeout(
+				() => this.collapse(),
+				this.autoCollapseMs,
+			);
+		}
+	}
+
+	onPointerMove(e: PointerEvent) {
+		if (e.isPrimary) {
+			if (this.currentX && this.currentY) {
+				this.deltaX = e.clientX - this.currentX;
+				this.deltaY = e.clientY - this.currentY;
+			}
+			this.currentX = e.clientX;
+			this.currentY = e.clientY;
+			this._value = this.slider.value;
+		}
+		clearTimeout(this.autoCollapseTimer);
+	}
+
+	onInput(_e: InputEvent) {
+		clearTimeout(this.autoCollapseTimer);
+		clearTimeout(this.getValueFromHassTimer);
+		this.getValueFromHass = false;
+		this._value = this.slider.value;
+		this.sliderOn = true;
+	}
+
+	buildFallbackTapAction(): IAction | undefined {
+		if (!this.entityId) {
+			return undefined;
+		}
+
+		const [domain] = this.entityId.split('.');
+		const action: IAction = {
+			action: 'perform-action',
+			target: { entity_id: this.entityId },
+		};
+
+		switch (domain) {
+			case 'light':
+				action.perform_action = 'light.turn_on';
+				action.data = {
+					brightness_pct: Number(this.value ?? this.range[0]),
+				};
+				return action;
+			case 'fan':
+				action.perform_action = 'fan.set_percentage';
+				action.data = { percentage: Number(this.value ?? this.range[0]) };
+				return action;
+			case 'media_player':
+				action.perform_action = 'media_player.volume_set';
+				action.data = {
+					volume_level: Number(this.value ?? this.range[0]) / 100,
+				};
+				return action;
+			case 'text':
+			case 'input_text':
+				action.perform_action = `${domain}.set_value`;
+				action.data = { value: String(this.value ?? '') };
+				return action;
+			case 'number':
+			case 'input_number':
+				action.perform_action = `${domain}.set_value`;
+				action.data = {
+					value: Number(this.value ?? this.range[0]),
+				};
+				return action;
+			case 'datetime':
+			case 'input_datetime': {
+				const hasDate = this.hass.states[this.entityId]?.attributes?.has_date;
+				const hasTime = this.hass.states[this.entityId]?.attributes?.has_time;
+				const field = `${hasDate ? 'date' : ''}${hasTime ? 'time' : ''}`;
+				if (!field) {
+					return undefined;
+				}
+
+				action.perform_action = `${domain}.set_datetime`;
+				action.data = { [field]: String(this.value ?? '') };
+				return action;
+			}
+			default:
+				return undefined;
 		}
 	}
 
@@ -112,9 +200,8 @@ export class CustomFeatureCollapsibleSlider extends CustomFeatureSlider {
 	}
 
 	shouldUpdate(changedProperties: PropertyValues) {
-		if (changedProperties.has('expanded')) {
-			return true;
-		}
+		if (changedProperties.has('expanded')) return true;
+
 		const should = super.shouldUpdate(changedProperties);
 
 		this.collapsed =
@@ -154,7 +241,9 @@ export class CustomFeatureCollapsibleSlider extends CustomFeatureSlider {
 
 		if (changedProperties.has('config')) {
 			this.expanded = !this.collapsed;
+			this.setRowExpandedState(this.expanded);
 		}
+
 		this.setHeight();
 
 		return should;
@@ -163,11 +252,15 @@ export class CustomFeatureCollapsibleSlider extends CustomFeatureSlider {
 	firstUpdated(changedProperties: PropertyValues) {
 		super.firstUpdated(changedProperties);
 
+		this.expanded = !this.collapsed;
+		if (this.expanded) {
+			this.setRowExpandedState(true);
+		}
+
 		const featureHeight = getComputedStyle(this).getPropertyValue(
 			'--feature-height',
 		);
 		this.featureHeight = featureHeight ? parseInt(featureHeight) : 40;
-		this.expanded = !this.collapsed;
 		this.setHeight();
 	}
 
@@ -179,12 +272,29 @@ export class CustomFeatureCollapsibleSlider extends CustomFeatureSlider {
 		}
 	}
 
+	disconnectedCallback() {
+		clearTimeout(this.autoCollapseTimer);
+		clearTimeout(this.inputActionDebounce);
+		this.setRowExpandedState(false);
+		super.disconnectedCallback();
+	}
+
 	render() {
 		if (!this.expanded) {
 			return html`
-				<div class="collapsed-container" part="container">
+				<div
+					class="collapsed-container"
+					part="container"
+					@pointerup=${this.onCollapsedPointerUp}
+					@contextmenu=${this.onContextMenu}
+				>
+					${this.buildBackground()}
 					<div class="icon-label">
-						${this.buildIcon(this.icon)}${this.buildLabel(this.label)}
+						${this.icon || this.label
+							? html`${this.buildIcon(this.icon)}${this.buildLabel(
+									this.label,
+								)}`
+							: this.buildIcon('mdi:tune-variant')}
 					</div>
 				</div>
 				${buildStyles(this.styles)}
@@ -205,6 +315,16 @@ export class CustomFeatureCollapsibleSlider extends CustomFeatureSlider {
 					${this.buildIcon(this.icon)} ${this.buildLabel(this.label)}
 				</div>
 			</div>
+			<button
+				class="collapse-button"
+				part="collapse-button"
+				aria-label="Close"
+				@pointerdown=${(e: PointerEvent) => e.stopPropagation()}
+				@pointerup=${this.onClose}
+				@click=${(e: PointerEvent) => e.stopPropagation()}
+			>
+				<ha-icon .icon=${'mdi:close'}></ha-icon>
+			</button>
 			${this.buildTooltip()}${this.buildMD3Thumb()} ${buildStyles(this.styles)}
 		`;
 	}
@@ -230,6 +350,7 @@ export class CustomFeatureCollapsibleSlider extends CustomFeatureSlider {
 				}
 
 				.collapsed-container .icon-label {
+					position: relative;
 					height: 100%;
 					width: 100%;
 					display: flex;
@@ -237,6 +358,52 @@ export class CustomFeatureCollapsibleSlider extends CustomFeatureSlider {
 					justify-content: center;
 					align-items: center;
 					pointer-events: none;
+				}
+
+	:host([expanded]) {
+				width: 100%;
+				height: var(--feature-height, 40px);
+				flex-flow: row;
+				align-items: center;
+				gap: 4px;
+				cursor: default;
+			}
+
+				:host([expanded]) .container {
+					flex: 1 1 auto;
+					width: auto;
+					height: 100%;
+					position: relative;
+					inset: auto;
+					overflow: hidden;
+				}
+
+				.collapse-button {
+					flex: 0 0 auto;
+					box-sizing: border-box;
+					height: 100%;
+					width: var(--feature-height, 40px);
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					padding: 0;
+					margin: 0;
+					border: none;
+					border-radius: var(--feature-border-radius, 12px);
+					background: rgb(from var(--disabled-color) r g b / 20%);
+					color: var(--secondary-text-color);
+					cursor: pointer;
+					z-index: 6;
+
+					--mdc-icon-size: 20px;
+				}
+				.collapse-button:focus-visible {
+					outline: none;
+				}
+				@media (hover: hover) {
+					.collapse-button:hover {
+						color: var(--primary-text-color);
+					}
 				}
 			`,
 		];

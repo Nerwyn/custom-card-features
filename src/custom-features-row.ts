@@ -293,6 +293,16 @@ export class CustomFeaturesRow extends LitElement {
 				padding: 0 12px 12px;
 				gap: var(--feature-button-spacing, 12px);
 				width: auto;
+				position: relative;
+				overflow: hidden;
+			}
+			.row.collapsible-slider-active > * {
+				display: none;
+			}
+			.row.collapsible-slider-active > custom-feature-collapsible-slider[expanded] {
+				display: flex;
+				flex-basis: 100%;
+				width: 100%;
 			}
 			.row.no-padding {
 				padding: 0;
