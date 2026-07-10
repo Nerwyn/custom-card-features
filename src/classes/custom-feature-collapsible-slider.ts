@@ -370,12 +370,16 @@ export class CustomFeatureCollapsibleSlider extends CustomFeatureSlider {
 			}
 
 				:host([expanded]) .container {
-					flex: 1 1 auto;
-					width: auto;
+					flex: 1 1 0;
+					width: 100%;
+					min-width: 0;
 					height: 100%;
 					position: relative;
 					inset: auto;
 					overflow: hidden;
+				}
+				:host([expanded]) input {
+					width: 100%;
 				}
 
 				.collapse-button {
