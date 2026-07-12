@@ -2376,14 +2376,14 @@ features:
         autofill_entity_id: true
         option_type: attribute
         option_template:
-          label: '{{ option }}'
+          label: '{{ option | safe }}'
           tap_action:
             action: perform-action
             perform_action: input_select.select_option
             target:
               entity_id: '{{ config.entity }}'
             data:
-              option: '{{ option }}'
+              option: '{{ option | safe }}'
           icon: mdi:alpha-{{ option | lower }}-circle
           entity_id: input_select.select_test
         options_attribute: options
@@ -2400,12 +2400,12 @@ features:
         option_entity: light.desk_lights
         option_template:
           entity_id: light.desk_lights
-          label: '{{ option }}'
+          label: '{{ option | safe }}'
           tap_action:
             action: perform-action
             perform_action: light.turn_on
             data:
-              effect: '{{ option }}'
+              effect: '{{ option | safe }}'
             target:
               entity_id: '{{ config.entity }}'
         thumb: md3-standard

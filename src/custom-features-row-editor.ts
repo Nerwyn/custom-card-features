@@ -2496,7 +2496,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 									!entry.option_template.label &&
 									!entry.option_template.icon
 								) {
-									entry.option_template.label = '{{ option }}';
+									entry.option_template.label = '{{ option | safe }}';
 								}
 
 								if (optionType == 'attribute') {
@@ -2860,7 +2860,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 				action: 'perform-action',
 				perform_action: `${domain}.${action}`,
 				data: {
-					[key]: '{{ option }}',
+					[key]: '{{ option | safe }}',
 				},
 			},
 		};
