@@ -397,10 +397,6 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				:host {
 					flex-direction: row;
 					gap: 12px;
-					border-radius: var(
-						--md-sys-shape-corner-extra-small-top,
-						var(--input-border-radius)
-					);
 					padding: var(--text-field-padding, 0px 16px);
 
 					--input-border-radius: var(--mdc-shape-small, 4px)
@@ -417,6 +413,10 @@ export class CustomFeatureInput extends BaseCustomFeature {
 					);
 					opacity: var(--background-opacity, 1);
 					pointer-events: none;
+					border-radius: var(
+						--md-sys-shape-corner-extra-small-top,
+						var(--input-border-radius)
+					);
 					z-index: 0;
 				}
 				.background::before {

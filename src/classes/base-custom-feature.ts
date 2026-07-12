@@ -787,7 +787,6 @@ export class BaseCustomFeature extends LitElement {
 				padding: 0px;
 				box-sizing: border-box;
 				outline: 0px;
-				overflow: hidden;
 				font-size: inherit;
 				color: inherit;
 				flex-basis: 100%;
@@ -814,6 +813,8 @@ export class BaseCustomFeature extends LitElement {
 				height: var(--background-height, 100%);
 				background: var(--background, var(--color, var(--disabled-color)));
 				opacity: var(--background-opacity, 0.2);
+				border-radius: var(--feature-border-radius, 12px);
+				overflow: hidden;
 			}
 
 			.icon {

@@ -345,7 +345,6 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					height: 100%;
 					width: 100%;
 					border: none;
-					overflow: hidden;
 					transition: box-shadow 180ms ease-in-out;
 				}
 				button::before {
@@ -392,7 +391,6 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					flex: none;
 					height: 36px;
 					width: 36px;
-					border-radius: 50%;
 					transition: scale 180ms ease-in-out;
 
 					--mdc-icon-size: 24px;
@@ -412,6 +410,10 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host(.tile-icon) .label {
 					position: absolute;
 					font-size: 10px;
+				}
+
+				:host(.tile-icon) .background {
+					border-radius: 50%;
 				}
 
 				:host(.tile-icon) .background::before {

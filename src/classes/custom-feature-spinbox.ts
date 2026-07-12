@@ -29,8 +29,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 		super.onPointerDown(e);
 
 		const operator = (e.currentTarget as HTMLElement).id as
-			| 'increment'
-			| 'decrement';
+			'increment' | 'decrement';
 		if (
 			this.renderTemplate(this.config.hold_action?.action ?? 'none') ==
 				'repeat' &&
@@ -71,8 +70,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 			this.getValueFromHass = false;
 
 			const operator = (e.currentTarget as HTMLElement).id as
-				| 'increment'
-				| 'decrement';
+				'increment' | 'decrement';
 			this.operateValue(operator);
 
 			this.debounceTimer = setTimeout(async () => {
