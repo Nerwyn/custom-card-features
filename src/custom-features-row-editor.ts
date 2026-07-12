@@ -69,6 +69,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	@state() guiMode: boolean = true;
 	@state() errors?: string[];
 
+	yamlCache: Record<string, object> = {};
 	people: Record<string, string>[] = [];
 
 	ACTIONS_TABS = ['default', 'momentary'];
@@ -191,6 +192,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	editEntry(e: Event) {
+		this.yamlCache = {};
 		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
 			.index;
 		this.activeEntryType = 'entry';
@@ -222,6 +224,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	editOption(e: Event) {
+		this.yamlCache = {};
 		const i = (e.currentTarget as unknown as Event & Record<'index', number>)
 			.index;
 		this.activeEntryType = 'option';
@@ -291,11 +294,13 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	exitEditEntry(_e: Event) {
+		this.yamlCache = {};
 		this.activeEntryType = 'entry';
 		this.entryIndex = -1;
 	}
 
 	exitEditOption(_e: Event) {
+		this.yamlCache = {};
 		this.activeEntryType = 'entry';
 		this.optionIndex = -1;
 	}
@@ -307,15 +312,18 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	editOptionTemplate(_e: Event) {
+		this.yamlCache = {};
 		this.actionsTabIndex = 0;
 		this.activeEntryType = 'option_template';
 	}
 
 	exitOptionTemplate(_e: Event) {
+		this.yamlCache = {};
 		this.activeEntryType = 'entry';
 	}
 
 	toggleGuiMode(_e: Event) {
+		this.yamlCache = {};
 		this.configChanged(this.config);
 		this.guiMode = !this.guiMode;
 	}
@@ -341,6 +349,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	handleSpinboxTabSelected(e: Event) {
+		this.yamlCache = {};
 		const i = this.SPINBOX_TABS.indexOf(e.detail.name);
 		switch (i) {
 			case 0:
@@ -361,6 +370,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	handleActionsTabSelected(e: Event) {
+		this.yamlCache = {};
 		const i = this.ACTIONS_TABS.indexOf(e.detail.name);
 		if (this.actionsTabIndex == i) {
 			return;
@@ -684,6 +694,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 			);
 		} else if (key == 'this') {
 			value = obj as object;
+		}
+		if (Object.keys(selector)[0] == 'object') {
+			this.yamlCache[key] ??= value as object;
+			value = this.yamlCache[key];
 		}
 
 		return html`<ha-selector
