@@ -740,7 +740,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 
 				.tooltip {
-					display: var(--tooltip-display);
+					display: var(--tooltip-display, none);
 					background: var(--clear-background-color);
 					color: var(--primary-text-color);
 					position: absolute;
@@ -757,7 +757,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 							calc(-0.5 * var(--feature-height, 40px) - 0.4em - 10px)
 						)
 					);
-					transition: opacity 180ms ease-in-out 0s;
+					transition:
+						opacity 180ms ease-in-out 0s,
+						display 1080ms ease-in-out 0s;
+					transition-behavior: allow-discrete;
 					opacity: 0;
 				}
 				.tooltip::after {
@@ -794,7 +797,10 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				}
 				:host(:focus-visible) .tooltip,
 				:host([pressed]) .tooltip {
-					transition: opacity 540ms ease-in-out 0s;
+					display: block;
+					transition:
+						opacity 540ms ease-in-out 0s,
+						display 1080ms ease-in-out 0s;
 					opacity: 1;
 				}
 
