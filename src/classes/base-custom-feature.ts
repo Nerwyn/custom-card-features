@@ -572,7 +572,11 @@ export class BaseCustomFeature extends LitElement {
 				typeof prerendered === 'string' &&
 				(key.endsWith('data') || key.endsWith('target'))
 			) {
-				rendered = load(rendered as string) as string;
+				try {
+					rendered = load(rendered as string) as string;
+				} catch {
+					rendered = '';
+				}
 			}
 			deepSet(res, key, rendered);
 		}
