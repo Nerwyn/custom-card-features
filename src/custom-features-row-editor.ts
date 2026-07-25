@@ -50,7 +50,9 @@ import {
 	ThumbType,
 	UncheckedValues,
 } from './models/interfaces/IConfig';
+import { ComponentIcons, PlatformIcons } from './models/interfaces/IHassIcons';
 import { deepGet, deepSet } from './utils/deepKeys';
+import { getHassIcons } from './utils/getHassIcons';
 
 export class CustomFeaturesRowEditor extends LitElement {
 	@property() hass!: HomeAssistant;
@@ -71,6 +73,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	yamlCache: Record<string, object> = {};
 	people: Record<string, string>[] = [];
+	platformIcons: Record<string, PlatformIcons> = {};
+	componentIcons: Record<string, ComponentIcons> = {};
 
 	ACTIONS_TABS = ['default', 'momentary'];
 	SPINBOX_TABS = ['decrement', 'center', 'increment'];
@@ -2220,6 +2224,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			return html``;
 		}
 
+		this.fetchIconResources();
 		this.buildPeopleList();
 
 		let editor: TemplateResult<1>;
@@ -2419,6 +2424,17 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return entry;
 	}
 
+	async fetchIconResources() {
+		if (!Object.keys(this.platformIcons).length) {
+			this.platformIcons = (await getHassIcons(this.hass, 'entity')).resources;
+		}
+		if (!Object.keys(this.componentIcons).length) {
+			this.componentIcons = (
+				await getHassIcons(this.hass, 'entity_component')
+			).resources;
+		}
+	}
+
 	autofillDefaultFields(config: IConfig) {
 		const updatedConfig = structuredClone(config);
 		const updatedEntries: IEntry[] = [];
@@ -2439,9 +2455,22 @@ export class CustomFeaturesRowEditor extends LitElement {
 					entry.entity_id as string,
 					this.getEntryContext(entry),
 				) as string;
+				const [domain, _entity] = (entryEntityId ?? '').split('.');
 
 				// Icon
 				entry.icon ||= this.hass.states[entryEntityId]?.attributes.icon;
+				if (!entry.icon) {
+					const platform = this.hass.entities[entryEntityId]?.platform ?? '';
+					const translationKey =
+						this.hass.entities[entryEntityId]?.translation_key ?? '';
+					const deviceClass =
+						this.hass.states[entryEntityId]?.attributes?.device_class ?? '';
+
+					entry.icon =
+						this.platformIcons[platform]?.[domain]?.[translationKey]?.default ||
+						this.componentIcons[domain]?.[deviceClass]?.default ||
+						this.componentIcons[domain]?.['_']?.default;
+				}
 
 				// Unit of measurement
 				entry.unit_of_measurement ||=
@@ -2562,7 +2591,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 									!options[i].double_tap_action &&
 									!options[i].hold_action
 								) {
-									const [domain, _service] = (entryEntityId ?? '').split('.');
 									const tap_action = {} as IAction;
 									tap_action.action = 'perform-action';
 									switch (domain) {
@@ -2624,7 +2652,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 					// falls through
 					case 'input':
 					case 'slider': {
-						const [domain, _service] = (entryEntityId ?? '').split('.');
 						if (!entry.tap_action) {
 							const tap_action = {} as IAction;
 							const data = tap_action.data ?? {};
