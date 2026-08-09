@@ -447,6 +447,7 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 				}
 				.option::part(background) {
 					pointer-events: none;
+					border-radius: inherit;
 				}
 				.option::part(label) {
 					justify-content: flex-start;
@@ -474,6 +475,7 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 					height: 100%;
 					width: 100%;
 					box-sizing: border-box;
+					border-radius: inherit;
 				}
 
 				:host([dir='rtl']) .down-arrow {
