@@ -325,7 +325,7 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 		}
 	}
 
-	handleExternalClick = (e: MouseEvent) => {
+	handleExternalClick = (e: MouseEvent | TouchEvent) => {
 		// eslint-disable-next-line no-constant-binary-expression
 		if (typeof e.composedPath && !e.composedPath().includes(this)) {
 			this.open = false;
@@ -338,7 +338,12 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 
 	connectedCallback() {
 		super.connectedCallback();
-		document.addEventListener('click', this.handleExternalClick);
+		document.addEventListener('click', this.handleExternalClick, {
+			capture: true,
+		});
+		document.addEventListener('touchstart', this.handleExternalClick, {
+			capture: true,
+		});
 		document.addEventListener('scroll', this.handleOnScroll);
 		this.resizeObserver.observe(this);
 	}
