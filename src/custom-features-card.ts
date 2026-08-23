@@ -116,6 +116,46 @@ export class CustomFeaturesCard extends LitElement {
 		return false;
 	}
 
+	onAttributeEvent(e: Event) {
+		e.stopPropagation();
+		const attributes = e.detail?.attributes;
+		if (
+			typeof attributes == 'object' &&
+			attributes != null &&
+			!Array.isArray(attributes) &&
+			Object.keys(attributes).length
+		) {
+			for (const [key, values] of Object.entries(attributes)) {
+				let value = values as string;
+				if (Array.isArray(values)) {
+					let i = 0;
+					if (this.hasAttribute(key)) {
+						i = values.findIndex((v) => v == this.getAttribute(key)) + 1;
+						if (i >= values.length) {
+							i = 0;
+						}
+					}
+					value = values[i];
+				}
+				if (!value || this.getAttribute(key) == value) {
+					this.removeAttribute(key);
+				} else {
+					this.setAttribute(key, value);
+				}
+			}
+			const event = new Event('cf-attributes');
+			event.detail = { attributes };
+			for (const child of (this.shadowRoot?.querySelectorAll('service-call') ??
+				[]) as LitElement[]) {
+				child.dispatchEvent(event);
+			}
+		}
+	}
+
+	firstUpdated() {
+		this.addEventListener('cf-attributes', this.onAttributeEvent, true);
+	}
+
 	static get styles() {
 		return css`
 			:host {

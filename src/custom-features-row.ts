@@ -290,7 +290,7 @@ export class CustomFeaturesRow extends LitElement {
 	}
 
 	firstUpdated() {
-		this.addEventListener('ll-custom', this.onAttributeEvent);
+		this.addEventListener('cf-attributes', this.onAttributeEvent);
 	}
 
 	static get styles() {
