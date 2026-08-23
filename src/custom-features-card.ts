@@ -126,18 +126,17 @@ export class CustomFeaturesCard extends LitElement {
 			Object.keys(attributes).length
 		) {
 			for (const [key, values] of Object.entries(attributes)) {
-				let value = values as string;
+				let value: string | undefined;
 				if (Array.isArray(values)) {
-					let i = 0;
-					if (this.hasAttribute(key)) {
-						i = values.findIndex((v) => v == this.getAttribute(key)) + 1;
-						if (i >= values.length) {
-							i = 0;
-						}
-					}
-					value = values[i];
+					value =
+						values[values.findIndex((v) => v == this.getAttribute(key)) + 1];
+				} else {
+					value = values as string;
 				}
-				if (!value || this.getAttribute(key) == value) {
+				if (
+					(typeof value != 'string' && !value) ||
+					this.getAttribute(key) == value
+				) {
 					this.removeAttribute(key);
 				} else {
 					this.setAttribute(key, value);
