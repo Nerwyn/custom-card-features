@@ -1740,7 +1740,7 @@ layout_options:
 
 ## Example 5
 
-Using a selector to display different features in a custom features card.
+Using a selector to display different features in a custom features card based on attributes set by selector option actions.
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_show_card.png" width="1200"/>
 
@@ -1753,67 +1753,33 @@ features:
   - type: custom:service-call
     entries:
       - type: selector
-        options:
-          - option: A
-            icon: mdi:alpha-{{ config.option | lower }}
-            styles: |-
-              :host {
-                --icon-color: {{ "var(--disabled-color)" if is_state(config.entity, config.option) }};
-                --color: var(--red-color);
-              }
-            entity_id: input_select.select_test
-            tap_action:
-              action: call-service
-              service: input_select.select_option
-              data:
-                option: A
-              target:
-                entity_id: input_select.select_test
-            type: button
-            value_attribute: state
-            haptics: false
-          - option: B
-            icon: mdi:alpha-{{ config.option | lower }}
-            entity_id: input_select.select_test
-            tap_action:
-              action: call-service
-              service: input_select.select_option
-              data:
-                option: B
-              target:
-                entity_id: input_select.select_test
-            type: button
-            value_attribute: state
-            styles: |-
-              :host {
-                --icon-color: {{ "var(--disabled-color)" if is_state(config.entity, config.option) }};
-                --color: var(--green-color);
-              }
-          - option: C
-            icon: mdi:alpha-{{ config.option | lower }}
-            entity_id: input_select.select_test
-            tap_action:
-              action: call-service
-              service: input_select.select_option
-              data:
-                option: C
-              target:
-                entity_id: input_select.select_test
-              confirmation: true
-            type: button
-            value_attribute: state
-            styles: |-
-              :host {
-                --icon-color: {{ "var(--disabled-color)" if is_state(config.entity, config.option) }};
-                --color: var(--blue-color);
-              }
-        entity_id: input_select.select_test
-        value_attribute: state
-        styles: ''
-        autofill_entity_id: true
-        haptics: true
-        value_from_hass_delay: 1000
-    styles: ''
+        option_type: template
+        option_template:
+          entity_id: ''
+          icon: mdi:alpha-{{ option | safe | lower }}
+          tap_action:
+            action: fire-dom-event
+            event_type: cf-attributes
+            attributes:
+              option: '{{ option }}'
+            confirmation: '{{ option == "C" }}'
+        options_template: A,B,C
+        value_template: A
+        value_from_hass_delay: 999999999
+        entity_id: ''
+        styles: |-
+          .selected {
+            --icon-color: var(--disabled-color);
+          }
+          #A {
+            --color: var(--red-color);
+          }
+          #B {
+            --color: var(--green-color);
+          }
+          #C {
+            --color: var(--blue-color);
+          }
   - type: custom:service-call
     entries:
       - type: button
@@ -1899,11 +1865,54 @@ features:
         --feature-height: 64px;
       }
 
-      {% if not is_state("input_select.select_test", "A")  %}
-      :host {
+      :host(:not([option='A'])) {
         display: none;
       }
-      {% endif %}
+      :host(:not([option])) {
+        display: block;
+      }
+  - type: custom:service-call
+    entries:
+      - type: spinbox
+        tap_action:
+          action: perform-action
+          data:
+            value: '{{ value | float }}'
+          target:
+            entity_id: input_number.slider_test
+          perform_action: input_number.set_value
+        range:
+          - -128
+          - 128
+        step: 0.5
+        label: '{{ value }}'
+        hold_action:
+          action: repeat
+          repeat_delay: 50
+        autofill_entity_id: false
+        decrement:
+          entity_id: input_number.slider_test
+          type: button
+          value_attribute: state
+          styles: ''
+        entity_id: input_number.slider_test
+        increment:
+          entity_id: input_number.slider_test
+          type: button
+          value_attribute: state
+          styles: ''
+          haptics: true
+        value_attribute: state
+        styles: ''
+        haptics: false
+        icon: ''
+    styles: |-
+      :host(:not([option='A'])) {
+        display: none;
+      }
+      :host(:not([option])) {
+        display: block;
+      }
   - type: custom:service-call
     entries:
       - type: button
@@ -1937,11 +1946,9 @@ features:
         value_attribute: state
         styles: ''
     styles: |-
-      {% if not is_state("input_select.select_test", "B")  %}
-      :host {
+      :host(:not([option='B'])) {
         display: none;
       }
-      {% endif %}
   - type: custom:service-call
     entries:
       - type: button
@@ -1955,7 +1962,7 @@ features:
         styles: ''
         double_tap_action:
           action: navigate
-          navigation_path: '?conversation=1'
+          navigation_path: ?conversation=1
       - type: button
         tap_action:
           action: eval
@@ -1986,51 +1993,9 @@ features:
         icon: mdi:language-javascript
         entity_id: input_select.select_test
     styles: |-
-      {% if not  is_state("input_select.select_test", "C")  %}
-      :host {
+      :host(:not([option='C'])) {
         display: none;
       }
-      {% endif %}
-  - type: custom:service-call
-    entries:
-      - type: spinbox
-        tap_action:
-          action: perform-action
-          data:
-            value: '{{ value | float }}'
-          target:
-            entity_id: input_number.slider_test
-          perform_action: input_number.set_value
-        range:
-          - -128
-          - 128
-        step: 0.5
-        label: '{{ value }}'
-        hold_action:
-          action: repeat
-          repeat_delay: 50
-        autofill_entity_id: true
-        decrement:
-          entity_id: input_number.slider_test
-          type: button
-          value_attribute: state
-          styles: ''
-        entity_id: input_number.slider_test
-        increment:
-          entity_id: input_number.slider_test
-          type: button
-          value_attribute: state
-          styles: ''
-          haptics: true
-        value_attribute: state
-        styles: ''
-        haptics: false
-    styles: |-
-      {% if not is_state("input_select.select_test", "A")  %}
-      :host {
-        display: none;
-      }
-      {% endif %}
 type: custom:custom-features-card
 ```
 
