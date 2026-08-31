@@ -26,8 +26,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 	thumbType: ButtonThumbType = 'default';
 	toggleStyles: boolean = false;
 
-	async onClick(e: PointerEvent) {
-		e.stopImmediatePropagation();
+	async onClick(_e: PointerEvent) {
 		this.clickCount++;
 
 		if (
@@ -174,7 +173,6 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				this.endAction();
 			} else if (this.hold) {
 				// Hold action is triggered
-				e.stopImmediatePropagation();
 				e.preventDefault();
 				if (
 					this.renderTemplate(this.config.hold_action?.action ?? 'none') !=
