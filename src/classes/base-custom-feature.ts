@@ -111,7 +111,13 @@ export class BaseCustomFeature extends LitElement {
 	async sendAction(actionType: ActionType, config: IActions = this.config) {
 		let action = this.getAction(actionType, config);
 		action &&= this.deepRenderTemplate(action);
-		if (!action || !(await handleConfirmation(this, action))) {
+		if (!action) {
+			return;
+		}
+		if (!(await handleConfirmation(this, action))) {
+			this.dispatchEvent(
+				new Event('confirmation-failed', { bubbles: true, composed: true }),
+			);
 			return;
 		}
 
@@ -702,6 +708,13 @@ export class BaseCustomFeature extends LitElement {
 		}
 	}
 
+	onConfirmationFailed(_e: Event) {
+		clearTimeout(this.getValueFromHassTimer);
+		this.getValueFromHass = true;
+		this.setValue();
+		this.requestUpdate();
+	}
+
 	shouldUpdate(changedProperties: PropertyValues) {
 		if (
 			changedProperties.has('hass') ||
@@ -764,6 +777,7 @@ export class BaseCustomFeature extends LitElement {
 		this.addEventListener('touchend', this.onTouchEnd);
 		this.addEventListener('keydown', this.onKeyDown);
 		this.addEventListener('keyup', this.onKeyUp);
+		this.addEventListener('confirmation-failed', this.onConfirmationFailed);
 	}
 
 	updated(_changedProperties: PropertyValues) {
