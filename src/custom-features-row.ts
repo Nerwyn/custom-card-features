@@ -2,7 +2,6 @@ import packageInfo from '../package.json';
 
 import { LitElement, PropertyValues, TemplateResult, css, html } from 'lit';
 import { property, query } from 'lit/decorators.js';
-import { classMap } from 'lit/directives/class-map.js';
 
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 
@@ -22,7 +21,6 @@ import {
 	StateObj,
 } from './models/interfaces/HomeAssistant';
 import { CardFeatureType, IConfig, IEntry } from './models/interfaces/IConfig';
-import { atLeastHaVersion } from './utils/atLeastHaVersion';
 import { buildStyles } from './utils/styles';
 
 console.info(
@@ -165,14 +163,7 @@ export class CustomFeaturesRow extends LitElement {
 			}
 		}
 
-		const version = this.hass.config.version;
-		return html`<div
-				class="row ${classMap({
-					'no-padding': atLeastHaVersion(version, 2024, 8),
-				})}"
-			>
-				${row}
-			</div>
+		return html`<div class="row">${row}</div>
 			${buildStyles(this.styles)}`;
 	}
 
@@ -312,12 +303,9 @@ export class CustomFeaturesRow extends LitElement {
 				flex-flow: row;
 				justify-content: center;
 				align-items: center;
-				padding: 0 12px 12px;
+				padding: 0;
 				gap: var(--feature-button-spacing, 12px);
 				width: auto;
-			}
-			.row.no-padding {
-				padding: 0;
 			}
 
 			/* Material Design 3 Backups */
