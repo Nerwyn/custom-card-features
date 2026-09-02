@@ -4,7 +4,6 @@ import { property, state } from 'lit/decorators.js';
 import packageInfo from '../package.json';
 
 import {
-	AUTOFILL,
 	COLOR_MAX,
 	COLOR_MIN,
 	DATE_MAX,
@@ -87,10 +86,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		this.config = config;
 	}
 
-	configChanged(config: IConfig, autofill: boolean = true) {
-		if (autofill) {
-			config = this.autofillDefaultFields(config);
-		}
+	configChanged(config: IConfig) {
 		const event = new Event('config-changed', {
 			bubbles: true,
 			composed: true,
@@ -274,18 +270,17 @@ export class CustomFeaturesRowEditor extends LitElement {
 	addEntry(e: Event) {
 		const entryType = e.detail.item.value;
 		const entries = structuredClone(this.config.entries);
-		entries.push({
-			type: entryType,
-		});
+		entries.push(this.autofillDefaultFields({ type: entryType }));
 		this.entriesChanged(entries);
 		this.scrollToBottomOfList();
 	}
 
 	addOption(_e: Event) {
-		const entry = structuredClone(this.activeEntry) as IOption;
+		let entry = structuredClone(this.activeEntry) as IOption;
 		const options = entry.options ?? [];
 		options.push({});
 		entry.options = options;
+		entry = this.autofillDefaultFields(entry);
 		this.entryChanged(entry);
 		this.scrollToBottomOfList();
 	}
@@ -416,6 +411,24 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	handleREADME(_e: Event) {
 		window.open(packageInfo.homepage, '_blank')?.focus();
+	}
+
+	handleAutofill(_e: Event) {
+		// TODO better autofill behavior for subfeatures
+		let entry = this.config.entries[this.entryIndex];
+		switch (this.activeEntryType) {
+			case 'option':
+				break;
+			case 'option_template':
+				break;
+			case 'increment':
+			case 'decrement':
+				break;
+			default:
+				entry = this.autofillDefaultFields(entry);
+				break;
+		}
+		this.entryChanged(entry);
 	}
 
 	buildEntryList(field: 'entry' | 'option' = 'entry') {
@@ -643,6 +656,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 				<div class="header-icons">
 					<ha-icon-button class="header-icon" @click=${this.handleREADME}
 						><ha-icon .icon="${'mdi:help-circle'}"></ha-icon
+					></ha-icon-button>
+					<ha-icon-button class="header-icon" @click=${this.handleAutofill}
+						><ha-icon .icon="${'mdi:refresh-auto'}"></ha-icon
 					></ha-icon-button>
 					<ha-icon-button
 						class="header-icon"
@@ -1013,14 +1029,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 			${this.buildMainFeatureOptions()}
 			<div class="form">
 				${this.buildSelector(
-					'Autofill',
-					'autofill_entity_id',
-					{
-						boolean: {},
-					},
-					parentEntry?.autofill_entity_id ?? AUTOFILL,
-				)}
-				${this.buildSelector(
 					'Haptics',
 					'haptics',
 					{
@@ -1183,14 +1191,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 					UPDATE_AFTER_ACTION_DELAY,
 				)}
 				${this.buildSelector(
-					'Autofill',
-					'autofill_entity_id',
-					{
-						boolean: {},
-					},
-					AUTOFILL,
-				)}
-				${this.buildSelector(
 					'Haptics',
 					'haptics',
 					{
@@ -1295,14 +1295,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 						UPDATE_AFTER_ACTION_DELAY,
 					)}
 					<div class="form">
-						${this.buildSelector(
-							'Autofill',
-							'autofill_entity_id',
-							{
-								boolean: {},
-							},
-							AUTOFILL,
-						)}
 						${this.buildSelector(
 							'Haptics',
 							'haptics',
@@ -1523,14 +1515,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 			${this.buildMainFeatureOptions()}
 			<div class="form">
 				${this.buildSelector(
-					'Autofill',
-					'autofill_entity_id',
-					{
-						boolean: {},
-					},
-					parentEntry?.autofill_entity_id ?? AUTOFILL,
-				)}
-				${this.buildSelector(
 					'Haptics',
 					'haptics',
 					{
@@ -1665,14 +1649,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 					)}
 					<div class="form">
 						${this.buildSelector(
-							'Autofill',
-							'autofill_entity_id',
-							{
-								boolean: {},
-							},
-							AUTOFILL,
-						)}
-						${this.buildSelector(
 							'Haptics',
 							'haptics',
 							{
@@ -1765,14 +1741,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 							)}`
 						: ``
 				}
-				${this.buildSelector(
-					'Autofill',
-					'autofill_entity_id',
-					{
-						boolean: {},
-					},
-					AUTOFILL,
-				)}
 				${this.buildSelector(
 					'Haptics',
 					'haptics',
@@ -2103,14 +2071,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 			)}
 			<div class="form">
 				${this.buildSelector(
-					'Autofill',
-					'autofill_entity_id',
-					{
-						boolean: {},
-					},
-					AUTOFILL,
-				)}
-				${this.buildSelector(
 					'Haptics',
 					'haptics',
 					{
@@ -2410,7 +2370,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 			}
 		}
 
-		if (!('entity_id' in entry)) {
+		if (!entry.entity_id) {
 			let entity_id =
 				entry.tap_action?.target?.entity_id ??
 				entry.tap_action?.data?.entity_id ??
@@ -2435,370 +2395,339 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 	}
 
-	autofillDefaultFields(config: IConfig) {
-		const updatedConfig = structuredClone(config);
-		const updatedEntries: IEntry[] = [];
-		for (let entry of updatedConfig.entries ?? []) {
-			const context = this.getEntryContext(entry);
-			if (
-				this.renderTemplate(
-					(entry.autofill_entity_id ?? AUTOFILL) as unknown as string,
+	autofillDefaultFields(entry: IEntry) {
+		entry = structuredClone(entry);
+		const context = this.getEntryContext(entry);
+
+		// Feature entity ID
+		entry = this.populateMissingEntityId(entry, this.context?.entity_id ?? '');
+		const entryEntityId = this.renderTemplate(
+			entry.entity_id as string,
+			this.getEntryContext(entry),
+		) as string;
+		const [domain, _entity] = (entryEntityId ?? '').split('.');
+
+		// Icon
+		entry.icon ||= this.hass.states[entryEntityId]?.attributes.icon;
+		if (!entry.icon) {
+			const platform = this.hass.entities[entryEntityId]?.platform ?? '';
+			const translationKey =
+				this.hass.entities[entryEntityId]?.translation_key ?? '';
+			const deviceClass =
+				this.hass.states[entryEntityId]?.attributes?.device_class ?? '';
+
+			entry.icon =
+				this.platformIcons[platform]?.[domain]?.[translationKey]?.default ||
+				this.componentIcons[domain]?.[deviceClass]?.default ||
+				this.componentIcons[domain]?.['_']?.default;
+		}
+
+		// Unit of measurement
+		entry.unit_of_measurement ||=
+			this.hass.states[entryEntityId]?.attributes.unit_of_measurement;
+
+		const featureType = this.renderTemplate(
+			entry.type as string,
+			this.getEntryContext(entry),
+		) as CardFeatureType;
+		switch (featureType) {
+			case 'dropdown':
+			case 'selector': {
+				const optionType = this.renderTemplate(
+					entry.option_type ?? 'default',
 					context,
-				)
-			) {
-				// Feature entity ID
-				entry = this.populateMissingEntityId(
-					entry,
-					this.context?.entity_id ?? '',
 				);
-				const entryEntityId = this.renderTemplate(
-					entry.entity_id as string,
-					this.getEntryContext(entry),
-				) as string;
-				const [domain, _entity] = (entryEntityId ?? '').split('.');
+				if (optionType != 'default') {
+					if (optionType == 'attribute') {
+						entry.option_entity ||= entryEntityId;
+						const optionEntity = this.renderTemplate(
+							entry.option_entity ?? '',
+							this.getEntryContext(entry),
+						) as string;
+						const candidates = this.getOptionListAttributes(optionEntity);
 
-				// Icon
-				entry.icon ||= this.hass.states[entryEntityId]?.attributes.icon;
-				if (!entry.icon) {
-					const platform = this.hass.entities[entryEntityId]?.platform ?? '';
-					const translationKey =
-						this.hass.entities[entryEntityId]?.translation_key ?? '';
-					const deviceClass =
-						this.hass.states[entryEntityId]?.attributes?.device_class ?? '';
+						if (
+							entry.option_attribute &&
+							!hasTemplate(entry.option_attribute) &&
+							!this.hass.states[optionEntity]?.attributes[
+								entry.option_attribute
+							]
+						) {
+							entry.option_attribute = '';
+						}
 
-					entry.icon =
-						this.platformIcons[platform]?.[domain]?.[translationKey]?.default ||
-						this.componentIcons[domain]?.[deviceClass]?.default ||
-						this.componentIcons[domain]?.['_']?.default;
-				}
+						if (!entry.option_attribute && candidates.length == 1) {
+							entry.option_attribute = candidates[0];
+						}
+					}
 
-				// Unit of measurement
-				entry.unit_of_measurement ||=
-					this.hass.states[entryEntityId]?.attributes.unit_of_measurement;
+					entry.option_template ??= {};
+					entry.option_template.entity_id ??= entryEntityId;
+					if (!entry.option_template.label && !entry.option_template.icon) {
+						entry.option_template.label = '{{ option | safe }}';
+					}
 
-				const featureType = this.renderTemplate(
-					entry.type as string,
-					this.getEntryContext(entry),
-				) as CardFeatureType;
-				switch (featureType) {
-					case 'dropdown':
-					case 'selector': {
-						const optionType = this.renderTemplate(
-							entry.option_type ?? 'default',
+					if (optionType == 'attribute') {
+						const optionEntity = this.renderTemplate(
+							entry.option_entity ?? '',
 							context,
+						) as string;
+						const optionAttribute = this.renderTemplate(
+							entry.option_attribute || '',
+							context,
+						) as string;
+						const info = this.getDefaultSelectInfo(
+							optionEntity.split('.')[0],
+							optionAttribute,
 						);
-						if (optionType != 'default') {
-							if (optionType == 'attribute') {
-								entry.option_entity ||= entryEntityId;
-								const optionEntity = this.renderTemplate(
-									entry.option_entity ?? '',
-									this.getEntryContext(entry),
-								) as string;
-								const candidates = this.getOptionListAttributes(optionEntity);
-
-								if (
-									entry.option_attribute &&
-									!hasTemplate(entry.option_attribute) &&
-									!this.hass.states[optionEntity]?.attributes[
-										entry.option_attribute
-									]
-								) {
-									entry.option_attribute = '';
-								}
-
-								if (!entry.option_attribute && candidates.length == 1) {
-									entry.option_attribute = candidates[0];
-								}
-							}
-
-							if (
-								this.renderTemplate(
-									(entry.option_template?.autofill_entity_id ??
-										entry.autofill_entity_id ??
-										AUTOFILL) as unknown as string,
-									context,
-								)
-							) {
-								entry.option_template ??= {};
-								entry.option_template.entity_id ??= entryEntityId;
-								if (
-									!entry.option_template.label &&
-									!entry.option_template.icon
-								) {
-									entry.option_template.label = '{{ option | safe }}';
-								}
-
-								if (optionType == 'attribute') {
-									const optionEntity = this.renderTemplate(
-										entry.option_entity ?? '',
-										context,
-									) as string;
-									const optionAttribute = this.renderTemplate(
-										entry.option_attribute || '',
-										context,
-									) as string;
-									const info = this.getDefaultSelectInfo(
-										optionEntity.split('.')[0],
-										optionAttribute,
-									);
-									if (info) {
-										entry.value_attribute ??= info.value_attribute;
-										entry.option_template.tap_action ??= info.tap_action!;
-										entry.option_template.tap_action.target ??= {
-											entity_id: '{{ config.entity }}',
-										};
-									}
-								}
-							}
-							break;
-						}
-
-						// Get option names from attributes if it exists
-						const options = entry.options ?? [];
-						let optionNames: string[] = [];
-						if (entryEntityId) {
-							optionNames =
-								(this.hass.states[entryEntityId]?.attributes
-									?.options as string[]) ?? new Array<string>(options.length);
-						}
-						if (optionNames.length < options.length) {
-							optionNames = Object.assign(
-								new Array(options.length),
-								optionNames,
-							);
-						}
-						for (const i in options) {
-							if (
-								this.renderTemplate(
-									(options[i].autofill_entity_id ??
-										AUTOFILL) as unknown as string,
-									this.getEntryContext(options[i]),
-								)
-							) {
-								options[i] = this.populateMissingEntityId(
-									options[i],
-									entry.entity_id as string,
-								);
-
-								// Default option
-								if (!options[i].option) {
-									options[i].option = optionNames[i];
-								}
-
-								// Default select action
-								if (
-									!options[i].tap_action &&
-									!options[i].double_tap_action &&
-									!options[i].hold_action
-								) {
-									const tap_action = {} as IAction;
-									tap_action.action = 'perform-action';
-									switch (domain) {
-										case 'select':
-											tap_action.perform_action = 'select.select_option';
-											break;
-										case 'input_select':
-										default:
-											tap_action.perform_action = 'input_select.select_option';
-											break;
-									}
-
-									// Set option name using options attribute if it is not set
-									const data = tap_action.data ?? {};
-									if (!data.option) {
-										data.option = optionNames[i];
-										tap_action.data = data;
-									}
-									const target = tap_action.target ?? {};
-									if (!target.entity_id) {
-										target.entity_id = entryEntityId as string;
-										tap_action.target = target;
-									}
-									options[i].tap_action = tap_action;
-								}
-							}
-						}
-						entry.options = options;
-						break;
-					}
-					case 'spinbox':
-						// Increment and decrement fields
-						if (
-							entry.increment &&
-							this.renderTemplate(
-								(entry.increment?.autofill_entity_id ??
-									AUTOFILL) as unknown as string,
-								this.getEntryContext(entry.increment),
-							)
-						) {
-							entry.increment = this.populateMissingEntityId(
-								entry.increment as IEntry,
-								entry.entity_id as string,
-							);
-						}
-						if (
-							entry.decrement &&
-							this.renderTemplate(
-								(entry.decrement?.autofill_entity_id ??
-									AUTOFILL) as unknown as string,
-								this.getEntryContext(entry.decrement),
-							)
-						) {
-							entry.decrement = this.populateMissingEntityId(
-								entry.decrement as IEntry,
-								entry.entity_id as string,
-							);
-						}
-					// falls through
-					case 'input':
-					case 'slider': {
-						if (!entry.tap_action) {
-							const tap_action = {} as IAction;
-							const data = tap_action.data ?? {};
-							tap_action.action = 'perform-action';
-							switch (domain) {
-								case 'text':
-								case 'input_text':
-									tap_action.perform_action = `${domain}.set_value`;
-									if (!data.value) {
-										data.value = '{{ value | string }}';
-										tap_action.data = data;
-									}
-									break;
-								case 'number':
-								case 'input_number':
-									tap_action.perform_action = `${domain}.set_value`;
-									if (!data.value) {
-										data.value = '{{ value | float }}';
-										tap_action.data = data;
-									}
-									break;
-								case 'datetime':
-								case 'input_datetime': {
-									tap_action.perform_action = `${domain}.set_datetime`;
-									const hasDate =
-										this.hass.states[entryEntityId]?.attributes.has_date;
-									const hasTime =
-										this.hass.states[entryEntityId]?.attributes.has_time;
-									const field = `${hasDate ? 'date' : ''}${hasTime ? 'time' : ''}`;
-									if (field && !data[field]) {
-										data[field] = '{{ value }}';
-										tap_action.data = data;
-									}
-									break;
-								}
-								default:
-									break;
-							}
-
-							const target = tap_action.target ?? {};
-							if (!target.entity_id) {
-								target.entity_id = entryEntityId as string;
-								tap_action.target = target;
-							}
-							entry.tap_action = tap_action;
-						}
-
-						const thumb = this.renderTemplate(
-							entry.thumb ?? '',
-							context,
-						) as ThumbType;
-						let rangeMin = entry.range?.[0];
-						let rangeMax = entry.range?.[1];
-						if (featureType == 'input' && thumb != 'number') {
-							switch (thumb) {
-								case 'date':
-									rangeMin ||= DATE_MIN;
-									rangeMax ||= DATE_MAX;
-									entry.step ||= 1;
-									break;
-								case 'time':
-									rangeMin ||= TIME_MIN;
-									rangeMax ||= TIME_MAX;
-									entry.step ||= 1;
-									break;
-								case 'datetime-local':
-									rangeMin ||= DATETIME_MIN;
-									rangeMax ||= DATETIME_MAX;
-									entry.step ||= 1;
-									break;
-								case 'week':
-									rangeMin ||= WEEK_MIN;
-									rangeMax ||= WEEK_MAX;
-									entry.step ||= 1;
-									break;
-								case 'month':
-									rangeMin ||= MONTH_MIN;
-									rangeMax ||= MONTH_MAX;
-									entry.step ||= 1;
-									break;
-								case 'color':
-									rangeMin ||= COLOR_MIN;
-									rangeMax ||= COLOR_MAX;
-									break;
-								case 'text':
-								case 'password':
-								default:
-									rangeMin =
-										(parseFloat(rangeMin as string) ||
-											this.hass.states[entryEntityId]?.attributes?.min) ??
-										RANGE_MIN;
-									rangeMax =
-										(parseFloat(rangeMax as string) ||
-											this.hass.states[entryEntityId]?.attributes?.max) ??
-										RANGE_MAX;
-									break;
-							}
-							entry.range = [rangeMin, rangeMax] as
-								[number, number] | [string, string];
-							break;
-						}
-						rangeMin ??=
-							this.hass.states[entryEntityId]?.attributes?.min ?? RANGE_MIN;
-						rangeMax ??=
-							this.hass.states[entryEntityId]?.attributes?.max ?? RANGE_MAX;
-						entry.range = [rangeMin as number, rangeMax as number];
-
-						if (!entry.step) {
-							const defaultStep =
-								this.hass.states[entryEntityId as string]?.attributes?.step;
-							if (defaultStep) {
-								entry.step = defaultStep;
-							} else {
-								const entryContext = this.getEntryContext(entry);
-								entry.step =
-									((this.renderTemplate(
-										entry.range[1],
-										entryContext,
-									) as unknown as number) -
-										(this.renderTemplate(
-											entry.range[0],
-											entryContext,
-										) as unknown as number)) /
-									STEP_COUNT;
-							}
-						}
-						break;
-					}
-					case 'toggle':
-						if (!entry.tap_action) {
-							entry.tap_action = {
-								action: 'toggle',
-								target: {
-									entity_id: entryEntityId,
-								},
+						if (info) {
+							entry.value_attribute ??= info.value_attribute;
+							entry.option_template.tap_action ??= info.tap_action!;
+							entry.option_template.tap_action.target ??= {
+								entity_id: '{{ config.entity }}',
 							};
 						}
-						break;
-					case 'button':
-					default:
-						break;
+					}
+					break;
 				}
+
+				// Get option names from attributes if it exists
+				const options = entry.options ?? [];
+				let optionNames: string[] = [];
+				if (entryEntityId) {
+					optionNames =
+						(this.hass.states[entryEntityId]?.attributes
+							?.options as string[]) ?? new Array<string>(options.length);
+				}
+				if (optionNames.length < options.length) {
+					optionNames = Object.assign(new Array(options.length), optionNames);
+				}
+				for (const i in options) {
+					options[i] = this.populateMissingEntityId(
+						options[i],
+						entry.entity_id as string,
+					);
+
+					// Default option
+					if (!options[i].option) {
+						options[i].option = optionNames[i];
+					}
+
+					// Default select action
+					if (
+						!options[i].tap_action &&
+						!options[i].double_tap_action &&
+						!options[i].hold_action
+					) {
+						const tap_action = {} as IAction;
+						tap_action.action = 'perform-action';
+						switch (domain) {
+							case 'select':
+								tap_action.perform_action = 'select.select_option';
+								break;
+							case 'input_select':
+							default:
+								tap_action.perform_action = 'input_select.select_option';
+								break;
+						}
+
+						// Set option name using options attribute if it is not set
+						const data = tap_action.data ?? {};
+						if (!data.option) {
+							data.option = optionNames[i];
+							tap_action.data = data;
+						}
+						const target = tap_action.target ?? {};
+						if (!target.entity_id) {
+							target.entity_id = entryEntityId as string;
+							tap_action.target = target;
+						}
+						options[i].tap_action = tap_action;
+					}
+				}
+				entry.options = options;
+				break;
 			}
-			updatedEntries.push(entry);
+			case 'spinbox':
+				// Increment and decrement fields
+				if (entry.increment) {
+					entry.increment = this.populateMissingEntityId(
+						entry.increment as IEntry,
+						entry.entity_id as string,
+					);
+				}
+				if (entry.decrement) {
+					entry.decrement = this.populateMissingEntityId(
+						entry.decrement as IEntry,
+						entry.entity_id as string,
+					);
+				}
+			// falls through
+			case 'input':
+			case 'slider': {
+				if (!entry.tap_action) {
+					const tap_action = {} as IAction;
+					const data = tap_action.data ?? {};
+					tap_action.action = 'perform-action';
+					switch (domain) {
+						case 'text':
+						case 'input_text':
+							tap_action.perform_action = `${domain}.set_value`;
+							if (!data.value) {
+								data.value = '{{ value | string }}';
+								tap_action.data = data;
+							}
+							break;
+						case 'number':
+						case 'input_number':
+							tap_action.perform_action = `${domain}.set_value`;
+							if (!data.value) {
+								data.value = '{{ value | float }}';
+								tap_action.data = data;
+							}
+							break;
+						case 'datetime':
+						case 'input_datetime': {
+							tap_action.perform_action = `${domain}.set_datetime`;
+							const hasDate =
+								this.hass.states[entryEntityId]?.attributes.has_date;
+							const hasTime =
+								this.hass.states[entryEntityId]?.attributes.has_time;
+							const field = `${hasDate ? 'date' : ''}${hasTime ? 'time' : ''}`;
+							if (field && !data[field]) {
+								data[field] = '{{ value }}';
+								tap_action.data = data;
+							}
+							break;
+						}
+						default:
+							break;
+					}
+
+					const target = tap_action.target ?? {};
+					if (!target.entity_id) {
+						target.entity_id = entryEntityId as string;
+						tap_action.target = target;
+					}
+					entry.tap_action = tap_action;
+				}
+
+				const thumb = this.renderTemplate(
+					entry.thumb ?? '',
+					context,
+				) as ThumbType;
+				let rangeMin = entry.range?.[0];
+				let rangeMax = entry.range?.[1];
+				if (featureType == 'input' && thumb != 'number') {
+					switch (thumb) {
+						case 'date':
+							rangeMin ||= DATE_MIN;
+							rangeMax ||= DATE_MAX;
+							entry.step ||= 1;
+							break;
+						case 'time':
+							rangeMin ||= TIME_MIN;
+							rangeMax ||= TIME_MAX;
+							entry.step ||= 1;
+							break;
+						case 'datetime-local':
+							rangeMin ||= DATETIME_MIN;
+							rangeMax ||= DATETIME_MAX;
+							entry.step ||= 1;
+							break;
+						case 'week':
+							rangeMin ||= WEEK_MIN;
+							rangeMax ||= WEEK_MAX;
+							entry.step ||= 1;
+							break;
+						case 'month':
+							rangeMin ||= MONTH_MIN;
+							rangeMax ||= MONTH_MAX;
+							entry.step ||= 1;
+							break;
+						case 'color':
+							rangeMin ||= COLOR_MIN;
+							rangeMax ||= COLOR_MAX;
+							break;
+						case 'text':
+						case 'password':
+						default:
+							rangeMin =
+								(parseFloat(rangeMin as string) ||
+									this.hass.states[entryEntityId]?.attributes?.min) ??
+								RANGE_MIN;
+							rangeMax =
+								(parseFloat(rangeMax as string) ||
+									this.hass.states[entryEntityId]?.attributes?.max) ??
+								RANGE_MAX;
+							break;
+					}
+					entry.range = [rangeMin, rangeMax] as
+						[number, number] | [string, string];
+					break;
+				}
+				rangeMin ??=
+					this.hass.states[entryEntityId]?.attributes?.min ?? RANGE_MIN;
+				rangeMax ??=
+					this.hass.states[entryEntityId]?.attributes?.max ?? RANGE_MAX;
+				entry.range = [rangeMin as number, rangeMax as number];
+
+				if (!entry.step) {
+					const defaultStep =
+						this.hass.states[entryEntityId as string]?.attributes?.step;
+					if (defaultStep) {
+						entry.step = defaultStep;
+					} else {
+						const entryContext = this.getEntryContext(entry);
+						entry.step =
+							((this.renderTemplate(
+								entry.range[1],
+								entryContext,
+							) as unknown as number) -
+								(this.renderTemplate(
+									entry.range[0],
+									entryContext,
+								) as unknown as number)) /
+							STEP_COUNT;
+					}
+				}
+				break;
+			}
+			case 'button':
+				if (!this.hass.services[domain]?.toggle) {
+					if (!entry.tap_action) {
+						entry.tap_action = {
+							action: 'more-info',
+							target: {
+								entity_id: entryEntityId,
+							},
+						};
+					}
+					break;
+				}
+				if (!entry.hold_action) {
+					entry.hold_action = {
+						action: 'more-info',
+						target: {
+							entity_id: entryEntityId,
+						},
+					};
+				}
+			// falls through
+			case 'toggle':
+				if (!entry.tap_action) {
+					entry.tap_action = {
+						action: 'toggle',
+						target: {
+							entity_id: entryEntityId,
+						},
+					};
+				}
+				break;
+			default:
+				break;
 		}
-		updatedConfig.entries = updatedEntries;
-		return updatedConfig;
+		return entry;
 	}
 
 	getDefaultSelectInfo(

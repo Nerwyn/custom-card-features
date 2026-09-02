@@ -300,8 +300,6 @@ export class BaseCustomFeature extends LitElement {
 				service = turnOn ? 'open_cover' : 'close_cover';
 				break;
 			case 'button':
-				service = 'press';
-				break;
 			case 'input_button':
 				service = 'press';
 				break;
@@ -312,7 +310,9 @@ export class BaseCustomFeature extends LitElement {
 				service = turnOn ? 'open_valve' : 'close_valve';
 				break;
 			default:
-				domain = 'homeassistant';
+				if (!this.hass.services[domain].toggle) {
+					domain = 'homeassistant';
+				}
 				service = turnOn ? 'turn_on' : 'turn_off';
 				break;
 		}

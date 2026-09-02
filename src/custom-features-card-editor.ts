@@ -24,7 +24,7 @@ export class CustomFeaturesCardEditor extends CustomFeaturesRowEditor {
 
 	// @ts-expect-error re-using editor code config is different
 	configChanged(config: ICustomFeatureCardConfig) {
-		super.configChanged(config as unknown as IConfig, false);
+		super.configChanged(config as unknown as IConfig);
 	}
 
 	rowsChanged(features: IConfig[]) {
