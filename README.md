@@ -47,7 +47,7 @@ Dropdowns allow you to create a dropdown window with multiple user provided opti
 
 You need to define the options to be listed out in the dropdown list manually. Each of these options is a custom element that supports an action and its own appearance fields. The currently selected option is the one whose `Option` field matches the state or attribute value of the dropdown parent entity.
 
-This feature works best with Home Assistant `select/input_select` entities. By setting the feature entity to one of these domains and leaving autofill enabled, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the `select_option` action information. If no icon or label is provided, the option will use its option as its label.
+This feature works best with Home Assistant `select/input_select` entities. By setting the feature entity to one of these domains, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the `select_option` action information. If no icon or label is provided, the option will use its option as its label.
 
 You can override the default behavior of each option by changing their action. The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be displayed in the dropdown window. You can use a template in the parent attribute field for more advanced matching.
 
@@ -71,7 +71,7 @@ Selectors allow you to create a row of custom button features with no gaps of wh
 
 After adding a selector to your custom features row, you will see nothing! This is because you need to define the options to be listed out in the selector manually. Each of these options is actually a custom button feature. The currently selected option is the one whose `Option` field matches the state or attribute value of the dropdown parent entity.
 
-Like dropdowns, this feature works best with Home Assistant `select/input_select` entities. By setting the feature entity to one of these domains and leaving autofill enabled, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the `select_option` action information. While the option fields and action information will autofill, you still have to click the add option button and give them appearance information so that they will render and be distinguishable (you'll know that you've added all possible options when the last option you add has the text `Option` instead of a different value).
+Like dropdowns, this feature works best with Home Assistant `select/input_select` entities. By setting the feature entity to one of these domains, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the `select_option` action information. While the option fields and action information will autofill, you still have to click the add option button and give them appearance information so that they will render and be distinguishable (you'll know that you've added all possible options when the last option you add has the text `Option` instead of a different value).
 
 Since each selector option is a custom feature button, you can override its default behavior by changing its tap action. The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be highlighted. The option highlight color defaults to the parent card color (usually the tile card color), but can be changed by setting the CSS attribute `--color` to a different value, either for the entire feature or an individual option.
 
@@ -131,7 +131,9 @@ You can also add CSS styles for the entire row here. CSS styles have to be encap
 }
 ```
 
-By default, features will autofill with its parent's entity information for tracking its internal state. The feature icon and unit of measurement will also autofill if enabled and available. This can be disabled by toggling `Autofill` off at the feature level. Haptics can be similary enabled for a feature.
+By default, features will autofill with its parent's entity information for tracking its internal state when added. The feature icon and unit of measurement will also autofill if available. You can click the autofill button in a feature or subfeature header to refill the default information into any fields that are not populated.
+
+Haptics can be toggled on and off for each feature, defaulting to off.
 
 ## General Options
 
@@ -147,8 +149,6 @@ Some additional logic is applied for certain attributes:
   - **Note**: `elapsed` is not an actual attribute of timer entities, but is a possible `value_attribute` for timer entities for the purpose of displaying accurate timer elapsed values. Timer entities do have an attribute `remaining`, which only updates when the timer state changes. The actual `remaining` attribute can be calculated using the `elapsed` value and the timer `duration` attribute.
 
 If you do not set a feature entity, you can instead set the feature value using a template in the value template field. This template is not used if entity ID is set, even if that entity ID does not exist or it's state or attribute is undefined, it is only used if no entity is set at all.
-
-If you find that the autofilling of the entity ID in the action or feature value or the icon and units is causing issues, setting `Autofill` to `false` may help. Just remember to set or clear the entity ID of the feature and the entity, device, area, or label ID of the action target.
 
 Haptics are disabled for features by default, but can be toggled on at the feature level.
 
@@ -765,7 +765,6 @@ features:
           else "" }}
         value_attribute: brightness
         unit_of_measurement: '%'
-        autofill_entity_id: true
         entity_id: light.chandelier
         styles: |-
           :host {
@@ -1349,7 +1348,6 @@ features:
           :host {
             --background: linear-gradient(-90deg, rgb(255, 167, 87), rgb(255, 255, 251)); --background-opacity: 1; --label-color: var(--disabled-color);
           }
-        autofill_entity_id: true
         entity_id: light.sunroom_ceiling
   - type: custom:service-call
     entries:
@@ -1840,7 +1838,6 @@ features:
             value: '{{ value | int }}'
           confirmation: false
           perform_action: input_number.set_value
-        autofill_entity_id: true
         step: 0.5
         value_attribute: state
       - type: button
@@ -1889,7 +1886,6 @@ features:
         hold_action:
           action: repeat
           repeat_delay: 50
-        autofill_entity_id: false
         decrement:
           entity_id: input_number.slider_test
           type: button
@@ -2093,7 +2089,6 @@ features:
           .label {
             width: unset;
           }
-        autofill_entity_id: false
         thumb: transparent
       - type: button
         entity_id: sensor.downstairs_indoor_temperature
@@ -2147,7 +2142,6 @@ features:
         value_attribute: state
         styles: ''
         icon: ''
-        autofill_entity_id: false
         momentary_end_action:
           action: eval
           eval: >-
@@ -2216,7 +2210,6 @@ features:
               - user: af773a442cd7493f8178f7c23b7882d7
               - user: 7e9bf9d73edc48df8ece5cec7e9a4f00
           data: {}
-        autofill_entity_id: false
     styles: ''
 features_position: bottom
 ```
@@ -2354,7 +2347,6 @@ features:
       - type: dropdown
         entity_id: input_select.select_test
         icon: mdi:ab-testing
-        autofill_entity_id: true
         option_type: attribute
         option_template:
           label: '{{ option | safe }}'
