@@ -414,18 +414,19 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	handleAutofill(_e: Event) {
-		// TODO better autofill behavior for subfeatures
-		let entry = this.config.entries[this.entryIndex];
+		let entry = this.autofillDefaultFields(
+			this.config.entries[this.entryIndex],
+		);
 		switch (this.activeEntryType) {
 			case 'option':
+				entry = entry.options?.[this.optionIndex] ?? {};
 				break;
 			case 'option_template':
-				break;
 			case 'increment':
 			case 'decrement':
+				entry = entry[this.activeEntryType] ?? {};
 				break;
 			default:
-				entry = this.autofillDefaultFields(entry);
 				break;
 		}
 		this.entryChanged(entry);
