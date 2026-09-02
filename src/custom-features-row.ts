@@ -264,15 +264,16 @@ export class CustomFeaturesRow extends LitElement {
 				if (Array.isArray(values)) {
 					value =
 						values[values.findIndex((v) => v == this.getAttribute(key)) + 1];
+					if (
+						(typeof value != 'string' && !value) ||
+						this.getAttribute(key) == value
+					) {
+						this.removeAttribute(key);
+					} else {
+						this.setAttribute(key, value);
+					}
 				} else {
 					value = values as string;
-				}
-				if (
-					(typeof value != 'string' && !value) ||
-					this.getAttribute(key) == value
-				) {
-					this.removeAttribute(key);
-				} else {
 					this.setAttribute(key, value);
 				}
 			}

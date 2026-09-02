@@ -661,7 +661,7 @@ attributes:
     - color
 ```
 
-Setting an attribute value to a string like `button` in the example above will add and remove it from the parent row. Setting it to an array like `slider` in the example above will cycle through the values in the array, removing it once it cycles through all values.
+Setting an attribute value to a string like `button` in the example above will add it to the parent row. Setting it to an array like `slider` in the example above will cycle through the values in the array, removing it once it cycles through all values. If you want to set attributes without removing them, use a string value. If you want to toggle the attribute or cycle through attribute values, use an array value.
 
 # YAML Examples
 
@@ -1226,7 +1226,7 @@ features_position: bottom
 
 Multiple sliders for a room's light, curtains, and media control.
 
-<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_tile.png" width="600"/>
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/sliders_tile.png" width="600"/>
 
 <details>
 
@@ -2493,6 +2493,138 @@ features:
         icon: mdi:ceiling-light
         thumb: md3-fab-primary
 features_position: bottom
+```
+
+</details>
+
+## Example 9
+
+A custom features card made to look like a tile card with selectively displayed light brightness and color sliders.
+
+<img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/custom_tile.png" width="600"/>
+
+<details>
+
+<summary>Config</summary>
+
+```yaml
+type: custom:custom-features-card
+features:
+  - type: custom:service-call
+    entries:
+      - type: button
+        entity_id: light.desk_lights
+        icon: mdi:desk
+        tap_action:
+          action: toggle
+          target:
+            entity_id: light.desk_lights
+          data: {}
+        thumb: tile-icon
+      - type: button
+        entity_id: light.desk_lights
+        icon: ''
+        unit_of_measurement: '%'
+        autofill_entity_id: false
+        value_attribute: brightness
+        thumb: transparent
+        label: Desk Lights
+        styles: |-
+          :host {
+            justify-content: flex-start;
+            flex-direction: row;
+          }
+          .label {
+            display: flex;
+            flex-direction: column;
+            width: fit-content;
+            font-size: 14px;
+            font-weight: 500;
+          }
+          .label::after {
+            content: '{{ value or 'Off' }}{{ unit if value or '' }}';
+            align-self: flex-start;
+            font-size: 12px;
+            font-weight: 400;
+          }
+        tap_action:
+          action: more-info
+      - type: slider
+        entity_id: light.desk_lights
+        icon: mdi:brightness-4
+        tap_action:
+          action: perform-action
+          target:
+            entity_id:
+              - light.desk_lights
+          perform_action: light.turn_on
+          data:
+            brightness_pct: '{{ value }}'
+        range:
+          - 0
+          - 100
+        step: 1
+        thumb: round
+        value_attribute: brightness
+      - type: slider
+        thumb: line
+        range:
+          - 0
+          - 360
+        step: 0.1
+        value_attribute: hs_color.0
+        icon: mdi:palette
+        tap_action:
+          action: perform-action
+          target:
+            entity_id: light.desk_lights
+          data:
+            hs_color:
+              - '{{ value }}'
+              - 100
+          perform_action: light.turn_on
+        entity_id: light.desk_lights
+        styles: |-
+          :host {
+            --background: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 66%, #f0f 83%, #f00 100%);
+            --background-opacity: 1;
+          }
+          .tooltip {
+            background: hsl({{ value }}, 100%, 50%);
+          }
+      - type: button
+        entity_id: light.desk_lights
+        icon: mdi:palette
+        styles: |-
+          :host {
+            flex: 1 1 0;
+            min-width: var(--feature-height);
+          }
+        tap_action:
+          action: fire-dom-event
+          event_type: cf-attributes
+          attributes:
+            slider:
+              - brightness
+              - color
+    styles: |-
+      :host([slider]) custom-feature-button:nth-of-type(1),
+      :host([slider]) custom-feature-button:nth-of-type(2){
+        display: none;
+      }
+      custom-feature-slider {
+        display: none;
+      }
+      :host([slider='brightness']) custom-feature-slider:nth-of-type(1) {
+        display: flex;
+      }
+      :host([slider='color']) custom-feature-slider:nth-of-type(2) {
+        display: flex;
+      }
+styles: |-
+  :host {
+    --feature-color: rgb({{ state_attr('light.desk_lights', 'rgb_color') or '187,168,50' }});
+  }
 ```
 
 </details>
