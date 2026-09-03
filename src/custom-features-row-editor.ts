@@ -1028,16 +1028,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 		return html`
 			${this.buildMainFeatureOptions()}
-			<div class="form">
-				${this.buildSelector(
-					'Haptics',
-					'haptics',
-					{
-						boolean: {},
-					},
-					parentEntry?.haptics ?? HAPTICS,
-				)}
-			</div>
+			${this.buildSelector(
+				'Haptics',
+				'haptics',
+				{
+					boolean: {},
+				},
+				parentEntry?.haptics ?? HAPTICS,
+			)}
 			${this.buildAppearancePanel(
 				html`${
 					parentEntry
@@ -1295,16 +1293,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 						},
 						UPDATE_AFTER_ACTION_DELAY,
 					)}
-					<div class="form">
-						${this.buildSelector(
-							'Haptics',
-							'haptics',
-							{
-								boolean: {},
-							},
-							HAPTICS,
-						)}
-					</div>
+					${this.buildSelector(
+						'Haptics',
+						'haptics',
+						{
+							boolean: {},
+						},
+						HAPTICS,
+					)}
 					${this.buildAppearancePanel(
 						html`${
 							type == 'selector'
@@ -1514,16 +1510,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 		`;
 		return html`
 			${this.buildMainFeatureOptions()}
-			<div class="form">
-				${this.buildSelector(
-					'Haptics',
-					'haptics',
-					{
-						boolean: {},
-					},
-					parentEntry?.haptics ?? HAPTICS,
-				)}
-			</div>
+			${this.buildSelector(
+				'Haptics',
+				'haptics',
+				{
+					boolean: {},
+				},
+				parentEntry?.haptics ?? HAPTICS,
+			)}
 			${this.buildAppearancePanel(html`
 				${this.buildCommonAppearanceOptions()}
 			`)}
@@ -1648,16 +1642,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 						},
 						DEBOUNCE_TIME,
 					)}
-					<div class="form">
-						${this.buildSelector(
-							'Haptics',
-							'haptics',
-							{
-								boolean: {},
-							},
-							HAPTICS,
-						)}
-					</div>
+					${this.buildSelector(
+						'Haptics',
+						'haptics',
+						{
+							boolean: {},
+						},
+						HAPTICS,
+					)}
 					${this.buildAppearancePanel(this.buildCommonAppearanceOptions())}
 					${this.buildInteractionsPanel(actionSelectors)}
 				`;
@@ -2070,16 +2062,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 				},
 				UPDATE_AFTER_ACTION_DELAY,
 			)}
-			<div class="form">
-				${this.buildSelector(
-					'Haptics',
-					'haptics',
-					{
-						boolean: {},
-					},
-					HAPTICS,
-				)}
-			</div>
+			${this.buildSelector(
+				'Haptics',
+				'haptics',
+				{
+					boolean: {},
+				},
+				HAPTICS,
+			)}
 			${this.buildAppearancePanel(this.buildCommonAppearanceOptions())}
 			${this.buildInteractionsPanel(html`
 				${this.buildAlertBox()}
