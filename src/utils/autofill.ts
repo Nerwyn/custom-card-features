@@ -1,3 +1,4 @@
+import { HomeAssistant } from '../models/interfaces/HomeAssistant';
 import { CardFeatureType, IEntry } from '../models/interfaces/IConfig';
 
 export function getDefaultStep(min: number, max: number) {
@@ -31,9 +32,8 @@ export function getDefaultValueAttribute(
 					return 'mode';
 				case 'vacuum':
 					return 'fan_speed';
-				default:
-					return '';
 			}
+			break;
 		case 'spinbox':
 		case 'input':
 		case 'slider':
@@ -46,11 +46,37 @@ export function getDefaultValueAttribute(
 					return 'humidity';
 				case 'media_player':
 					return 'volume_level';
-				default:
-					return '';
 			}
-		default:
-			return '';
+	}
+}
+
+export function getDefaultUnit(
+	hass: HomeAssistant,
+	domain: string,
+	valueAttribute?: string,
+) {
+	switch (domain) {
+		case 'light':
+			switch (valueAttribute) {
+				case 'hs_color.0':
+					return '°';
+				case 'color_temp_kelvin':
+					return 'K';
+				case 'brightness':
+					return '%';
+			}
+			break;
+		case 'climate':
+			switch (valueAttribute) {
+				case 'current_humidity':
+					return '%';
+				case 'current_temperature':
+				case 'temperature':
+					return hass.config.unit_system.temperature;
+			}
+			break;
+		case 'humidifier':
+			return '%';
 	}
 }
 

@@ -51,6 +51,7 @@ import { ComponentIcons, PlatformIcons } from './models/interfaces/IHassIcons';
 import {
 	getDefaultSelectInfo,
 	getDefaultStep,
+	getDefaultUnit,
 	getDefaultValueAttribute,
 } from './utils/autofill';
 import { deepGet, deepSet } from './utils/deepKeys';
@@ -2744,7 +2745,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 						entry.tap_action = {
 							action: 'more-info',
 							target: {
-								entity_id: entityId,
+								entity_id: '{{ config.entity }}',
 							},
 						};
 					}
@@ -2759,7 +2760,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					entry.hold_action = {
 						action: 'more-info',
 						target: {
-							entity_id: entityId,
+							entity_id: '{{ config.entity }}',
 						},
 					};
 				}
@@ -2769,7 +2770,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					entry.tap_action = {
 						action: 'toggle',
 						target: {
-							entity_id: entityId,
+							entity_id: '{{ config.entity }}',
 						},
 					};
 				}
@@ -2785,46 +2786,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 
 		// Unit of measurement
-		let unit: string | undefined;
-		const defaultUnit =
+		entry.unit_of_measurement ||=
+			getDefaultUnit(this.hass, domain, valueAttribute) ||
 			this.hass.states[entityId]?.attributes.unit_of_measurement;
-		switch (domain) {
-			case 'light':
-				switch (valueAttribute) {
-					case 'hs_color.0':
-						unit = '°';
-						break;
-					case 'color_temp_kelvin':
-						unit = 'K';
-						break;
-					case 'brightness':
-						unit = '%';
-						break;
-					default:
-						unit = defaultUnit;
-						break;
-				}
-				break;
-			case 'climate':
-				switch (valueAttribute) {
-					case 'current_humidity':
-						unit = '%';
-						break;
-					case 'current_temperature':
-					case 'temperature':
-						unit = this.hass.config.unit_system.temperature;
-						break;
-					default:
-						break;
-				}
-				break;
-			case 'humidifier':
-				unit = '%';
-				break;
-			default:
-				break;
-		}
-		entry.unit_of_measurement ||= unit ?? defaultUnit;
 
 		return entry;
 	}
