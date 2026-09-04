@@ -2670,7 +2670,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					entry.range = [rangeMin, rangeMax] as
 						[number, number] | [string, string];
 					break;
-				} else if (featureType == 'slider') {
+				} else {
 					switch (domain) {
 						case 'light':
 							switch (valueAttribute) {
