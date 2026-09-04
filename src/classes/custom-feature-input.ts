@@ -14,13 +14,13 @@ import {
 	RANGE_MAX,
 	RANGE_MIN,
 	STEP,
-	STEP_COUNT,
 	TIME_MAX,
 	TIME_MIN,
 	WEEK_MAX,
 	WEEK_MIN,
 } from '../models/constants';
 import { InputType } from '../models/interfaces/IConfig';
+import { getDefaultStep } from '../utils/autofill';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
@@ -279,15 +279,13 @@ export class CustomFeatureInput extends BaseCustomFeature {
 			if (!step || isNaN(step) || step <= 0) {
 				switch (this.thumb) {
 					case 'number':
-						step = ((max as number) - (min as number)) / STEP_COUNT;
+						step = getDefaultStep(min as number, max as number);
 						break;
 					case 'date':
 					case 'time':
 					case 'datetime-local':
 					case 'week':
 					case 'month':
-						step ||= 1;
-						break;
 					default:
 						step = STEP;
 						break;

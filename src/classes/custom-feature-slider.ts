@@ -2,11 +2,12 @@ import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
-import { RANGE_MAX, RANGE_MIN, STEP, STEP_COUNT } from '../models/constants';
+import { RANGE_MAX, RANGE_MIN, STEP } from '../models/constants';
 import {
 	SliderThumbType,
 	SliderThumbTypes,
 } from '../models/interfaces/IConfig';
+import { getDefaultStep } from '../utils/autofill';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 
@@ -263,7 +264,7 @@ export class CustomFeatureSlider extends BaseCustomFeature {
 				this.renderTemplate(this.config.step as unknown as string),
 			);
 			if (!step || isNaN(step) || step <= 0) {
-				step = (max - min) / STEP_COUNT;
+				step = getDefaultStep(min, max);
 			}
 
 			const splitStep = String(step).split('.');

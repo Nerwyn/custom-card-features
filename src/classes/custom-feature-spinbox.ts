@@ -1,12 +1,8 @@
 import { css, CSSResult, html, PropertyValues } from 'lit';
 import { customElement, query } from 'lit/decorators.js';
 
-import {
-	DEBOUNCE_TIME,
-	RANGE_MAX,
-	RANGE_MIN,
-	STEP_COUNT,
-} from '../models/constants';
+import { DEBOUNCE_TIME, RANGE_MAX, RANGE_MIN } from '../models/constants';
+import { getDefaultStep } from '../utils/autofill';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
 import './custom-feature-button';
@@ -265,7 +261,7 @@ export class CustomFeatureSpinbox extends BaseCustomFeature {
 				this.renderTemplate(this.config.step as unknown as string),
 			);
 			if (!step || isNaN(step) || step <= 0) {
-				step = (max - min) / STEP_COUNT;
+				step = getDefaultStep(min, max);
 			}
 
 			const splitStep = String(step).split('.');

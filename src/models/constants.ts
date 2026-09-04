@@ -7,7 +7,6 @@ export const HAPTICS = false;
 export const DEBOUNCE_TIME = 1000;
 export const UPDATE_AFTER_ACTION_DELAY = 1000;
 export const SLIDER_ANIMATION = 1;
-export const STEP_COUNT = 100;
 export const STEP = 1;
 
 export const RANGE_MIN = 0;

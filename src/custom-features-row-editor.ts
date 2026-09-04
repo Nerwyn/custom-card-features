@@ -21,7 +21,6 @@ import {
 	RANGE_MIN,
 	REPEAT_DELAY,
 	STEP,
-	STEP_COUNT,
 	TIME_MAX,
 	TIME_MIN,
 	UPDATE_AFTER_ACTION_DELAY,
@@ -35,7 +34,6 @@ import {
 	ActionType,
 	ActionTypes,
 	IAction,
-	ITarget,
 } from './models/interfaces/IActions';
 import {
 	ButtonThumbType,
@@ -50,6 +48,11 @@ import {
 	UncheckedValues,
 } from './models/interfaces/IConfig';
 import { ComponentIcons, PlatformIcons } from './models/interfaces/IHassIcons';
+import {
+	getDefaultSelectInfo,
+	getDefaultStep,
+	getDefaultValueAttribute,
+} from './utils/autofill';
 import { deepGet, deepSet } from './utils/deepKeys';
 import { getHassIcons } from './utils/getHassIcons';
 
@@ -378,6 +381,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	handleSelectorChange(e: Event) {
+		this.yamlCache = {};
 		const key = (e.target as HTMLElement).id;
 		let value = e.detail.value;
 		if (key.endsWith('.confirmation.exemptions')) {
@@ -414,6 +418,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	handleAutofill(_e: Event) {
+		this.yamlCache = {};
 		let entry = this.autofillDefaultFields(
 			this.config.entries[this.entryIndex],
 		);
@@ -2323,58 +2328,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 	}
 
-	populateMissingEntityId(entry: IEntry, parentEntityId: string) {
-		for (const actionType of ActionTypes) {
-			if (actionType in entry) {
-				const action = entry[actionType as ActionType] ?? ({} as IAction);
-				if (
-					['perform-action', 'more-info', 'toggle'].includes(action.action) &&
-					typeof action.target != 'string'
-				) {
-					const data = action.data ?? {};
-					const target = action.target ?? {};
-					for (const targetId of [
-						'entity_id',
-						'device_id',
-						'area_id',
-						'label_id',
-					]) {
-						if (data[targetId]) {
-							target[targetId as keyof ITarget] = data[targetId] as
-								string | string[];
-							delete data[targetId];
-						}
-					}
-					if (
-						!target.entity_id &&
-						!target.device_id &&
-						!target.area_id &&
-						!target.label_id
-					) {
-						target.entity_id = entry.entity_id ?? parentEntityId;
-						action.target = target;
-						entry[actionType as ActionType] = action;
-					}
-					action.data = data;
-					action.target = target;
-				}
-			}
-		}
-
-		if (!entry.entity_id) {
-			let entity_id =
-				entry.tap_action?.target?.entity_id ??
-				entry.tap_action?.data?.entity_id ??
-				parentEntityId;
-			if (Array.isArray(entity_id)) {
-				entity_id = entity_id[0];
-			}
-			entry.entity_id = entity_id as string;
-		}
-
-		return entry;
-	}
-
 	async fetchIconResources() {
 		if (!Object.keys(this.platformIcons).length) {
 			this.platformIcons = (await getHassIcons(this.hass, 'entity')).resources;
@@ -2390,22 +2343,24 @@ export class CustomFeaturesRowEditor extends LitElement {
 		entry = structuredClone(entry);
 		const context = this.getEntryContext(entry);
 
-		// Feature entity ID
-		entry = this.populateMissingEntityId(entry, this.context?.entity_id ?? '');
-		const entryEntityId = this.renderTemplate(
+		// Entity ID
+		const entityId = this.renderTemplate(
 			entry.entity_id as string,
-			this.getEntryContext(entry),
+			context,
 		) as string;
-		const [domain, _entity] = (entryEntityId ?? '').split('.');
+		const [domain, _entity] = (entityId ?? '').split('.');
+		if (!entityId) {
+			return entry;
+		}
 
 		// Icon
-		entry.icon ||= this.hass.states[entryEntityId]?.attributes.icon;
+		entry.icon ||= this.hass.states[entityId]?.attributes.icon;
 		if (!entry.icon) {
-			const platform = this.hass.entities[entryEntityId]?.platform ?? '';
+			const platform = this.hass.entities[entityId]?.platform ?? '';
 			const translationKey =
-				this.hass.entities[entryEntityId]?.translation_key ?? '';
+				this.hass.entities[entityId]?.translation_key ?? '';
 			const deviceClass =
-				this.hass.states[entryEntityId]?.attributes?.device_class ?? '';
+				this.hass.states[entityId]?.attributes?.device_class ?? '';
 
 			entry.icon =
 				this.platformIcons[platform]?.[domain]?.[translationKey]?.default ||
@@ -2413,14 +2368,21 @@ export class CustomFeaturesRowEditor extends LitElement {
 				this.componentIcons[domain]?.['_']?.default;
 		}
 
-		// Unit of measurement
-		entry.unit_of_measurement ||=
-			this.hass.states[entryEntityId]?.attributes.unit_of_measurement;
-
-		const featureType = this.renderTemplate(
+		let featureType = this.renderTemplate(
 			entry.type as string,
 			this.getEntryContext(entry),
 		) as CardFeatureType;
+		if (!CardFeatureTypes.includes(featureType)) {
+			featureType = 'button';
+			entry.type = featureType;
+		}
+
+		// Value attribute
+		const valueAttribute =
+			(this.renderTemplate(entry.value_attribute ?? '', context) as string) ||
+			getDefaultValueAttribute(featureType, domain);
+		entry.value_attribute ||= valueAttribute;
+
 		switch (featureType) {
 			case 'dropdown':
 			case 'selector': {
@@ -2430,10 +2392,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 				);
 				if (optionType != 'default') {
 					if (optionType == 'attribute') {
-						entry.option_entity ||= entryEntityId;
+						entry.option_entity ||= entityId;
 						const optionEntity = this.renderTemplate(
 							entry.option_entity ?? '',
-							this.getEntryContext(entry),
+							context,
 						) as string;
 						const candidates = this.getOptionListAttributes(optionEntity);
 
@@ -2453,7 +2415,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					}
 
 					entry.option_template ??= {};
-					entry.option_template.entity_id ??= entryEntityId;
+					entry.option_template.entity_id ??= entityId;
 					if (!entry.option_template.label && !entry.option_template.icon) {
 						entry.option_template.label = '{{ option | safe }}';
 					}
@@ -2467,7 +2429,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 							entry.option_attribute || '',
 							context,
 						) as string;
-						const info = this.getDefaultSelectInfo(
+						const info = getDefaultSelectInfo(
 							optionEntity.split('.')[0],
 							optionAttribute,
 						);
@@ -2485,19 +2447,16 @@ export class CustomFeaturesRowEditor extends LitElement {
 				// Get option names from attributes if it exists
 				const options = entry.options ?? [];
 				let optionNames: string[] = [];
-				if (entryEntityId) {
+				if (entityId) {
 					optionNames =
-						(this.hass.states[entryEntityId]?.attributes
-							?.options as string[]) ?? new Array<string>(options.length);
+						(this.hass.states[entityId]?.attributes?.options as string[]) ??
+						new Array<string>(options.length);
 				}
 				if (optionNames.length < options.length) {
 					optionNames = Object.assign(new Array(options.length), optionNames);
 				}
 				for (const i in options) {
-					options[i] = this.populateMissingEntityId(
-						options[i],
-						entry.entity_id as string,
-					);
+					options[i].entity_id ||= entry.entity_id;
 
 					// Default option
 					if (!options[i].option) {
@@ -2530,7 +2489,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 						}
 						const target = tap_action.target ?? {};
 						if (!target.entity_id) {
-							target.entity_id = entryEntityId as string;
+							target.entity_id = '{{ config.entity }}';
 							tap_action.target = target;
 						}
 						options[i].tap_action = tap_action;
@@ -2542,16 +2501,10 @@ export class CustomFeaturesRowEditor extends LitElement {
 			case 'spinbox':
 				// Increment and decrement fields
 				if (entry.increment) {
-					entry.increment = this.populateMissingEntityId(
-						entry.increment as IEntry,
-						entry.entity_id as string,
-					);
+					entry.increment.entity_id ||= entry.entity_id;
 				}
 				if (entry.decrement) {
-					entry.decrement = this.populateMissingEntityId(
-						entry.decrement as IEntry,
-						entry.entity_id as string,
-					);
+					entry.decrement.entity_id ||= entry.entity_id;
 				}
 			// falls through
 			case 'input':
@@ -2580,10 +2533,8 @@ export class CustomFeaturesRowEditor extends LitElement {
 						case 'datetime':
 						case 'input_datetime': {
 							tap_action.perform_action = `${domain}.set_datetime`;
-							const hasDate =
-								this.hass.states[entryEntityId]?.attributes.has_date;
-							const hasTime =
-								this.hass.states[entryEntityId]?.attributes.has_time;
+							const hasDate = this.hass.states[entityId]?.attributes.has_date;
+							const hasTime = this.hass.states[entityId]?.attributes.has_time;
 							const field = `${hasDate ? 'date' : ''}${hasTime ? 'time' : ''}`;
 							if (field && !data[field]) {
 								data[field] = '{{ value }}';
@@ -2591,13 +2542,75 @@ export class CustomFeaturesRowEditor extends LitElement {
 							}
 							break;
 						}
+						case 'light':
+							tap_action.perform_action = 'light.turn_on';
+							switch (valueAttribute) {
+								case 'hs_color.0':
+									tap_action.data = {
+										hs_color: ['{{ value }}' as unknown as number, 100],
+									};
+									break;
+								case 'color_temp_kelvin':
+									tap_action.data = {
+										color_temp_kelvin: '{{ value | float }}',
+									};
+									break;
+								case 'brightness':
+								default:
+									tap_action.data = {
+										brightness_pct: '{{ value | float }}',
+									};
+									break;
+							}
+							break;
+						case 'climate':
+							switch (valueAttribute) {
+								case 'current_humidity':
+									tap_action.perform_action = 'climate.set_humidity';
+									tap_action.data = {
+										humidity: '{{ value | float }}',
+									};
+									break;
+								case 'temperature':
+								case 'current_temperature':
+								default:
+									tap_action.perform_action = 'climate.set_temperature';
+									tap_action.data = {
+										temperature: '{{ value | float }}',
+									};
+									break;
+							}
+							break;
+						case 'humidifier':
+							tap_action.perform_action = 'humidifier.set_humidity';
+							tap_action.data = {
+								humidity: '{{ value | float }}',
+							};
+							break;
+						case 'media_player':
+							switch (valueAttribute) {
+								case 'media_position':
+									tap_action.perform_action = 'media_player.media_seek';
+									tap_action.data = {
+										seek_position: '{{ value | int  }}',
+									};
+									break;
+								case 'volume':
+								default:
+									tap_action.perform_action = 'media_player.set_volume';
+									tap_action.data = {
+										volume: '{{ value | float  }}',
+									};
+									break;
+							}
+							break;
 						default:
 							break;
 					}
 
 					const target = tap_action.target ?? {};
 					if (!target.entity_id) {
-						target.entity_id = entryEntityId as string;
+						target.entity_id = '{{ config.entity }}';
 						tap_action.target = target;
 					}
 					entry.tap_action = tap_action;
@@ -2643,56 +2656,102 @@ export class CustomFeaturesRowEditor extends LitElement {
 						case 'text':
 						case 'password':
 						default:
-							rangeMin =
+							rangeMin ||=
 								(parseFloat(rangeMin as string) ||
-									this.hass.states[entryEntityId]?.attributes?.min) ??
+									this.hass.states[entityId]?.attributes?.min) ??
 								RANGE_MIN;
-							rangeMax =
+							rangeMax ||=
 								(parseFloat(rangeMax as string) ||
-									this.hass.states[entryEntityId]?.attributes?.max) ??
+									this.hass.states[entityId]?.attributes?.max) ??
 								RANGE_MAX;
 							break;
 					}
 					entry.range = [rangeMin, rangeMax] as
 						[number, number] | [string, string];
 					break;
+				} else if (featureType == 'slider') {
+					switch (domain) {
+						case 'light':
+							switch (valueAttribute) {
+								case 'color_temp_kelvin':
+									rangeMin ||=
+										this.hass.states[entityId]?.attributes
+											?.min_color_temp_kelvin;
+									rangeMax ||=
+										this.hass.states[entityId]?.attributes
+											?.max_color_temp_kelvin;
+									break;
+								case 'hs_color.0':
+								case 'brightness':
+								default:
+									rangeMin ||= 0;
+									rangeMax ||= 100;
+									break;
+							}
+							break;
+						case 'climate':
+							switch (valueAttribute) {
+								case 'current_humidity':
+									rangeMin ||= 30;
+									rangeMax ||= 99;
+									break;
+								case 'temperature':
+								case 'current_temperature':
+								default:
+									rangeMin ||= this.hass.states[entityId]?.attributes?.min_temp;
+									rangeMax ||= this.hass.states[entityId]?.attributes?.max_temp;
+									break;
+							}
+							break;
+						case 'humidifier':
+							rangeMin ||= 0;
+							rangeMax ||= 100;
+							break;
+						default:
+							break;
+					}
 				}
-				rangeMin ??=
-					this.hass.states[entryEntityId]?.attributes?.min ?? RANGE_MIN;
-				rangeMax ??=
-					this.hass.states[entryEntityId]?.attributes?.max ?? RANGE_MAX;
+				rangeMin ??= this.hass.states[entityId]?.attributes?.min ?? RANGE_MIN;
+				rangeMax ??= this.hass.states[entityId]?.attributes?.max ?? RANGE_MAX;
 				entry.range = [rangeMin as number, rangeMax as number];
 
 				if (!entry.step) {
 					const defaultStep =
-						this.hass.states[entryEntityId as string]?.attributes?.step;
+						this.hass.states[entityId as string]?.attributes?.step;
 					if (defaultStep) {
 						entry.step = defaultStep;
 					} else {
-						const entryContext = this.getEntryContext(entry);
-						entry.step =
-							((this.renderTemplate(
-								entry.range[1],
-								entryContext,
-							) as unknown as number) -
-								(this.renderTemplate(
-									entry.range[0],
-									entryContext,
-								) as unknown as number)) /
-							STEP_COUNT;
+						entry.step = getDefaultStep(
+							this.renderTemplate(entry.range[0], context) as number,
+							this.renderTemplate(entry.range[1], context) as number,
+						);
 					}
 				}
 				break;
 			}
 			case 'button':
-				if (!this.hass.services[domain]?.toggle) {
+				if (!(
+					this.hass.services[domain]?.toggle ||
+					this.hass.services[domain]?.turn_on ||
+					this.hass.services[domain]?.turn_off ||
+					this.hass.services[domain]?.press ||
+					this.hass.services[domain]?.lock ||
+					this.hass.services[domain]?.unlock ||
+					this.hass.services[domain]?.open ||
+					this.hass.services[domain]?.toggle
+				)) {
 					if (!entry.tap_action) {
 						entry.tap_action = {
 							action: 'more-info',
 							target: {
-								entity_id: entryEntityId,
+								entity_id: entityId,
 							},
 						};
+					}
+					const target = entry.tap_action.target ?? {};
+					if (!target.entity_id) {
+						target.entity_id = '{{ config.entity }}';
+						entry.tap_action.target = target;
 					}
 					break;
 				}
@@ -2700,117 +2759,74 @@ export class CustomFeaturesRowEditor extends LitElement {
 					entry.hold_action = {
 						action: 'more-info',
 						target: {
-							entity_id: entryEntityId,
+							entity_id: entityId,
 						},
 					};
 				}
 			// falls through
-			case 'toggle':
+			case 'toggle': {
 				if (!entry.tap_action) {
 					entry.tap_action = {
 						action: 'toggle',
 						target: {
-							entity_id: entryEntityId,
+							entity_id: entityId,
 						},
 					};
 				}
+				const target = entry.tap_action.target ?? {};
+				if (!target.entity_id) {
+					target.entity_id = '{{ config.entity }}';
+					entry.tap_action.target = target;
+				}
 				break;
+			}
 			default:
 				break;
 		}
-		return entry;
-	}
 
-	getDefaultSelectInfo(
-		domain: string,
-		listAttribute: string,
-	): Partial<IEntry> | undefined {
-		let action: string;
-		let key: string;
-		let valueAttribute: string | undefined;
+		// Unit of measurement
+		let unit: string | undefined;
+		const defaultUnit =
+			this.hass.states[entityId]?.attributes.unit_of_measurement;
 		switch (domain) {
 			case 'light':
-				action = 'turn_on';
-				key = 'effect';
-				break;
-			case 'media_player':
-				switch (listAttribute) {
-					case 'sound_mode_list':
-						action = 'select_sound_mode';
-						key = 'sound_mode';
+				switch (valueAttribute) {
+					case 'hs_color.0':
+						unit = '°';
 						break;
-					case 'source_list':
+					case 'color_temp_kelvin':
+						unit = 'K';
+						break;
+					case 'brightness':
+						unit = '%';
+						break;
 					default:
-						action = 'select_source';
-						key = 'source';
+						unit = defaultUnit;
 						break;
 				}
-				break;
-			case 'remote':
-				action = 'turn_on';
-				key = 'current_activity';
-				valueAttribute = 'activity';
 				break;
 			case 'climate':
-				switch (listAttribute) {
-					case 'preset_modes':
-						action = 'set_preset_mode';
-						key = 'preset_mode';
+				switch (valueAttribute) {
+					case 'current_humidity':
+						unit = '%';
 						break;
-					case 'swing_modes':
-						action = 'set_swing_mode';
-						key = 'swing_mode';
+					case 'current_temperature':
+					case 'temperature':
+						unit = this.hass.config.unit_system.temperature;
 						break;
-					case 'fan_modes':
-						action = 'set_fan_mode';
-						key = 'fan_mode';
-						break;
-					case 'hvac_modes':
 					default:
-						action = 'set_hvac_mode';
-						key = 'hvac_mode';
-						valueAttribute = 'state';
 						break;
 				}
 				break;
-			case 'fan':
-				action = 'set_preset_mode';
-				key = 'mode';
-				valueAttribute = 'preset_mode';
-				break;
 			case 'humidifier':
-				action = 'set_mode';
-				key = 'mode';
-				break;
-			case 'water_heater':
-				action = 'set_operation_mode';
-				key = 'operation_mode';
-				valueAttribute = 'state';
-				break;
-			case 'vacuum':
-				action = 'set_fan_speed';
-				key = 'fan_speed';
-				break;
-			case 'select':
-			case 'input_select':
-				action = 'select_option';
-				key = 'option';
-				valueAttribute = 'state';
+				unit = '%';
 				break;
 			default:
-				return undefined;
+				break;
 		}
+		entry.unit_of_measurement ||= unit ?? defaultUnit;
 
-		return {
-			value_attribute: valueAttribute || key,
-			tap_action: {
-				action: 'perform-action',
-				perform_action: `${domain}.${action}`,
-				data: {
-					[key]: '{{ option | safe }}',
-				},
-			},
-		};
+		return entry;
 	}
 
 	handleUpdateDeprecatedConfig() {

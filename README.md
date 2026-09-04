@@ -2566,6 +2566,7 @@ features:
         step: 1
         thumb: round
         value_attribute: brightness
+        unit_of_measurement: '%'
       - type: slider
         thumb: line
         range:
