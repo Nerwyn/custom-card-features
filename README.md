@@ -573,7 +573,7 @@ Most features have additional custom CSS attributes which can be used to style t
     <div class="thumb" part="thumb">
       ::before
       <ha-icon class="icon" part="icon"></ha-icon>
-      <md-ripple></md-ripple>
+      <md-ripple part="ripple"></md-ripple>
     </div>
   </div>
   <custom-feature-toggle></custom-feature-toggle
@@ -2625,6 +2625,9 @@ features:
 styles: |-
   :host {
     --feature-color: rgb({{ state_attr('light.desk_lights', 'rgb_color') or '187,168,50' }});
+  }
+  md-ripple {
+    display: flex;
   }
 ```
 

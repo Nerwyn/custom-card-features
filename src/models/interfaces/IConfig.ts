@@ -91,7 +91,7 @@ export const DropdownThumbTypes = [
 	'md3-fab-tertiary',
 ] as const;
 
-export const InputTypes = [
+export const InputThumbTypes = [
 	'text',
 	'number',
 	'date',
@@ -128,7 +128,7 @@ export const ToggleThumbTypes = [
 
 export type ButtonThumbType = (typeof ButtonThumbTypes)[number];
 export type DropdownThumbType = (typeof DropdownThumbTypes)[number];
-export type InputType = (typeof InputTypes)[number];
+export type InputThumbType = (typeof InputThumbTypes)[number];
 export type SelectorThumbType = (typeof SelectorThumbTypes)[number];
 export type SliderThumbType = (typeof SliderThumbTypes)[number];
 export type ToggleThumbType = (typeof ToggleThumbTypes)[number];
@@ -136,7 +136,7 @@ export type ToggleThumbType = (typeof ToggleThumbTypes)[number];
 export const ThumbTypes = [
 	...ButtonThumbTypes,
 	...DropdownThumbTypes,
-	...InputTypes,
+	...InputThumbTypes,
 	...SelectorThumbTypes,
 	...SliderThumbTypes,
 	...ToggleThumbTypes,

@@ -80,6 +80,16 @@ export function getDefaultUnit(
 	}
 }
 
+export function getOptionListAttributes(
+	hass: HomeAssistant,
+	entityId: string,
+): string[] {
+	const attributes = hass.states[entityId]?.attributes ?? {};
+	return Object.keys(attributes).filter((attribute) =>
+		Array.isArray(attributes[attribute]),
+	);
+}
+
 export function getDefaultSelectInfo(
 	domain: string,
 	listAttribute: string,

@@ -19,7 +19,7 @@ import {
 	WEEK_MAX,
 	WEEK_MIN,
 } from '../models/constants';
-import { InputType } from '../models/interfaces/IConfig';
+import { InputThumbType } from '../models/interfaces/IConfig';
 import { getDefaultStep } from '../utils/autofill';
 import { buildStyles } from '../utils/styles';
 import { BaseCustomFeature } from './base-custom-feature';
@@ -27,7 +27,7 @@ import { BaseCustomFeature } from './base-custom-feature';
 @customElement('custom-feature-input')
 export class CustomFeatureInput extends BaseCustomFeature {
 	@query('input') input!: HTMLInputElement;
-	thumb: InputType = 'text';
+	thumb: InputThumbType = 'text';
 	range: [number, number] | [string, string] = [RANGE_MIN, RANGE_MAX];
 	rangeTs?: [number, number];
 	step: number = STEP;
@@ -230,7 +230,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 		) {
 			const thumb = this.renderTemplate(
 				this.config.thumb ?? 'text',
-			) as InputType;
+			) as InputThumbType;
 
 			this.rangeIsLength = ['text', 'password'].includes(thumb);
 			let min: string | number = this.renderTemplate(

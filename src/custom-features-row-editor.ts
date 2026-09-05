@@ -42,7 +42,7 @@ import {
 	CheckedValues,
 	IConfig,
 	IEntry,
-	InputType,
+	InputThumbType,
 	IOption,
 	ThumbType,
 	UncheckedValues,
@@ -53,6 +53,7 @@ import {
 	getDefaultStep,
 	getDefaultUnit,
 	getDefaultValueAttribute,
+	getOptionListAttributes,
 } from './utils/autofill';
 import { deepGet, deepSet } from './utils/deepKeys';
 import { getHassIcons } from './utils/getHassIcons';
@@ -1429,24 +1430,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 		return selectorGuiEditor;
 	}
 
-	getOptionListAttributes(entityId: string): string[] {
-		const attributes = this.hass.states[entityId]?.attributes ?? {};
-		return Object.keys(attributes).filter(
-			(attribute) =>
-				![
-					'supported_color_modes',
-					'supported_features',
-					'device_class',
-					'entity_id',
-					'lights',
-					'device_trackers',
-				].includes(attribute) &&
-				!attribute.endsWith('_color') &&
-				Array.isArray(attributes[attribute]) &&
-				attributes[attribute].length >= 2,
-		);
-	}
-
 	buildOptionTypeEditor() {
 		const optionTemplateRow = html`
 			<div class="entry-list-header">
@@ -1481,7 +1464,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					this.activeEntry?.option_entity ?? '',
 					this.getEntryContext(this.activeEntry ?? {}),
 				) as string;
-				const listAttributes = this.getOptionListAttributes(entityId);
+				const listAttributes = getOptionListAttributes(this.hass, entityId);
 				const hideAttributes = Object.keys(
 					this.hass.states[entityId]?.attributes ?? {},
 				).filter((key) => !listAttributes.includes(key));
@@ -1569,7 +1552,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 		let spinboxGuiEditor: TemplateResult<1>;
 		switch (this.spinboxTabIndex) {
 			case 0:
-			// falls through
 			case 2:
 				spinboxGuiEditor = this.buildButtonGuiEditor(
 					this.config.entries[this.entryIndex],
@@ -1828,7 +1810,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const thumb = this.renderTemplate(
 			this.activeEntry?.thumb ?? '',
 			context,
-		) as InputType;
+		) as InputThumbType;
 		switch (thumb) {
 			case 'date':
 				mainOptions = html`
@@ -2344,6 +2326,16 @@ export class CustomFeaturesRowEditor extends LitElement {
 		entry = structuredClone(entry);
 		const context = this.getEntryContext(entry);
 
+		// Feature type
+		let featureType = this.renderTemplate(
+			entry.type as string,
+			this.getEntryContext(entry),
+		) as CardFeatureType;
+		if (!CardFeatureTypes.includes(featureType)) {
+			featureType = 'button';
+			entry.type = featureType;
+		}
+
 		// Entity ID
 		const entityId = this.renderTemplate(
 			entry.entity_id as string,
@@ -2352,30 +2344,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 		const [domain, _entity] = (entityId ?? '').split('.');
 		if (!entityId) {
 			return entry;
-		}
-
-		// Icon
-		entry.icon ||= this.hass.states[entityId]?.attributes.icon;
-		if (!entry.icon) {
-			const platform = this.hass.entities[entityId]?.platform ?? '';
-			const translationKey =
-				this.hass.entities[entityId]?.translation_key ?? '';
-			const deviceClass =
-				this.hass.states[entityId]?.attributes?.device_class ?? '';
-
-			entry.icon =
-				this.platformIcons[platform]?.[domain]?.[translationKey]?.default ||
-				this.componentIcons[domain]?.[deviceClass]?.default ||
-				this.componentIcons[domain]?.['_']?.default;
-		}
-
-		let featureType = this.renderTemplate(
-			entry.type as string,
-			this.getEntryContext(entry),
-		) as CardFeatureType;
-		if (!CardFeatureTypes.includes(featureType)) {
-			featureType = 'button';
-			entry.type = featureType;
 		}
 
 		// Value attribute
@@ -2398,7 +2366,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 							entry.option_entity ?? '',
 							context,
 						) as string;
-						const candidates = this.getOptionListAttributes(optionEntity);
+						const candidates = getOptionListAttributes(this.hass, optionEntity);
 
 						if (
 							entry.option_attribute &&
@@ -2410,8 +2378,16 @@ export class CustomFeaturesRowEditor extends LitElement {
 							entry.option_attribute = '';
 						}
 
-						if (!entry.option_attribute && candidates.length == 1) {
-							entry.option_attribute = candidates[0];
+						if (!entry.option_attribute && candidates.length) {
+							const pluralValueAttribute = `${valueAttribute}s`;
+							if (
+								candidates.includes(pluralValueAttribute) &&
+								this.hass.states[optionEntity]?.attributes[pluralValueAttribute]
+							) {
+								entry.option_attribute = pluralValueAttribute;
+							} else {
+								entry.option_attribute = candidates[0];
+							}
 						}
 					}
 
@@ -2500,15 +2476,47 @@ export class CustomFeaturesRowEditor extends LitElement {
 				break;
 			}
 			case 'spinbox':
-				// Increment and decrement fields
 				if (entry.increment) {
 					entry.increment.entity_id ||= entry.entity_id;
 				}
 				if (entry.decrement) {
 					entry.decrement.entity_id ||= entry.entity_id;
 				}
+				entry.label ||= '{{ value }}'; // Only spinbox needs label to tell value
 			// falls through
 			case 'input':
+				// Input thumb type
+				switch (domain) {
+					case 'date':
+						entry.thumb = 'date';
+						break;
+					case 'time':
+						entry.thumb = 'time';
+						break;
+					case 'datetime':
+						entry.thumb = 'datetime-local';
+						break;
+					case 'input_datetime': {
+						const hasDate = this.hass.states[entityId]?.attributes.has_date;
+						const hasTime = this.hass.states[entityId]?.attributes.has_time;
+						if (hasDate && hasTime) {
+							entry.thumb = 'datetime-local';
+						} else if (hasDate) {
+							entry.thumb = 'date';
+						} else if (hasTime) {
+							entry.thumb = 'time';
+						}
+						break;
+					}
+					case 'number':
+					case 'input_number':
+						entry.thumb = 'number';
+						break;
+					default:
+						entry.thumb = 'text';
+						break;
+				}
+			// falls through
 			case 'slider': {
 				if (!entry.tap_action) {
 					const tap_action = {} as IAction;
@@ -2783,6 +2791,21 @@ export class CustomFeaturesRowEditor extends LitElement {
 			}
 			default:
 				break;
+		}
+
+		// Icon
+		entry.icon ||= this.hass.states[entityId]?.attributes.icon;
+		if (!entry.icon) {
+			const platform = this.hass.entities[entityId]?.platform ?? '';
+			const translationKey =
+				this.hass.entities[entityId]?.translation_key ?? '';
+			const deviceClass =
+				this.hass.states[entityId]?.attributes?.device_class ?? '';
+
+			entry.icon =
+				this.platformIcons[platform]?.[domain]?.[translationKey]?.default ||
+				this.componentIcons[domain]?.[deviceClass]?.default ||
+				this.componentIcons[domain]?.['_']?.default;
 		}
 
 		// Unit of measurement
