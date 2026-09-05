@@ -2337,6 +2337,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 
 		// Entity ID
+		entry.entity_id ||= this.context?.entity_id;
 		const entityId = this.renderTemplate(
 			entry.entity_id as string,
 			context,
