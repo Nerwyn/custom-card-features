@@ -497,9 +497,15 @@ export class CustomFeaturesRowEditor extends LitElement {
 							</div>`
 						: listHeader
 				}
-				<ha-icon-button class="header-icon" @click=${this.handleREADME}
-					><ha-icon .icon="${'mdi:help-circle'}"></ha-icon
-				></ha-icon-button>
+				${
+					field == 'option'
+						? ''
+						: html`<ha-icon-button
+								class="header-icon"
+								@click=${this.handleREADME}
+								><ha-icon .icon="${'mdi:help-circle'}"></ha-icon
+							></ha-icon-button>`
+				}
 			</div>
 			<ha-sortable handle-selector=".handle" @item-moved=${handlers.move}>
 				<div class="features">
@@ -1430,7 +1436,29 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	buildOptionTypeEditor() {
-		const optionTemplateRow = html`
+		const entityId = this.renderTemplate(
+			this.activeEntry?.option_entity ?? '',
+			this.getEntryContext(this.activeEntry ?? {}),
+		) as string;
+		const listAttributes = getOptionListAttributes(this.hass, entityId);
+		const hideAttributes = Object.keys(
+			this.hass.states[entityId]?.attributes ?? {},
+		).filter((key) => !listAttributes.includes(key));
+		const optionEntityAttribute = html`${this.buildSelector(
+			'Option entity',
+			'option_entity',
+			{
+				entity: {},
+			},
+		)}
+		${this.buildSelector('Option attribute', 'option_attribute', {
+			attribute: {
+				entity_id: this.activeEntry?.option_entity,
+				hide_attributes: hideAttributes,
+			},
+		})}`;
+
+		const optionTemplate = html`
 			<div class="entry-list-header">
 				Option Template
 				<div>
@@ -1457,30 +1485,13 @@ export class CustomFeaturesRowEditor extends LitElement {
 						template: { preview: false },
 					},
 				)}
-				${optionTemplateRow}`;
+				${optionTemplate}`;
 			case 'attribute': {
-				const entityId = this.renderTemplate(
-					this.activeEntry?.option_entity ?? '',
-					this.getEntryContext(this.activeEntry ?? {}),
-				) as string;
-				const listAttributes = getOptionListAttributes(this.hass, entityId);
-				const hideAttributes = Object.keys(
-					this.hass.states[entityId]?.attributes ?? {},
-				).filter((key) => !listAttributes.includes(key));
-				return html`${this.buildSelector('Option entity', 'option_entity', {
-					entity: {},
-				})}
-				${this.buildSelector('Option attribute', 'option_attribute', {
-					attribute: {
-						entity_id: this.activeEntry?.option_entity,
-						hide_attributes: hideAttributes,
-					},
-				})}
-				${optionTemplateRow}`;
+				return html`${optionEntityAttribute}${optionTemplate}`;
 			}
 			case 'default':
 			default:
-				return html`${this.buildEntryList('option')}${this.buildAddEntryButton('option')}`;
+				return html`${optionEntityAttribute}${this.buildEntryList('option')}${this.buildAddEntryButton('option')}`;
 		}
 	}
 
@@ -2359,120 +2370,95 @@ export class CustomFeaturesRowEditor extends LitElement {
 					entry.option_type ?? 'default',
 					context,
 				);
-				if (optionType != 'default') {
-					if (optionType == 'attribute') {
-						entry.option_entity ||= entityId;
-						const optionEntity = this.renderTemplate(
-							entry.option_entity ?? '',
-							context,
-						) as string;
-						const candidates = getOptionListAttributes(this.hass, optionEntity);
+				let optionEntity: string | undefined;
+				let optionAttribute: string | undefined;
+				let info: Partial<IEntry> | undefined;
+				if (optionType != 'template') {
+					entry.option_entity ||= entityId;
+					optionEntity = this.renderTemplate(
+						entry.option_entity ?? '',
+						context,
+					) as string;
 
+					const candidates = getOptionListAttributes(this.hass, optionEntity);
+					if (!entry.option_attribute && candidates.length) {
+						const pluralValueAttribute = `${valueAttribute}s`;
+						const listValueAttribute = `${valueAttribute}_list`;
 						if (
-							entry.option_attribute &&
-							!hasTemplate(entry.option_attribute) &&
-							!this.hass.states[optionEntity]?.attributes[
-								entry.option_attribute
-							]
+							candidates.includes(pluralValueAttribute) &&
+							this.hass.states[optionEntity]?.attributes[pluralValueAttribute]
 						) {
-							entry.option_attribute = '';
-						}
-
-						if (!entry.option_attribute && candidates.length) {
-							const pluralValueAttribute = `${valueAttribute}s`;
-							if (
-								candidates.includes(pluralValueAttribute) &&
-								this.hass.states[optionEntity]?.attributes[pluralValueAttribute]
-							) {
-								entry.option_attribute = pluralValueAttribute;
-							} else {
-								entry.option_attribute = candidates[0];
-							}
+							entry.option_attribute = pluralValueAttribute;
+						} else if (
+							candidates.includes(listValueAttribute) &&
+							this.hass.states[optionEntity]?.attributes[listValueAttribute]
+						) {
+							entry.option_attribute = listValueAttribute;
+						} else {
+							entry.option_attribute = candidates[0];
 						}
 					}
 
+					optionAttribute = this.renderTemplate(
+						entry.option_attribute || '',
+						context,
+					) as string;
+					info = getDefaultSelectInfo(
+						optionEntity.split('.')[0],
+						optionAttribute,
+					);
+				}
+
+				if (optionType != 'default') {
 					entry.option_template ??= {};
 					entry.option_template.entity_id ??= entityId;
 					if (!entry.option_template.label && !entry.option_template.icon) {
 						entry.option_template.label = '{{ option | safe }}';
 					}
+				}
 
-					if (optionType == 'attribute') {
-						const optionEntity = this.renderTemplate(
-							entry.option_entity ?? '',
-							context,
-						) as string;
-						const optionAttribute = this.renderTemplate(
-							entry.option_attribute || '',
-							context,
-						) as string;
-						const info = getDefaultSelectInfo(
-							optionEntity.split('.')[0],
-							optionAttribute,
-						);
-						if (info) {
-							entry.value_attribute ??= info.value_attribute;
-							entry.option_template.tap_action ??= info.tap_action!;
-							entry.option_template.tap_action.target ??= {
+				if (optionType == 'attribute' && info) {
+					entry.option_template ??= {};
+					entry.value_attribute ??= info.value_attribute;
+					entry.option_template.tap_action ??= info.tap_action!;
+					entry.option_template.tap_action.target ??= {
+						entity_id: '{{ config.entity }}',
+					};
+				}
+
+				if (optionType == 'default') {
+					const options = entry.options ?? [];
+					let optionNames: string[] = [];
+					if (entityId) {
+						optionNames =
+							(this.hass.states[optionEntity ?? entityId]?.attributes?.[
+								optionAttribute ?? 'options'
+							] as string[]) ?? new Array<string>(options.length);
+					}
+					if (optionNames.length < options.length) {
+						optionNames = Object.assign(new Array(options.length), optionNames);
+					}
+					for (const i in options) {
+						options[i].entity_id ||= optionEntity;
+
+						if (!options[i].option) {
+							options[i].option = optionNames[i];
+						}
+
+						if (
+							info &&
+							!options[i].tap_action &&
+							!options[i].double_tap_action &&
+							!options[i].hold_action
+						) {
+							options[i].tap_action = info.tap_action!;
+							options[i].tap_action.target = {
 								entity_id: '{{ config.entity }}',
 							};
 						}
 					}
-					break;
+					entry.options = options;
 				}
-
-				// Get option names from attributes if it exists
-				const options = entry.options ?? [];
-				let optionNames: string[] = [];
-				if (entityId) {
-					optionNames =
-						(this.hass.states[entityId]?.attributes?.options as string[]) ??
-						new Array<string>(options.length);
-				}
-				if (optionNames.length < options.length) {
-					optionNames = Object.assign(new Array(options.length), optionNames);
-				}
-				for (const i in options) {
-					options[i].entity_id ||= entry.entity_id;
-
-					// Default option
-					if (!options[i].option) {
-						options[i].option = optionNames[i];
-					}
-
-					// Default select action
-					if (
-						!options[i].tap_action &&
-						!options[i].double_tap_action &&
-						!options[i].hold_action
-					) {
-						const tap_action = {} as IAction;
-						tap_action.action = 'perform-action';
-						switch (domain) {
-							case 'select':
-								tap_action.perform_action = 'select.select_option';
-								break;
-							case 'input_select':
-							default:
-								tap_action.perform_action = 'input_select.select_option';
-								break;
-						}
-
-						// Set option name using options attribute if it is not set
-						const data = tap_action.data ?? {};
-						if (!data.option) {
-							data.option = optionNames[i];
-							tap_action.data = data;
-						}
-						const target = tap_action.target ?? {};
-						if (!target.entity_id) {
-							target.entity_id = '{{ config.entity }}';
-							tap_action.target = target;
-						}
-						options[i].tap_action = tap_action;
-					}
-				}
-				entry.options = options;
 				break;
 			}
 			case 'spinbox':

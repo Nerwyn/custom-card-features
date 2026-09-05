@@ -47,7 +47,7 @@ Dropdowns allow you to create a dropdown window with multiple user provided opti
 
 You need to define the options to be listed out in the dropdown list manually. Each of these options is a custom element that supports an action and its own appearance fields. The currently selected option is the one whose `Option` field matches the state or attribute value of the dropdown parent entity.
 
-This feature works best with Home Assistant `select/input_select` entities. By setting the feature entity to one of these domains, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the `select_option` action information. If no icon or label is provided, the option will use its option as its label.
+This feature works best with entities that can call services which set a value from a list of possible options, usually defined by one of its attributes. By setting the feature entity to one of these entities, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the `select_option` action information. If no icon or label is provided, the option will use its option as its label.
 
 You can override the default behavior of each option by changing their action. The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be displayed in the dropdown window. You can use a template in the parent attribute field for more advanced matching.
 
