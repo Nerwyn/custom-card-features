@@ -74,7 +74,6 @@ export class CustomFeaturesCard extends LitElement {
 							.config=${row}
 						></service-call>`,
 				)}
-				<md-ripple part="ripple"></md-ripple>
 			</ha-card>
 			${buildStyles(this.styles)}`;
 	}
@@ -179,22 +178,6 @@ export class CustomFeaturesCard extends LitElement {
 
 			service-call {
 				margin-bottom: 12px;
-			}
-
-			md-ripple {
-				display: none;
-				border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg));
-
-				--md-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.04);
-				--md-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.12);
-				--md-ripple-hover-color: var(
-					--ha-ripple-hover-color,
-					var(--ha-ripple-color)
-				);
-				--md-ripple-pressed-color: var(
-					--ha-ripple-pressed-color,
-					var(--ha-ripple-color)
-				);
 			}
 		`;
 	}

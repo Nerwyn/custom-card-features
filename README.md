@@ -2514,6 +2514,29 @@ features:
     entries:
       - type: button
         entity_id: light.desk_lights
+        thumb: transparent
+        styles: |-
+          :host {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            top: 0;
+          }
+
+          md-ripple {
+            visibility: visible;
+            border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg));
+
+            --md-ripple-hover-color: var(--feature-color);
+            --md-ripple-hover-opacity: 0.04;
+          }
+        tap_action:
+          action: more-info
+          target:
+            entity_id: '{{ config.entity }}'
+        icon: ''
+      - type: button
+        entity_id: light.desk_lights
         icon: mdi:desk
         tap_action:
           action: toggle
@@ -2533,6 +2556,7 @@ features:
           :host {
             justify-content: flex-start;
             flex-direction: row;
+            pointer-events: none;
           }
           .label {
             display: flex;
@@ -2547,8 +2571,6 @@ features:
             font-size: 12px;
             font-weight: 400;
           }
-        tap_action:
-          action: more-info
       - type: slider
         entity_id: light.desk_lights
         icon: mdi:brightness-4
@@ -2609,8 +2631,8 @@ features:
               - brightness
               - color
     styles: |-
-      :host([slider]) custom-feature-button:nth-of-type(1),
-      :host([slider]) custom-feature-button:nth-of-type(2){
+      :host([slider]) custom-feature-button:nth-of-type(2),
+      :host([slider]) custom-feature-button:nth-of-type(3){
         display: none;
       }
       custom-feature-slider {
@@ -2625,8 +2647,9 @@ features:
 styles: |-
   :host {
     --feature-color: rgb({{ state_attr('light.desk_lights', 'rgb_color') or '187,168,50' }});
+    --ha-ripple-color: var(--feature-color);
   }
-  md-ripple {
+  xmd-ripple {
     display: flex;
   }
 ```
