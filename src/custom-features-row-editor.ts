@@ -2739,6 +2739,28 @@ export class CustomFeaturesRowEditor extends LitElement {
 				break;
 			}
 			case 'button':
+				if (
+					entry.momentary_start_action ||
+					entry.momentary_end_action ||
+					entry.momentary_repeat_action
+				) {
+					for (const actionType of [
+						'momentary_start_action',
+						'momentary_repeat_action',
+						'momentary_end_action',
+					]) {
+						const action = entry[actionType as ActionType];
+						if (action) {
+							const target = action.target ?? {};
+							if (!target.entity_id) {
+								target.entity_id = '{{ config.entity }}';
+								action.target = target;
+							}
+							entry[actionType as ActionType] = action;
+						}
+					}
+					break;
+				}
 				if (!(
 					this.hass.services[domain]?.toggle ||
 					this.hass.services[domain]?.turn_on ||
@@ -2757,7 +2779,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 							},
 						};
 					}
-					const target = entry.tap_action.target ?? {};
+					const target = entry.tap_action?.target ?? {};
 					if (!target.entity_id) {
 						target.entity_id = '{{ config.entity }}';
 						entry.tap_action.target = target;
