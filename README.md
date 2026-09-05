@@ -2649,9 +2649,6 @@ styles: |-
     --feature-color: rgb({{ state_attr('light.desk_lights', 'rgb_color') or '187,168,50' }});
     --ha-ripple-color: var(--feature-color);
   }
-  xmd-ripple {
-    display: flex;
-  }
 ```
 
 </details>
