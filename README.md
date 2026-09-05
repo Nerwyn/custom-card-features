@@ -47,7 +47,7 @@ Dropdowns allow you to create a dropdown window with multiple user provided opti
 
 You need to define the options to be listed out in the dropdown list manually. Each of these options is a custom element that supports an action and its own appearance fields. The currently selected option is the one whose `Option` field matches the state or attribute value of the dropdown parent entity.
 
-This feature works best with entities that can call services which set a value from a list of possible options, usually defined by one of its attributes. By setting the feature entity to one of these entities, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the `select_option` action information. If no icon or label is provided, the option will use its option as its label.
+This feature works best with entities that can perform actions which set a value from a list of possible options, usually defined by one of the entity attributes. By setting the feature entity to one of these entities, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the action information. If no icon or label is provided, the option will use its option as its label.
 
 You can override the default behavior of each option by changing their action. The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be displayed in the dropdown window. You can use a template in the parent attribute field for more advanced matching.
 
@@ -71,7 +71,7 @@ Selectors allow you to create a row of custom button features with no gaps of wh
 
 After adding a selector to your custom features row, you will see nothing! This is because you need to define the options to be listed out in the selector manually. Each of these options is actually a custom button feature. The currently selected option is the one whose `Option` field matches the state or attribute value of the dropdown parent entity.
 
-Like dropdowns, this feature works best with Home Assistant `select/input_select` entities. By setting the feature entity to one of these domains, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the `select_option` action information. While the option fields and action information will autofill, you still have to click the add option button and give them appearance information so that they will render and be distinguishable (you'll know that you've added all possible options when the last option you add has the text `Option` instead of a different value).
+Like dropdowns, this feature works best with Home Assistant entities with list attributes and set option actions. By setting the feature entity to one of these entities, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the action information when you click autofill. You still have to modify either the individual options or option template to give them appearance information so that they will render and be distinguishable (you'll know that you've added all possible options when the last option you add has the text `Option` even after autofilling).
 
 Since each selector option is a custom feature button, you can override its default behavior by changing its tap action. The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be highlighted. The option highlight color defaults to the parent card color (usually the tile card color), but can be changed by setting the CSS attribute `--color` to a different value, either for the entire feature or an individual option.
 
@@ -131,7 +131,7 @@ You can also add CSS styles for the entire row here. CSS styles have to be encap
 }
 ```
 
-By default, features will autofill with its parent's entity information for tracking its internal state when added. The feature icon and unit of measurement will also autofill if available. You can click the autofill button in a feature or subfeature header to refill the default information into any fields that are not populated.
+By default, features will autofill with its parent's entity information for tracking its internal state when you click the autofill button in the header. Other information such as its icon, unit of measurement, and action will also autofill if available.
 
 Haptics can be toggled on and off for each feature, defaulting to off.
 
@@ -2548,7 +2548,6 @@ features:
         entity_id: light.desk_lights
         icon: ''
         unit_of_measurement: '%'
-        autofill_entity_id: false
         value_attribute: brightness
         thumb: transparent
         label: Desk Lights
