@@ -275,17 +275,16 @@ export class CustomFeaturesRowEditor extends LitElement {
 	addEntry(e: Event) {
 		const entryType = e.detail.item.value;
 		const entries = structuredClone(this.config.entries);
-		entries.push(this.autofillDefaultFields({ type: entryType }));
+		entries.push({ type: entryType });
 		this.entriesChanged(entries);
 		this.scrollToBottomOfList();
 	}
 
 	addOption(_e: Event) {
-		let entry = structuredClone(this.activeEntry) as IOption;
+		const entry = structuredClone(this.activeEntry) as IOption;
 		const options = entry.options ?? [];
 		options.push({});
 		entry.options = options;
-		entry = this.autofillDefaultFields(entry);
 		this.entryChanged(entry);
 		this.scrollToBottomOfList();
 	}
