@@ -37,23 +37,21 @@ To select one of these variants, use the `Type` dropdown menu in the feature's a
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/buttons_tile.png" width="600"/>
 
-Buttons are the most basic type of custom feature, being based on the example provided in the Home Assistant developer documentation. In addition to tap actions, buttons also support double tap actions, hold actions, and an alternate momentary button mode. All of these are described in further detail below. Buttons (like most features) can be given an icon and label, and further stylized with custom CSS.
+Buttons are the most basic type of custom feature, being based on the example provided in the Home Assistant developer documentation. In addition to tap actions, buttons also support double tap actions, hold actions, and an alternate momentary button mode. Buttons (like most features) can be given an icon and label, and further stylized with custom CSS.
 
 ## Dropdowns
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/dropdowns_tile.png" width="600"/>
 
-Dropdowns allow you to create a dropdown window with multiple user provided options, similar to those available for select entities and climate attributes. Clicking on the dropdown will show you all of the available options. Like all features in this project each option can be used for any action. Each dropdown option has their own appearance fields and the currently selected option will be displayed in the dropdown window. The dropdown also has a default icon and label field which will be displayed if there is no selected option.
+Dropdowns allow you to create a dropdown window with multiple user provided options, similar to those available for select entities and climate attributes. Clicking on the dropdown will show you all of the available options. Like all features in this project each option can be used for any action. The currently selected option will be displayed in the dropdown window. The dropdown also has a default icon and label field which will be displayed if there is no selected option.
 
-You need to define the options to be listed out in the dropdown list manually. Each of these options is a custom element that supports an action and its own appearance fields. The currently selected option is the one whose `Option` field matches the state or attribute value of the dropdown parent entity.
+You need to define the options to be listed in the dropdown menu. You can do so either manually (default) for each option, using an entity attribute who's value is an array, or using a template (see [Dynamic Options](#dynamic-options)). You can modify each options action and appearance either in the option itself or using an option template which is used to create each option. The currently selected option is the one whose `Option` field matches the state or attribute value of the dropdown parent entity.
 
-This feature works best with entities that can perform actions which set a value from a list of possible options, usually defined by one of the entity attributes. By setting the feature entity to one of these entities, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the action information. If no icon or label is provided, the option will use its option as its label.
+This feature works best with entities that support actions which set a value from a list of possible options, usually defined by an entity attribute. By setting the option entity and attribute to ones which resolve in an array value, any options you add will automatically have the ordered option from the option entity attribute in both the `option` and action data (if a known select action is available for this entity) filled in along with the action information. If no icon or label is provided, the option will use its option as its label.
 
-You can override the default behavior of each option by changing their action. The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be displayed in the dropdown window. You can use a template in the parent attribute field for more advanced matching.
+The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be displayed in the dropdown window. You can use a template in the parent entiy, attribute, or value template fields for more advanced matching.
 
 You can also choose to not give any of the dropdown options `Option` values, so that none are ever marked as the selected option. This makes it so that the default dropdown icon and label are always displayed, and the dropdown feature becomes more of a menu for firing different actions rather than one for selecting an option.
-
-Instead of defining every option manually, you can also generate them from an entity attribute that contains a list (such as a light's `effect_list`) or from a template. This is useful for entities with long, dynamic attribute lists. See [Dynamic Options](#dynamic-options) below.
 
 ## Inputs
 
@@ -67,15 +65,9 @@ You can provide it with an action, which will fire when you press the `Enter` or
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/selector_tile.png" width="600"/>
 
-Selectors allow you to create a row of custom button features with no gaps of which the currently active one will be highlighted, similar to those available for alarm control panel and thermostat modes. Like all features in this project it can be used for any action. Selectors do not have an overall icon or label, but each option has their own appearance fields.
+Selectors allow you to create a row of button with no gaps of which the currently active one will be highlighted, similar to those available for alarm control panel and thermostat modes. Like all features in this project it can be used for any action. Selectors do not have an overall icon or label, but each option has their own appearance fields.
 
-After adding a selector to your custom features row, you will see nothing! This is because you need to define the options to be listed out in the selector manually. Each of these options is actually a custom button feature. The currently selected option is the one whose `Option` field matches the state or attribute value of the dropdown parent entity.
-
-Like dropdowns, this feature works best with Home Assistant entities with list attributes and set option actions. By setting the feature entity to one of these entities, any options you add will automatically have the ordered option from the select entity in both the `option` and action data filled in along with the action information when you click autofill. You still have to modify either the individual options or option template to give them appearance information so that they will render and be distinguishable (you'll know that you've added all possible options when the last option you add has the text `Option` even after autofilling).
-
-Since each selector option is a custom feature button, you can override its default behavior by changing its tap action. The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be highlighted. The option highlight color defaults to the parent card color (usually the tile card color), but can be changed by setting the CSS attribute `--color` to a different value, either for the entire feature or an individual option.
-
-Like dropdowns, selectors can also generate their options from an entity attribute list or a template. See [Dynamic Options](#dynamic-options) below.
+Selectors function very similarly to dropdowns, but differ in that each option is a custom feature button and can be provided with the same actions. You can override each buttons default behavior by changing its tap action. The `Option` field will be the value to compare against the feature's value, whether that is its entity's state or one of its attributes. If they match and are not undefined, then the the option will be highlighted. The option highlight color defaults to the parent card color (usually the tile card color), but can be changed by setting the CSS attribute `--color` to a different value, either for the entire feature or an individual option.
 
 ## Sliders
 
@@ -83,7 +75,7 @@ Like dropdowns, selectors can also generate their options from an entity attribu
 
 Sliders are similar to the sliders found in Home Assistant default card features, like those available for light brightness and temperature. By default the slider will look like a normal tile light brightness or cover position slider, but you can change this to a few of other thumb styles using the `Thumb Type` appearance option. You can also add tickmarks which will appear at each step (just know that if you have a lot of steps they'll all blend together).
 
-Sliders can track either the state or attribute of an entity, meaning that when that entity's state or attribute changes so will the slider to match. By default it will track the `state` of an entity. To change this, set `Attribute` to the name of the attribute you want the slider to track. In order to pass the the slider's value to an action, set the value in the action data to `{{ value | float }}`.
+Sliders can track either the state or attribute of an entity, meaning that when that entity's state or attribute changes so will the slider to match. In order to pass the the slider's value to an action, set the value in the action data to `{{ value | float }}` (you may have to switch the editor to YAML mode using the button in the feature editor header to do so, after setting the action data to a static value).
 
 By default the slider's range will be from 0 to 100, with a step size of 1. You will need to adjust this depending on the action you are calling. If you find that the action you are calling does not like non-whole numbers (like `light.turn_on` with `color_temp`) in its data, make sure to set step size to a whole number and to use the `int` filter in the action data template.
 
@@ -106,8 +98,6 @@ You can also override the default behavior of the increment and decrement button
 Toggles allow you to create Home Assistant style toggles, similar to the default switch and light entity toggle features. Like the default toggle, you can either tap or swipe on it in the correct direction to activate it. While toggles work best with `toggle` actions, like all features in this project it can be used with any action. You can use templates to change the toggle on and off options.
 
 Toggles have a special template variable `checked`. `checked` gives you the current boolean value of the feature. By default this value is true if the feature value is in the allow list `true, yes, on, enable, enabled, open, opening, 1` or if its numeric cast is greater than 0. You can disable numeric checks and switch to checking a block list `false, no, off, disable, disabled, closed, closing, 0, undefined, null` using the configuration UI. You can also set a custom allow/block list.
-
-In addition to the default Home Assistant toggle feature style toggle, you can also make the toggle appear as a Material Design checkbox, a Material Design 2 switch, or a Material Design 3 switch. The Material Design checkbox and switch options use theme colors instead of the feature color, and have been carefully designed to follow the Material Design specifications. See the [styles section](#css-styles) below for more information on which variables they use. If you choose one of the checkbox or switch options and do not provide an icon or label, the feature will only use the minimum width necessary to show the toggle, instead of being equal width to any other features in the row.
 
 Toggles feature three icons! There's the icon normally shown alongside the label, and additional checked and unchecked icons. For the default toggle the normal icon and label will appear on the toggle thumb while the checked/unchecked icons will appear in the toggle background. For the Material Design toggle options, the normal icon and label will appear inline with the checkbox/switch, and the checked/unchecked icons will appear within the checkbox or on the switch thumb.
 
