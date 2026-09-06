@@ -2253,10 +2253,9 @@ export class CustomFeaturesRowEditor extends LitElement {
 			context,
 		) as string;
 		context.unit = unit;
-		const value = this.getFeatureValue(
-			context.config.entity,
-			context.config.attribute,
-		);
+		const value = entry.entity_id
+			? this.getFeatureValue(context.config.entity, context.config.attribute)
+			: this.renderTemplate(entry.value_template ?? '', context);
 		context.value = value;
 		return context;
 	}
@@ -2334,7 +2333,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 	autofillDefaultFields(entry: IEntry) {
 		entry = structuredClone(entry);
-		const context = this.getEntryContext(entry);
 
 		// Feature type
 		let featureType = this.renderTemplate(
@@ -2348,6 +2346,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 
 		// Entity ID
 		entry.entity_id ||= this.context?.entity_id;
+		const context = this.getEntryContext(entry);
 		const entityId = this.renderTemplate(
 			entry.entity_id as string,
 			context,
@@ -2358,10 +2357,14 @@ export class CustomFeaturesRowEditor extends LitElement {
 		}
 
 		// Value attribute
-		const valueAttribute =
+		let valueAttribute =
 			(this.renderTemplate(entry.value_attribute ?? '', context) as string) ||
 			getDefaultValueAttribute(featureType, domain);
-		entry.value_attribute ||= valueAttribute;
+		if (this.hass.states[entityId]?.attributes[valueAttribute ?? '']) {
+			entry.value_attribute ||= valueAttribute;
+		} else {
+			valueAttribute = 'state';
+		}
 
 		switch (featureType) {
 			case 'dropdown':
