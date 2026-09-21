@@ -15,6 +15,8 @@ _Formerly called Service Card Tile Feature_
 
 Call any [action](https://www.home-assistant.io/dashboards/actions/) via card features. These custom features will let you create super customizable buttons, dropdowns, inputs, selectors, sliders, spinboxes, and toggles. [The Home Assistant developers gave us the ability to create custom features](https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card-feature), why is no one else taking advantage of it? And why isn't something like a generic button feature already in Home Assistant? I don't know but here it is.
 
+Requires Home Assistant 2026.5.0 or newer.
+
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/example_tile.png" width="600"/>
 
 This project also includes a custom card - custom features card. Think of it like a vertical stack for custom features rows. It doesn't have its own entity or actions, but can be used to create custom features rows without anything else in the card.
