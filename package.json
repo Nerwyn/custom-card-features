@@ -1,6 +1,6 @@
 {
 	"name": "custom-card-features",
-	"version": "4.11.0",
+	"version": "4.11.1",
 	"description": "Custom Features for Home Assistant Tile Card And More!",
 	"main": "./dist/custom-features-row.min.js",
 	"type": "module",
@@ -27,27 +27,27 @@
 	},
 	"homepage": "https://github.com/Nerwyn/custom-card-features#readme",
 	"dependencies": {
-		"ha-nunjucks": "latest",
-		"js-yaml": "^5.2.1",
+		"ha-nunjucks": "^1.7.9",
+		"js-yaml": "^5.4.2",
 		"lit": "^3.3.3"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
-		"@rspack/cli": "^2.1.2",
-		"@rspack/core": "^2.1.2",
+		"@rspack/cli": "^2.2.8",
+		"@rspack/core": "^2.2.8",
 		"@typescript-eslint/eslint-plugin": "^8.62.1",
 		"@typescript-eslint/parser": "^8.62.1",
-		"eslint": "^10.6.0",
+		"eslint": "^10.11.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-prettier": "^5.5.6",
-		"home-assistant-js-websocket": "latest",
-		"lint-staged": "^17.0.8",
+		"home-assistant-js-websocket": "^9.7.0",
+		"lint-staged": "^17.6.0",
 		"lit-css-loader": "^4.0.1",
 		"minify-html-literals-loader": "^1.1.1",
-		"prettier": "^3.9.4",
+		"prettier": "^3.9.9",
 		"prettier-plugin-organize-imports": "^4.3.0",
 		"ts-loader": "^9.6.2",
-		"typescript": "latest",
-		"typescript-eslint": "^8.62.1"
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.71.0"
 	}
 }
