@@ -578,7 +578,7 @@ There are three traditional interactions supported by Home Assistant - tap, doub
 
 Each action also supports the `confirmation` field. More information on Home Assistant action confirmations can be found [here](https://www.home-assistant.io/dashboards/actions/#options-for-confirmation).
 
-When setting the action for a slider or spinbox, you must use `value` within a template in the action data to use the feature value in action. For convenience, a codebox for the action will be displayed below the normal action options.
+When setting the action certain features like the slider, you must use `value` within a template in the action data to use the feature value in action. Click the visual/code editor button toggle in the feature editor header to show the yaml config for just this feature.
 
 <img src="https://raw.githubusercontent.com/Nerwyn/custom-card-features/main/assets/slider_action_options.png" width="600"/>
 
@@ -635,7 +635,7 @@ As an alternative to normal tap, hold, and double tap actions, buttons, includin
 
 The momentary start action is fired when you first press down on a button. The momentary end action is fired when you release the button. Similarly to repeat hold action, the momentary repeat action is held when you hold down on the button for a set number of milliseconds. Unlike the repeat hold action, it can be different from the momentary start action. These actions can be used together or separately.
 
-For momentary repeat and end actions you can include the number of seconds a button has been held down using `hold_secs` in a template. For convenience, the momentary end action YAML is included in a code box below the action, like shown above.
+For momentary repeat and end actions you can include the number of seconds a button has been held down using `hold_secs` in a template. Click the visual/code editor button toggle in the feature editor header to show the yaml config for just this feature.
 
 ### Setting and Using Attributes
 
