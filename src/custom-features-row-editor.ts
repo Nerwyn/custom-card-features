@@ -382,7 +382,6 @@ export class CustomFeaturesRowEditor extends LitElement {
 	}
 
 	handleSelectorChange(e: Event) {
-		this.yamlCache = {};
 		const key = (e.target as HTMLElement).id;
 		let value = e.detail.value;
 		if (key.endsWith('.confirmation.exemptions')) {
@@ -816,12 +815,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		`;
 	}
 
-	buildActionOption(
-		label: string,
-		actionType: ActionType,
-		selector: object,
-		buildCodeEditor: boolean = false,
-	) {
+	buildActionOption(label: string, actionType: ActionType, selector: object) {
 		const context = this.getEntryContext(this.activeEntry as IEntry);
 		const action = this.renderTemplate(
 			this.activeEntry?.[actionType]?.action ?? 'none',
@@ -898,7 +892,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 					: ''
 			}
 			${
-				buildCodeEditor || action == 'fire-dom-event'
+				action == 'fire-dom-event'
 					? this.buildSelector('', actionType, { object: {} })
 					: ''
 			}
@@ -1002,13 +996,11 @@ export class CustomFeaturesRowEditor extends LitElement {
 						'Repeat behavior (optional)',
 						'momentary_repeat_action',
 						defaultUiActions,
-						true,
 					)}
 					${this.buildActionOption(
 						'End behavior (optional)',
 						'momentary_end_action',
 						defaultUiActions,
-						true,
 					)}
 				`;
 				break;
@@ -1256,17 +1248,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 			`)}
 			${this.buildInteractionsPanel(html`
 				${this.buildAlertBox()}
-				${this.buildActionOption(
-					'Behavior',
-					'tap_action',
-					{
-						ui_action: {
-							actions: actionsNoRepeat,
-							default_action: 'perform-action',
-						},
+				${this.buildActionOption('Behavior', 'tap_action', {
+					ui_action: {
+						actions: actionsNoRepeat,
+						default_action: 'perform-action',
 					},
-					true,
-				)}
+				})}
 			`)}
 		`;
 	}
@@ -1541,12 +1528,7 @@ export class CustomFeaturesRowEditor extends LitElement {
 		};
 		const actionSelectors = html`
 			${this.buildAlertBox()}
-			${this.buildActionOption(
-				'Tap behavior',
-				'tap_action',
-				defaultTapActions,
-				true,
-			)}
+			${this.buildActionOption('Tap behavior', 'tap_action', defaultTapActions)}
 			${this.buildActionOption(
 				'Hold behavior (optional)',
 				'hold_action',
@@ -2071,17 +2053,12 @@ export class CustomFeaturesRowEditor extends LitElement {
 			${this.buildAppearancePanel(this.buildCommonAppearanceOptions())}
 			${this.buildInteractionsPanel(html`
 				${this.buildAlertBox()}
-				${this.buildActionOption(
-					'Behavior',
-					'tap_action',
-					{
-						ui_action: {
-							actions: actionsNoRepeat,
-							default_action: 'perform-action',
-						},
+				${this.buildActionOption('Behavior', 'tap_action', {
+					ui_action: {
+						actions: actionsNoRepeat,
+						default_action: 'perform-action',
 					},
-					true,
-				)}
+				})}
 			`)}
 		`;
 	}
