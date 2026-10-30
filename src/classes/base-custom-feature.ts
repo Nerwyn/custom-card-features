@@ -1,6 +1,6 @@
 import { hasTemplate, renderTemplate } from 'ha-nunjucks';
 import { CSSResult, LitElement, PropertyValues, css, html } from 'lit';
-import { property, query, state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 
 import { load } from 'js-yaml';
 import { UPDATE_AFTER_ACTION_DELAY } from '../models/constants';
@@ -17,7 +17,6 @@ import {
 	IActions,
 } from '../models/interfaces/IActions';
 import { IEntry, IOption } from '../models/interfaces/IConfig';
-import { MdRipple } from '../models/interfaces/MdRipple';
 import { handleConfirmation } from '../utils/cardHelpers';
 import { deepGet, deepSet, getDeepKeys } from '../utils/deepKeys';
 
@@ -25,10 +24,7 @@ export class BaseCustomFeature extends LitElement {
 	@property() hass!: HomeAssistant;
 	@property() config!: IEntry;
 	@property() stateObj?: StateObj;
-
-	@query('md-ripple') ripple?: MdRipple;
 	@property() shouldRenderRipple = true;
-	rippleEndTimer?: ReturnType<typeof setTimeout>;
 
 	@state() value?: string | number | boolean = 0;
 	entityId?: string;
@@ -608,7 +604,7 @@ export class BaseCustomFeature extends LitElement {
 
 	buildRipple() {
 		return this.shouldRenderRipple
-			? html`<md-ripple part="ripple"></md-ripple>`
+			? html`<ha-ripple part="ripple"></ha-ripple>`
 			: '';
 	}
 
@@ -657,23 +653,9 @@ export class BaseCustomFeature extends LitElement {
 		}
 	}
 
-	onTouchStart(e: TouchEvent) {
-		// Stuck ripple fix
-		clearTimeout(this.rippleEndTimer);
-		this.ripple?.endPressAnimation?.();
-		this.ripple?.startPressAnimation?.(e);
-	}
-
 	onTouchEnd(e: TouchEvent) {
 		// Premature dialog close fix
 		e.preventDefault();
-
-		// Stuck ripple fix
-		clearTimeout(this.rippleEndTimer);
-		this.rippleEndTimer = setTimeout(
-			() => this.ripple?.endPressAnimation?.(),
-			15,
-		);
 	}
 
 	async onKeyDown(e: KeyboardEvent) {
@@ -765,9 +747,6 @@ export class BaseCustomFeature extends LitElement {
 		if (this.rtl) {
 			this.setAttribute('dir', 'rtl');
 		}
-		this.addEventListener('touchstart', this.onTouchStart, {
-			passive: true,
-		});
 		this.addEventListener('touchend', this.onTouchEnd);
 		this.addEventListener('keydown', this.onKeyDown);
 		this.addEventListener('keyup', this.onKeyUp);

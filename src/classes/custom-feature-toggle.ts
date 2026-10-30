@@ -401,13 +401,13 @@ export class CustomFeatureToggle extends BaseCustomFeature {
 				.container {
 					justify-content: space-around;
 					border-radius: var(--feature-border-radius, 12px);
-					--md-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
-					--md-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.12);
-					--md-ripple-hover-color: var(
+					--ha-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
+					--ha-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.12);
+					--ha-ripple-hover-color: var(
 						--ha-ripple-hover-color,
 						var(--ha-ripple-color)
 					);
-					--md-ripple-pressed-color: var(
+					--ha-ripple-pressed-color: var(
 						--ha-ripple-pressed-color,
 						var(--ha-ripple-color)
 					);

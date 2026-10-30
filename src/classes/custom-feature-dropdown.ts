@@ -508,8 +508,8 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 
 				/* Material Design 3 Dropdowns */
 				:host(.md3) {
-					--md-ripple-hover-opacity: 0.08;
-					--md-ripple-pressed-opacity: 0.1;
+					--ha-ripple-hover-opacity: 0.08;
+					--ha-ripple-pressed-opacity: 0.1;
 				}
 				:host(.md3) .dropdown {
 					border: none;
@@ -554,11 +554,11 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 					);
 				}
 				:host(.md3-standard) .option {
-					--md-ripple-hover-color: var(
+					--ha-ripple-hover-color: var(
 						--md-sys-color-on-surface,
 						var(--ha-sys-color-on-surface)
 					);
-					--md-ripple-pressed-color: var(
+					--ha-ripple-pressed-color: var(
 						--md-sys-color-on-surface,
 						var(--ha-sys-color-on-surface)
 					);
@@ -583,11 +583,11 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 						--md-sys-color-tertiary-container,
 						var(--ha-sys-color-tertiary-container)
 					);
-					--md-ripple-hover-color: var(
+					--ha-ripple-hover-color: var(
 						--md-sys-color-on-tertiary-container,
 						var(--ha-sys-color-on-tertiary-container)
 					);
-					--md-ripple-pressed-color: var(
+					--ha-ripple-pressed-color: var(
 						--md-sys-color-on-tertiary-container,
 						var(--ha-sys-color-on-tertiary-container)
 					);
@@ -618,11 +618,11 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 					);
 				}
 				:host(.md3-vibrant) .option {
-					--md-ripple-hover-color: var(
+					--ha-ripple-hover-color: var(
 						--md-sys-color-on-tertiary-container,
 						var(--ha-sys-color-on-tertiary-container)
 					);
-					--md-ripple-pressed-color: var(
+					--ha-ripple-pressed-color: var(
 						--md-sys-color-on-tertiary-container,
 						var(--ha-sys-color-on-tertiary-container)
 					);
@@ -650,11 +650,11 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 						--md-sys-color-tertiary,
 						var(--ha-sys-color-tertiary)
 					);
-					--md-ripple-hover-color: var(
+					--ha-ripple-hover-color: var(
 						--md-sys-color-on-tertiary,
 						var(--ha-sys-color-on-tertiary)
 					);
-					--md-ripple-pressed-color: var(
+					--ha-ripple-pressed-color: var(
 						--md-sys-color-on-tertiary,
 						var(--ha-sys-color-on-tertiary)
 					);
@@ -690,10 +690,10 @@ export class CustomFeatureDropdown extends BaseOptionSelectCustomFeature {
 						36px
 					);
 					--background-opacity: 1;
-					--md-ripple-hover-opacity: 0.08;
-					--md-ripple-pressed-opacity: 0.1;
-					--md-ripple-hover-color: var(--md-button-on-background-color);
-					--md-ripple-pressed-color: var(--md-button-on-background-color);
+					--ha-ripple-hover-opacity: 0.08;
+					--ha-ripple-pressed-opacity: 0.1;
+					--ha-ripple-hover-color: var(--md-button-on-background-color);
+					--ha-ripple-pressed-color: var(--md-button-on-background-color);
 				}
 				:host(.md3-fab) .container {
 					box-shadow: var(--md-sys-elevation-level3, var(--ha-box-shadow-m));

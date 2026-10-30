@@ -303,7 +303,7 @@ Most features have additional custom CSS attributes which can be used to style t
   #shadow-root
   <button class="background" part="button">
     ::before
-    <md-ripple part="ripple"></md-ripple>
+    <ha-ripple part="ripple"></ha-ripple>
   </button>
   <ha-icon class="icon" part="icon"></ha-icon>
   <pre class="label" part="label"></pre>
@@ -327,7 +327,7 @@ Most features have additional custom CSS attributes which can be used to style t
     <div class="select" part="select">
       <ha-icon class="icon" part="icon"></ha-icon>
       <pre class="label" part="label"></pre>
-      <md-ripple part="ripple"></md-ripple>
+      <ha-ripple part="ripple"></ha-ripple>
     </div>
     <ha-icon class="down-arrow" part="down-arrow"></ha-icon>
   </div>
@@ -524,7 +524,7 @@ Most features have additional custom CSS attributes which can be used to style t
     <div class="checkbox">
       <ha-icon class="icon" part="icon"></ha-icon>
     </div>
-    <md-ripple part="ripple"></md-ripple>
+    <ha-ripple part="ripple"></ha-ripple>
   </div>
   <div class="icon-label">
     <ha-icon class="icon" part="icon"></ha-icon>
@@ -545,7 +545,7 @@ Most features have additional custom CSS attributes which can be used to style t
     <div class="thumb" part="thumb">
       ::before
       <ha-icon class="icon" part="icon"></ha-icon>
-      <md-ripple part="ripple"></md-ripple>
+      <ha-ripple part="ripple"></ha-ripple>
     </div>
   </div>
   <custom-feature-toggle></custom-feature-toggle
@@ -563,7 +563,7 @@ Most features have additional custom CSS attributes which can be used to style t
     <div class="thumb" part="thumb">
       ::before
       <ha-icon class="icon" part="icon"></ha-icon>
-      <md-ripple part="ripple"></md-ripple>
+      <ha-ripple part="ripple"></ha-ripple>
     </div>
   </div>
   <custom-feature-toggle></custom-feature-toggle
@@ -2513,12 +2513,12 @@ features:
             top: 0;
           }
 
-          md-ripple {
+          ha-ripple {
             visibility: visible;
             border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg));
 
-            --md-ripple-hover-color: var(--feature-color);
-            --md-ripple-hover-opacity: 0.04;
+            --ha-ripple-hover-color: var(--feature-color);
+            --ha-ripple-hover-opacity: 0.04;
           }
         tap_action:
           action: more-info

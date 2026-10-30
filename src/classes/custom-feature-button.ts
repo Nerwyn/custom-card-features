@@ -322,17 +322,6 @@ export class CustomFeatureButton extends BaseCustomFeature {
 				:host {
 					-webkit-tap-highlight-color: transparent;
 					-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-					--md-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
-					--md-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.12);
-					--ha-ripple-color: var(--secondary-text-color);
-					--md-ripple-hover-color: var(
-						--ha-ripple-hover-color,
-						var(--ha-ripple-color, var(--secondary-text-color))
-					);
-					--md-ripple-pressed-color: var(
-						--ha-ripple-pressed-color,
-						var(--ha-ripple-color, var(--secondary-text-color))
-					);
 				}
 
 				button.background {
@@ -380,7 +369,7 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					border-radius: 0;
 				}
 				:host(.transparent) button::before,
-				:host(.transparent) md-ripple {
+				:host(.transparent) ha-ripple {
 					visibility: hidden;
 				}
 
@@ -439,10 +428,10 @@ export class CustomFeatureButton extends BaseCustomFeature {
 					overflow: visible;
 
 					--md-button-border-radius: var(--feature-height, 40px);
-					--md-ripple-hover-color: var(--md-button-on-background-color);
-					--md-ripple-pressed-color: var(--md-button-on-background-color);
-					--md-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
-					--md-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.1);
+					--ha-ripple-hover-color: var(--md-button-on-background-color);
+					--ha-ripple-pressed-color: var(--md-button-on-background-color);
+					--ha-ripple-hover-opacity: var(--ha-ripple-hover-opacity, 0.08);
+					--ha-ripple-pressed-opacity: var(--ha-ripple-pressed-opacity, 0.1);
 					--mdc-icon-size: clamp(
 						20px,
 						calc(0.2 * var(--feature-height, 40px) + 12.8px),

@@ -367,7 +367,6 @@ export class CustomFeatureInput extends BaseCustomFeature {
 		this.addEventListener('pointerup', this.onPointerUp);
 		this.addEventListener('focus', this.onFocus);
 
-		this.removeEventListener('touchstart', this.onTouchStart);
 		this.removeEventListener('touchend', this.onTouchEnd);
 	}
 
@@ -429,7 +428,7 @@ export class CustomFeatureInput extends BaseCustomFeature {
 				}
 				@media (hover: hover) {
 					:host(:hover) .background::before {
-						opacity: var(--md-ripple-hover-opacity, 0.18);
+						opacity: var(--ha-ripple-hover-opacity, 0.18);
 					}
 				}
 
